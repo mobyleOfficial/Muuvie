@@ -170,6 +170,7 @@ class _ProfileInfoContent extends StatelessWidget {
                         MovieDetailRoute(
                           movieId: movie.id,
                           movieTitle: movie.title,
+                          filmowId: movie.filmowId,
                         ),
                       ),
                       borderRadius: BorderRadius.circular(8),
@@ -177,8 +178,7 @@ class _ProfileInfoContent extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                         child: movie.posterPath.isNotEmpty
                             ? CachedNetworkImage(
-                                imageUrl:
-                                    '${TmdbImageUrl.posterMedium}${movie.posterPath}',
+                                imageUrl: TmdbImageUrl.buildPosterMedium(movie.posterPath),
                                 width: 80,
                                 height: 120,
                                 fit: BoxFit.cover,
@@ -359,6 +359,7 @@ class _MoviesListSheet extends StatelessWidget {
                       MovieDetailRoute(
                         movieId: movie.id,
                         movieTitle: movie.title,
+                        filmowId: movie.filmowId,
                       ),
                     );
                   },
@@ -369,8 +370,7 @@ class _MoviesListSheet extends StatelessWidget {
                         borderRadius: BorderRadius.circular(6),
                         child: movie.posterPath.isNotEmpty
                             ? CachedNetworkImage(
-                                imageUrl:
-                                    '${TmdbImageUrl.posterMedium}${movie.posterPath}',
+                                imageUrl: TmdbImageUrl.buildPosterMedium(movie.posterPath),
                                 width: 48,
                                 height: 72,
                                 fit: BoxFit.cover,

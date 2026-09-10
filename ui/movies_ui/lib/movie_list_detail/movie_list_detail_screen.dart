@@ -55,8 +55,6 @@ class _MovieListDetailScreenState extends State<MovieListDetailScreen> {
                 cubit: widget.cubit,
                 headerPoster: _headerPoster,
                 onMovieTap: widget.onMovieTap,
-              posterBaseUrl: TmdbImageUrl.posterLarge,
-              headerBaseUrl: TmdbImageUrl.backdrop,
               ),
           },
         ),
@@ -69,16 +67,12 @@ class _Content extends StatefulWidget {
   final MovieListDetailCubit cubit;
   final String? headerPoster;
   final void Function(int movieId, String movieTitle) onMovieTap;
-  final String posterBaseUrl;
-  final String headerBaseUrl;
 
   const _Content({
     required this.state,
     required this.cubit,
     required this.headerPoster,
     required this.onMovieTap,
-    required this.posterBaseUrl,
-    required this.headerBaseUrl,
   });
 
   @override
@@ -107,8 +101,6 @@ class _ContentState extends State<_Content> {
                   cubit: widget.cubit,
                   headerPoster: widget.headerPoster,
                   onMovieTap: widget.onMovieTap,
-                  posterBaseUrl: widget.posterBaseUrl,
-                  headerBaseUrl: widget.headerBaseUrl,
                 ),
                 Center(
                   child: Text(
@@ -132,16 +124,12 @@ class _MoviesTab extends StatelessWidget {
   final MovieListDetailCubit cubit;
   final String? headerPoster;
   final void Function(int movieId, String movieTitle) onMovieTap;
-  final String posterBaseUrl;
-  final String headerBaseUrl;
 
   const _MoviesTab({
     required this.state,
     required this.cubit,
     required this.headerPoster,
     required this.onMovieTap,
-    required this.posterBaseUrl,
-    required this.headerBaseUrl,
   });
 
   @override
@@ -156,7 +144,6 @@ class _MoviesTab extends StatelessWidget {
               child: _Header(
                 detail: state.detail,
                 headerPoster: headerPoster,
-                headerBaseUrl: headerBaseUrl,
                 isLiked: state.isLiked,
                 likesCount: state.likesCount,
                 onToggleLike: cubit.toggleLike,
@@ -182,7 +169,6 @@ class _MoviesTab extends StatelessWidget {
                         _MovieGridItem(
                       movie: movie,
                       index: index,
-                      posterBaseUrl: posterBaseUrl,
                       onTap: () => onMovieTap(movie.id, movie.title),
                     ),
                     firstPageProgressIndicatorBuilder: (_) =>
@@ -212,7 +198,6 @@ class _MoviesTab extends StatelessWidget {
                   itemBuilder: (context, movie, index) => _MovieListItem(
                     movie: movie,
                     index: index,
-                    posterBaseUrl: posterBaseUrl,
                     onTap: () => onMovieTap(movie.id, movie.title),
                   ),
                   firstPageProgressIndicatorBuilder: (_) =>
@@ -242,13 +227,11 @@ class _MoviesTab extends StatelessWidget {
 class _MovieGridItem extends StatelessWidget {
   final Movie movie;
   final int index;
-  final String posterBaseUrl;
   final VoidCallback onTap;
 
   const _MovieGridItem({
     required this.movie,
     required this.index,
-    required this.posterBaseUrl,
     required this.onTap,
   });
 
@@ -269,7 +252,7 @@ class _MovieGridItem extends StatelessWidget {
                 child: SizedBox.expand(
                   child: movie.posterPath.isNotEmpty
                       ? CachedNetworkImage(
-                          imageUrl: '$posterBaseUrl${movie.posterPath}',
+                          imageUrl: TmdbImageUrl.buildPosterLarge(movie.posterPath),
                           fit: BoxFit.cover,
                         )
                       : Container(
@@ -311,7 +294,6 @@ class _MovieGridItem extends StatelessWidget {
 class _MovieListItem extends StatelessWidget {
   final Movie movie;
   final int index;
-  final String posterBaseUrl;
   final VoidCallback onTap;
 
   static const _posterWidth = 50.0;
@@ -320,7 +302,6 @@ class _MovieListItem extends StatelessWidget {
   const _MovieListItem({
     required this.movie,
     required this.index,
-    required this.posterBaseUrl,
     required this.onTap,
   });
 
@@ -357,7 +338,7 @@ class _MovieListItem extends StatelessWidget {
                     height: _posterHeight,
                     child: movie.posterPath.isNotEmpty
                         ? CachedNetworkImage(
-                            imageUrl: '$posterBaseUrl${movie.posterPath}',
+                            imageUrl: TmdbImageUrl.buildPosterLarge(movie.posterPath),
                             fit: BoxFit.cover,
                           )
                         : Container(
@@ -409,7 +390,6 @@ class _MovieListItem extends StatelessWidget {
 class _Header extends StatelessWidget {
   final MovieList detail;
   final String? headerPoster;
-  final String headerBaseUrl;
   final bool isLiked;
   final int likesCount;
   final VoidCallback onToggleLike;
@@ -417,7 +397,6 @@ class _Header extends StatelessWidget {
   const _Header({
     required this.detail,
     required this.headerPoster,
-    required this.headerBaseUrl,
     required this.isLiked,
     required this.likesCount,
     required this.onToggleLike,
@@ -433,7 +412,7 @@ class _Header extends StatelessWidget {
       children: [
         if (headerPoster != null)
           CachedNetworkImage(
-            imageUrl: '$headerBaseUrl$headerPoster',
+            imageUrl: TmdbImageUrl.buildBackdrop(headerPoster!),
             width: double.infinity,
             height: 200,
             fit: BoxFit.cover,

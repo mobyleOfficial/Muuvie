@@ -62,7 +62,7 @@ class MoviesListTile extends StatelessWidget {
                   itemBuilder: (context, index) => ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: CachedNetworkImage(
-                      imageUrl: '${TmdbImageUrl.posterMedium}${posterPaths[index]}',
+                      imageUrl: TmdbImageUrl.buildPosterMedium(posterPaths[index]),
                       width: 80,
                       height: 120,
                       fit: BoxFit.cover,

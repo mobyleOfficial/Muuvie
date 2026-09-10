@@ -9,11 +9,13 @@ import 'package:movies_ui/movie_detail/movie_detail_screen.dart';
 class MovieDetailPage extends StatefulWidget {
   final int movieId;
   final String movieTitle;
+  final String? filmowId;
 
   const MovieDetailPage({
     super.key,
     required this.movieId,
     required this.movieTitle,
+    this.filmowId,
   });
 
   @override
@@ -21,8 +23,11 @@ class MovieDetailPage extends StatefulWidget {
 }
 
 class _MovieDetailPageState extends State<MovieDetailPage> {
-  late final MovieDetailCubit _cubit =
-      MovieDetailCubit(GetIt.I<GetMovieDetail>(), widget.movieId);
+  late final MovieDetailCubit _cubit = MovieDetailCubit(
+    GetIt.I<GetMovieDetail>(),
+    widget.movieId,
+    filmowId: widget.filmowId,
+  );
 
   @override
   void dispose() {

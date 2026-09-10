@@ -442,8 +442,7 @@ class _MovieResultTile extends StatelessWidget {
                 height: 64,
                 child: movie.posterPath.isNotEmpty
                     ? CachedNetworkImage(
-                        imageUrl:
-                            '${TmdbImageUrl.posterSmall}${movie.posterPath}',
+                        imageUrl: TmdbImageUrl.buildPosterSmall(movie.posterPath),
                         fit: BoxFit.cover,
                         placeholder: (_, _) => Container(
                           color: colorScheme.surfaceContainerHighest,

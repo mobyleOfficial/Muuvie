@@ -63,6 +63,7 @@ class RecentMovieModel {
   final String backdropPath;
   final double voteAverage;
   final String releaseDate;
+  final String? filmowId;
 
   const RecentMovieModel({
     required this.id,
@@ -72,6 +73,7 @@ class RecentMovieModel {
     required this.backdropPath,
     required this.voteAverage,
     required this.releaseDate,
+    this.filmowId,
   });
 
   factory RecentMovieModel.fromJson(Map<String, dynamic> json) =>
@@ -83,12 +85,14 @@ class RecentMovieModel {
         backdropPath: json['backdropPath'] as String? ?? '',
         voteAverage: (json['voteAverage'] as num?)?.toDouble() ?? 0.0,
         releaseDate: json['releaseDate'] as String? ?? '',
+        filmowId: (json['filmowId'] ?? json['filmow_id']) as String?,
       );
 
   Movie toDomain() => Movie(
         id: id,
         title: title,
         posterPath: posterPath,
+        filmowId: filmowId,
         info: MovieInfo(
           overview: overview,
           backdropPath: backdropPath,

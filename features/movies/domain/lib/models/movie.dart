@@ -5,11 +5,13 @@ class Movie {
   final String title;
   final String posterPath;
   final MovieInfo? info;
+  final String? filmowId;
 
   const Movie({
     required this.id,
     required this.title,
     required this.posterPath,
     this.info,
+    this.filmowId,
   });
 }

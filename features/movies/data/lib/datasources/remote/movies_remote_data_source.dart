@@ -12,7 +12,7 @@ import 'package:movies_data/models/remote/remote_movie_listing.dart';
 
 abstract interface class MoviesRemoteDataSource {
   Future<Result<RemoteMovieListing>> getTrendingMovieList({required int page});
-  Future<Result<RemoteMovieDetail>> getMovieDetail({required int movieId});
+  Future<Result<RemoteMovieDetail>> getMovieDetail({required int movieId, String? filmowId});
   Future<Result<RemoteMovieReviewListing>> getMovieReviews({required int page, String? userId, int? movieId});
   Future<Result<RemoteMovieReview>> getReviewDetails({required String reviewId});
   Future<Result<void>> likeReview({required String reviewId});

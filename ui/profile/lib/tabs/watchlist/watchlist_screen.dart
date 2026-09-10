@@ -44,12 +44,13 @@ class WatchlistScreen extends StatelessWidget {
                   itemBuilder: (context, movie, index) =>
                       MuuvieMoviePosterCard(
                     imageUrl: movie.posterPath.isNotEmpty
-                        ? '${TmdbImageUrl.posterLarge}${movie.posterPath}'
+                        ? TmdbImageUrl.buildPosterLarge(movie.posterPath)
                         : null,
                     onTap: () => context.router.push(
                       MovieDetailRoute(
                         movieId: movie.id,
                         movieTitle: movie.title,
+                        filmowId: movie.filmowId,
                       ),
                     ),
                   ),

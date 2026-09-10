@@ -24,8 +24,8 @@ class MoviesRepositoryImpl implements MoviesRepository {
   }
 
   @override
-  Future<Result<Movie>> getMovieDetail({required int movieId}) async {
-    final result = await _dataSource.getMovieDetail(movieId: movieId);
+  Future<Result<Movie>> getMovieDetail({required int movieId, String? filmowId}) async {
+    final result = await _dataSource.getMovieDetail(movieId: movieId, filmowId: filmowId);
 
     return switch (result) {
       Success(:final data) => Success(data.toDomain()),
