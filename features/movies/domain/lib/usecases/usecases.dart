@@ -9,6 +9,8 @@ export 'get_movie_reviews.dart';
 export 'get_review_details.dart';
 export 'like_review.dart';
 export 'unlike_review.dart';
+export 'like_movie.dart';
+export 'unlike_movie.dart';
 export 'get_trending_movies.dart';
 export 'search_movies.dart';
 export 'observe_recent_searches.dart';

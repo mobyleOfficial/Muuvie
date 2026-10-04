@@ -22,6 +22,7 @@ class RemoteMovieDetail {
   final int? reviewCount;
   final int? listCount;
   final int? likeCount;
+  final bool? likedByMe;
 
   const RemoteMovieDetail({
     required this.id,
@@ -43,6 +44,7 @@ class RemoteMovieDetail {
     this.reviewCount,
     this.listCount,
     this.likeCount,
+    this.likedByMe,
   });
 
   factory RemoteMovieDetail.fromJson(Map<String, dynamic> json) {
@@ -91,6 +93,7 @@ class RemoteMovieDetail {
       reviewCount: json['reviewCount'] as int?,
       listCount: json['listCount'] as int?,
       likeCount: json['likeCount'] as int?,
+      likedByMe: json['likedByMe'] as bool?,
     );
   }
 
@@ -118,6 +121,7 @@ class RemoteMovieDetail {
           reviewCount: reviewCount ?? 0,
           listCount: listCount ?? 0,
           likeCount: likeCount ?? 0,
+          isLikedByCurrentUser: likedByMe ?? false,
         ),
       );
 }

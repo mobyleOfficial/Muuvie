@@ -80,6 +80,26 @@ class MoviesRepositoryImpl implements MoviesRepository {
   }
 
   @override
+  Future<Result<void>> likeMovie({required int movieId}) async {
+    final result = await _dataSource.likeMovie(movieId: movieId);
+
+    return switch (result) {
+      Success() => const Success(null),
+      Failure(:final error) => Failure(error),
+    };
+  }
+
+  @override
+  Future<Result<void>> unlikeMovie({required int movieId}) async {
+    final result = await _dataSource.unlikeMovie(movieId: movieId);
+
+    return switch (result) {
+      Success() => const Success(null),
+      Failure(:final error) => Failure(error),
+    };
+  }
+
+  @override
   Future<Result<MovieListListing>> getMovieLists({
     required int page,
     String? userId,

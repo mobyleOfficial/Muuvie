@@ -23,6 +23,8 @@ class MovieDetailPage extends StatefulWidget {
 class _MovieDetailPageState extends State<MovieDetailPage> {
   late final MovieDetailCubit _cubit = MovieDetailCubit(
     GetIt.I<GetMovieDetail>(),
+    GetIt.I<LikeMovie>(),
+    GetIt.I<UnlikeMovie>(),
     widget.movieId,
   );
 

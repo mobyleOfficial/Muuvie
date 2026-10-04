@@ -540,22 +540,27 @@ class _StatsSection extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final l10n = AppLocalizations.of(context);
+    final info = detail.info;
+    final isLiked = info?.isLikedByCurrentUser ?? false;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
       child: Row(
         children: [
-          _StatItem(
-            icon: Icons.favorite_rounded,
-            label: l10n?.movieDetailLikes(detail.info?.likeCount ?? 0) ?? '',
-            iconColor: colorScheme.error,
-            textTheme: textTheme,
-            colorScheme: colorScheme,
+          GestureDetector(
+            onTap: () => context.read<MovieDetailCubit>().toggleLike(),
+            child: _StatItem(
+              icon: isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+              label: l10n?.movieDetailLikes(info?.likeCount ?? 0) ?? '',
+              iconColor: colorScheme.error,
+              textTheme: textTheme,
+              colorScheme: colorScheme,
+            ),
           ),
           const SizedBox(width: 24),
           _StatItem(
             icon: Icons.rate_review_rounded,
-            label: l10n?.movieDetailReviewCount(detail.info?.reviewCount ?? 0) ?? '',
+            label: l10n?.movieDetailReviewCount(info?.reviewCount ?? 0) ?? '',
             iconColor: colorScheme.primary,
             textTheme: textTheme,
             colorScheme: colorScheme,
@@ -563,7 +568,7 @@ class _StatsSection extends StatelessWidget {
           const SizedBox(width: 24),
           _StatItem(
             icon: Icons.list_rounded,
-            label: l10n?.movieDetailListCount(detail.info?.listCount ?? 0) ?? '',
+            label: l10n?.movieDetailListCount(info?.listCount ?? 0) ?? '',
             iconColor: colorScheme.tertiary,
             textTheme: textTheme,
             colorScheme: colorScheme,

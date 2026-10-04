@@ -113,4 +113,12 @@ class FakeMoviesRepository implements MoviesRepository {
   @override
   Future<Result<MovieListListing>> getFeaturedLists({required int page}) =>
       throw UnimplementedError();
+
+  @override
+  Future<Result<void>> likeMovie({required int movieId}) =>
+      throw UnimplementedError();
+
+  @override
+  Future<Result<void>> unlikeMovie({required int movieId}) =>
+      throw UnimplementedError();
 }

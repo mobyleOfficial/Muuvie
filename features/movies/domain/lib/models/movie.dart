@@ -16,4 +16,12 @@ class Movie {
   });
 
   String get displayTitle => localTitle ?? title;
+
+  Movie copyWith({MovieInfo? info}) => Movie(
+        id: id,
+        title: title,
+        localTitle: localTitle,
+        posterPath: posterPath,
+        info: info ?? this.info,
+      );
 }

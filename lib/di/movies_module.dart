@@ -94,4 +94,12 @@ abstract class MoviesModule {
   @injectable
   GetFeaturedLists getFeaturedLists(MoviesRepository repository) =>
       GetFeaturedLists(repository);
+
+  @injectable
+  LikeMovie likeMovie(MoviesRepository repository) =>
+      LikeMovie(repository);
+
+  @injectable
+  UnlikeMovie unlikeMovie(MoviesRepository repository) =>
+      UnlikeMovie(repository);
 }

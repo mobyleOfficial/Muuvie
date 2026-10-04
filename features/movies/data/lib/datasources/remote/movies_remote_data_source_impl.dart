@@ -124,6 +124,30 @@ class MoviesRemoteDataSourceImpl implements MoviesRemoteDataSource {
   }
 
   @override
+  Future<Result<void>> likeMovie({required int movieId}) async {
+    final result = await _httpClient.post<dynamic>(
+      '/movies/$movieId/like',
+    );
+
+    return switch (result) {
+      Success() => const Success(null),
+      Failure(:final error) => Failure(error),
+    };
+  }
+
+  @override
+  Future<Result<void>> unlikeMovie({required int movieId}) async {
+    final result = await _httpClient.post<dynamic>(
+      '/movies/$movieId/unlike',
+    );
+
+    return switch (result) {
+      Success() => const Success(null),
+      Failure(:final error) => Failure(error),
+    };
+  }
+
+  @override
   Future<Result<RemoteMovieListListing>> getMovieLists({
     required int page,
     String? userId,

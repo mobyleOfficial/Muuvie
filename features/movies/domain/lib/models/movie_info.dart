@@ -18,6 +18,7 @@ class MovieInfo {
   final int reviewCount;
   final int listCount;
   final int likeCount;
+  final bool isLikedByCurrentUser;
 
   const MovieInfo({
     required this.overview,
@@ -35,5 +36,29 @@ class MovieInfo {
     this.reviewCount = 0,
     this.listCount = 0,
     this.likeCount = 0,
+    this.isLikedByCurrentUser = false,
   });
+
+  MovieInfo copyWith({
+    int? likeCount,
+    bool? isLikedByCurrentUser,
+  }) =>
+      MovieInfo(
+        overview: overview,
+        backdropPath: backdropPath,
+        voteAverage: voteAverage,
+        releaseDate: releaseDate,
+        tagline: tagline,
+        runtime: runtime,
+        genres: genres,
+        director: director,
+        cast: cast,
+        watchProviders: watchProviders,
+        similarMovies: similarMovies,
+        popularReviews: popularReviews,
+        reviewCount: reviewCount,
+        listCount: listCount,
+        likeCount: likeCount ?? this.likeCount,
+        isLikedByCurrentUser: isLikedByCurrentUser ?? this.isLikedByCurrentUser,
+      );
 }
