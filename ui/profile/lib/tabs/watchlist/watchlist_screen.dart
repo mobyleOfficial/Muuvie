@@ -50,7 +50,6 @@ class WatchlistScreen extends StatelessWidget {
                       MovieDetailRoute(
                         movieId: movie.id,
                         movieTitle: movie.title,
-                        filmowId: movie.filmowId,
                       ),
                     ),
                   ),

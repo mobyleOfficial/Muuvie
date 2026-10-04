@@ -4,9 +4,8 @@ import 'package:movies_domain/repositories/movies_repository.dart';
 
 class GetMovieDetailParams {
   final int movieId;
-  final String? filmowId;
 
-  const GetMovieDetailParams({required this.movieId, this.filmowId});
+  const GetMovieDetailParams({required this.movieId});
 }
 
 class GetMovieDetail extends UseCase<GetMovieDetailParams, Result<Movie>> {
@@ -18,7 +17,6 @@ class GetMovieDetail extends UseCase<GetMovieDetailParams, Result<Movie>> {
   Future<Result<Movie>> call([GetMovieDetailParams? params]) async {
     return _moviesRepository.getMovieDetail(
       movieId: params?.movieId ?? 0,
-      filmowId: params?.filmowId,
     );
   }
 }

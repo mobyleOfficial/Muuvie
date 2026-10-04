@@ -8,7 +8,6 @@ class RemoteMovie {
   final String backdropPath;
   final double voteAverage;
   final String releaseDate;
-  final String? filmowId;
 
   const RemoteMovie({
     required this.id,
@@ -18,7 +17,6 @@ class RemoteMovie {
     required this.backdropPath,
     required this.voteAverage,
     required this.releaseDate,
-    this.filmowId,
   });
 
   factory RemoteMovie.fromJson(Map<String, dynamic> json) => RemoteMovie(
@@ -34,14 +32,12 @@ class RemoteMovie {
             0.0,
         releaseDate:
             (json['releaseDate'] ?? json['release_date']) as String? ?? '',
-        filmowId: (json['filmowId'] ?? json['filmow_id']) as String?,
       );
 
   Movie toDomain() => Movie(
         id: id,
         title: title,
         posterPath: posterPath,
-        filmowId: filmowId,
         info: MovieInfo(
           overview: overview,
           backdropPath: backdropPath,

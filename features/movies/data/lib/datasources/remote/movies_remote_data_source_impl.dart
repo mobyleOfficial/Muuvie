@@ -37,14 +37,10 @@ class MoviesRemoteDataSourceImpl implements MoviesRemoteDataSource {
   @override
   Future<Result<RemoteMovieDetail>> getMovieDetail({
     required int movieId,
-    String? filmowId,
   }) async {
-    final queryParams = <String, dynamic>{};
-    if (movieId < 0 && filmowId != null) queryParams['filmowId'] = filmowId;
-
     final result = await _httpClient.get<Map<String, dynamic>>(
-      '/movies/$movieId',
-      queryParams: queryParams.isEmpty ? null : queryParams,
+      '/movies',
+      queryParams: {'id': movieId},
     );
 
     return switch (result) {

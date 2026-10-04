@@ -6,11 +6,9 @@ import 'package:movies_ui/movie_detail/movie_detail_state.dart';
 class MovieDetailCubit extends Cubit<MovieDetailState> {
   final GetMovieDetail _getMovieDetail;
   final int _movieId;
-  final String? _filmowId;
 
-  MovieDetailCubit(this._getMovieDetail, this._movieId, {String? filmowId})
-      : _filmowId = filmowId,
-        super(const MovieDetailLoading()) {
+  MovieDetailCubit(this._getMovieDetail, this._movieId)
+      : super(const MovieDetailLoading()) {
     _fetchMovieDetail();
   }
 
@@ -31,7 +29,7 @@ class MovieDetailCubit extends Cubit<MovieDetailState> {
 
   Future<void> _fetchMovieDetail() async {
     final result = await _getMovieDetail(
-      GetMovieDetailParams(movieId: _movieId, filmowId: _filmowId),
+      GetMovieDetailParams(movieId: _movieId),
     );
 
     switch (result) {

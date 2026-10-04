@@ -3,15 +3,17 @@ import 'package:movies_domain/models/movie_info.dart';
 class Movie {
   final int id;
   final String title;
+  final String? localTitle;
   final String posterPath;
   final MovieInfo? info;
-  final String? filmowId;
 
   const Movie({
     required this.id,
     required this.title,
+    this.localTitle,
     required this.posterPath,
     this.info,
-    this.filmowId,
   });
+
+  String get displayTitle => localTitle ?? title;
 }

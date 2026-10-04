@@ -170,7 +170,6 @@ class _ProfileInfoContent extends StatelessWidget {
                         MovieDetailRoute(
                           movieId: movie.id,
                           movieTitle: movie.title,
-                          filmowId: movie.filmowId,
                         ),
                       ),
                       borderRadius: BorderRadius.circular(8),
@@ -359,7 +358,6 @@ class _MoviesListSheet extends StatelessWidget {
                       MovieDetailRoute(
                         movieId: movie.id,
                         movieTitle: movie.title,
-                        filmowId: movie.filmowId,
                       ),
                     );
                   },
