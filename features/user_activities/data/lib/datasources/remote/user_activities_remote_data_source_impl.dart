@@ -45,8 +45,24 @@ class UserActivitiesRemoteDataSourceImpl
 
   @override
   Future<Result<void>> submitReview({required MovieReviewDraft draft}) async {
-    await Future<void>.delayed(const Duration(seconds: 3));
-    return const Success(null);
+    final result = await _httpClient.post<dynamic>(
+      'reviews',
+      body: {
+        'movieId': draft.movieId,
+        'movieTitle': draft.movieTitle,
+        'posterPath': draft.posterPath.isNotEmpty ? draft.posterPath : null,
+        'reviewTitle': draft.reviewTitle,
+        'reviewBody': draft.reviewBody,
+        'rating': draft.rating,
+        'isFavorite': draft.isFavorite,
+        'isRewatch': draft.isRewatch,
+        'tags': draft.tags,
+      },
+    );
+    return switch (result) {
+      Success() => const Success(null),
+      Failure(:final error) => Failure(error),
+    };
   }
 
   @override

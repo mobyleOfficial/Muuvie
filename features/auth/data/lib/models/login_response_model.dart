@@ -4,12 +4,14 @@ class LoginResponseModel {
   final String accessToken;
   final String tokenType;
   final int expiresIn;
+  final String? refreshToken;
   final LoginProfileModel profile;
 
   const LoginResponseModel({
     required this.accessToken,
     required this.tokenType,
     required this.expiresIn,
+    this.refreshToken,
     required this.profile,
   });
 
@@ -18,6 +20,7 @@ class LoginResponseModel {
         accessToken: json['accessToken'] as String,
         tokenType: json['tokenType'] as String,
         expiresIn: json['expiresIn'] as int,
+        refreshToken: json['refreshToken'] as String?,
         profile: LoginProfileModel.fromJson(
           json['profile'] as Map<String, dynamic>,
         ),
@@ -25,7 +28,7 @@ class LoginResponseModel {
 
   AuthTokenModel toAuthTokenModel() => AuthTokenModel(
         accessToken: accessToken,
-        refreshToken: null,
+        refreshToken: refreshToken,
         expiresAt: DateTime.now().add(Duration(seconds: expiresIn)),
       );
 }

@@ -36,7 +36,8 @@ abstract class HttpDiModule {
           'accept': 'application/json',
         },
       ),
-    )..interceptors.add(AuthInterceptor(tokenStorage));
+    );
+    dio.interceptors.add(AuthInterceptor(tokenStorage, dio));
     if (AppConfig.instance.flavor == AppFlavor.dev) {
       dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
     }
