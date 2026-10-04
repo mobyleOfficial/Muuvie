@@ -39,7 +39,8 @@ class MoviesRemoteDataSourceImpl implements MoviesRemoteDataSource {
     required int movieId,
   }) async {
     final result = await _httpClient.get<Map<String, dynamic>>(
-      '/movies/$movieId',
+      '/movies',
+      queryParams: {'id': movieId},
     );
 
     return switch (result) {

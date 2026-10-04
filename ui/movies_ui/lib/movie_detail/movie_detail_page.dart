@@ -21,8 +21,10 @@ class MovieDetailPage extends StatefulWidget {
 }
 
 class _MovieDetailPageState extends State<MovieDetailPage> {
-  late final MovieDetailCubit _cubit =
-      MovieDetailCubit(GetIt.I<GetMovieDetail>(), widget.movieId);
+  late final MovieDetailCubit _cubit = MovieDetailCubit(
+    GetIt.I<GetMovieDetail>(),
+    widget.movieId,
+  );
 
   @override
   void dispose() {

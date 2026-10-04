@@ -543,8 +543,7 @@ class _MoviesListSheet extends StatelessWidget {
                         borderRadius: BorderRadius.circular(6),
                         child: movie.posterPath.isNotEmpty
                             ? CachedNetworkImage(
-                                imageUrl:
-                                    '${TmdbImageUrl.posterMedium}${movie.posterPath}',
+                                imageUrl: TmdbImageUrl.buildPosterMedium(movie.posterPath),
                                 width: 48,
                                 height: 72,
                                 fit: BoxFit.cover,

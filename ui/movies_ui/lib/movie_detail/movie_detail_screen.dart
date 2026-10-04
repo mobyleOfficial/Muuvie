@@ -168,8 +168,7 @@ class _HeroAppBar extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   CachedNetworkImage(
-                    imageUrl:
-                        '${TmdbImageUrl.backdrop}${detail.info!.backdropPath}',
+                    imageUrl: TmdbImageUrl.buildBackdrop(detail.info!.backdropPath),
                     fit: BoxFit.cover,
                     placeholder: (_, _) => Container(
                       color: colorScheme.surfaceContainerHighest,
@@ -224,12 +223,22 @@ class _MovieInfoSection extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  detail.title,
+                  detail.displayTitle,
                   style: textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: colorScheme.onSurface,
                   ),
                 ),
+                if (detail.localTitle != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    detail.title,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 4),
                 Row(
                   children: [
@@ -286,8 +295,7 @@ class _MovieInfoSection extends StatelessWidget {
               height: 150,
               child: detail.posterPath.isNotEmpty
                   ? CachedNetworkImage(
-                      imageUrl:
-                          '${TmdbImageUrl.posterMedium}${detail.posterPath}',
+                      imageUrl: TmdbImageUrl.buildPosterMedium(detail.posterPath),
                       fit: BoxFit.cover,
                       placeholder: (_, _) => Container(
                         color: colorScheme.surfaceContainerHighest,
@@ -419,8 +427,7 @@ class _ProviderLogo extends StatelessWidget {
           height: 44,
           child: provider.logoPath.isNotEmpty
               ? CachedNetworkImage(
-                  imageUrl:
-                      '${TmdbImageUrl.posterSmall}${provider.logoPath}',
+                  imageUrl: TmdbImageUrl.buildPosterSmall(provider.logoPath),
                   fit: BoxFit.cover,
                   placeholder: (_, _) => Container(
                     color: colorScheme.surfaceContainerHighest,
@@ -807,8 +814,7 @@ class _SimilarMoviesSection extends StatelessWidget {
                               height: 140,
                               child: movie.posterPath.isNotEmpty
                                   ? CachedNetworkImage(
-                                      imageUrl:
-                                          '${TmdbImageUrl.posterMedium}${movie.posterPath}',
+                                      imageUrl: TmdbImageUrl.buildPosterMedium(movie.posterPath),
                                       fit: BoxFit.cover,
                                       placeholder: (_, _) => Container(
                                         color: colorScheme

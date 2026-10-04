@@ -28,7 +28,9 @@ class MovieDetailCubit extends Cubit<MovieDetailState> {
   }
 
   Future<void> _fetchMovieDetail() async {
-    final result = await _getMovieDetail(_movieId);
+    final result = await _getMovieDetail(
+      GetMovieDetailParams(movieId: _movieId),
+    );
 
     switch (result) {
       case Success(:final data):

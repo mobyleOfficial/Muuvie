@@ -5,6 +5,7 @@ import 'package:movies_domain/domain.dart';
 class RemoteMovieDetail {
   final int id;
   final String title;
+  final String? localTitle;
   final String overview;
   final String posterPath;
   final String backdropPath;
@@ -25,6 +26,7 @@ class RemoteMovieDetail {
   const RemoteMovieDetail({
     required this.id,
     required this.title,
+    this.localTitle,
     required this.overview,
     required this.posterPath,
     required this.backdropPath,
@@ -57,6 +59,7 @@ class RemoteMovieDetail {
     return RemoteMovieDetail(
       id: json['id'] as int,
       title: json['title'] as String,
+      localTitle: (json['localTitle'] ?? json['local_title']) as String?,
       overview: json['overview'] as String,
       posterPath:
           (json['posterPath'] ?? json['poster_path']) as String? ?? '',
@@ -94,6 +97,7 @@ class RemoteMovieDetail {
   Movie toDomain() => Movie(
         id: id,
         title: title,
+        localTitle: localTitle,
         posterPath: posterPath,
         info: MovieInfo(
           overview: overview,

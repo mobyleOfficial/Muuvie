@@ -63,7 +63,6 @@ class RecentMovieModel {
   final String backdropPath;
   final double voteAverage;
   final String releaseDate;
-
   const RecentMovieModel({
     required this.id,
     required this.title,
