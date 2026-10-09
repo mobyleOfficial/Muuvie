@@ -1,10 +1,7 @@
 import 'package:core/http/result/result.dart';
 
 abstract interface class HttpClient {
-  Future<Result<T>> get<T>(
-    String path, {
-    Map<String, dynamic>? queryParams,
-  });
+  Future<Result<T>> get<T>(String path, {Map<String, dynamic>? queryParams});
 
   Future<Result<T>> post<T>(
     String path, {
@@ -23,4 +20,6 @@ abstract interface class HttpClient {
     Map<String, dynamic>? queryParams,
     Object? body,
   });
+
+  Future<Result<T>> delete<T>(String path, {Map<String, dynamic>? queryParams});
 }

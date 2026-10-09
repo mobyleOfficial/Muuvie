@@ -1,9 +1,46 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:common/common.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:public_profile/public_profile_router.dart';
+import 'package:public_profile_domain/models/following_user.dart';
+import 'package:social/tabs/friends/friends_cubit.dart';
+import 'package:social/tabs/friends/friends_state.dart';
 
 class FriendsScreen extends StatelessWidget {
-  const FriendsScreen({super.key});
+  final FriendsCubit cubit;
+
+  const FriendsScreen({super.key, required this.cubit});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    return BlocProvider.value(
+      value: cubit,
+      child: BlocBuilder<FriendsCubit, FriendsState>(
+        builder: (context, state) => switch (state) {
+          FriendsLoading() => const Center(child: CircularProgressIndicator()),
+          FriendsError(:final message) => MuuvieEmptyState(
+            title: l10n?.emptyStateErrorTitle ?? '',
+            message: message,
+            action: cubit.load,
+            actionLabel: l10n?.emptyStateRetry ?? '',
+          ),
+          FriendsSuccess(:final users) when users.isEmpty => Center(
+            child: Text(l10n?.socialNoFriends ?? 'No friends yet'),
+          ),
+          FriendsSuccess(:final users) => _FriendsList(users: users),
+        },
+      ),
+    );
+  }
+}
+
+class _FriendsList extends StatelessWidget {
+  final List<FollowingUser> users;
+
+  const _FriendsList({required this.users});
 
   @override
   Widget build(BuildContext context) {
@@ -11,44 +48,37 @@ class FriendsScreen extends StatelessWidget {
 
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: _mockFriends.length,
-      separatorBuilder: (context, index) => Divider(
-        height: 1,
-        indent: 72,
-        color: colorScheme.outlineVariant,
-      ),
-      itemBuilder: (context, index) {
-        final friend = _mockFriends[index];
-        return _FriendTile(friend: friend);
-      },
+      itemCount: users.length,
+      separatorBuilder: (context, index) =>
+          Divider(height: 1, indent: 72, color: colorScheme.outlineVariant),
+      itemBuilder: (context, index) => _FriendTile(user: users[index]),
     );
   }
 }
 
 class _FriendTile extends StatelessWidget {
-  final _Friend friend;
+  final FollowingUser user;
 
-  const _FriendTile({required this.friend});
+  const _FriendTile({required this.user});
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final cubit = context.read<FriendsCubit>();
 
     return Semantics(
-      label: '${friend.name}, ${friend.moviesWatched} movies watched',
+      label: '${user.displayName}, ${user.moviesWatchedCount} movies watched',
       button: true,
       child: ListTile(
-        onTap: () => context.router.push(
-          PublicProfileRoute(userId: friend.name),
-        ),
+        onTap: () => context.router.push(PublicProfileRoute(userId: user.id)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         leading: ExcludeSemantics(
           child: CircleAvatar(
             radius: 24,
-            backgroundColor: friend.avatarColor,
+            backgroundColor: colorScheme.secondaryContainer,
             child: Text(
-              friend.initials,
+              user.initials,
               style: TextStyle(
                 color: colorScheme.onSecondaryContainer,
                 fontWeight: FontWeight.w600,
@@ -58,60 +88,56 @@ class _FriendTile extends StatelessWidget {
           ),
         ),
         title: Text(
-          friend.name,
+          user.displayName,
           style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
         subtitle: Text(
-          '${friend.moviesWatched} movies watched',
-          style: textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+          '${user.moviesWatchedCount} movies watched',
+          style: textTheme.bodySmall?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
         ),
-        trailing: _FollowButton(isFollowing: friend.isFollowing),
+        trailing: _FollowButton(
+          user: user,
+          onToggle: () => cubit.toggleFollow(user),
+        ),
       ),
     );
   }
 }
 
-class _FollowButton extends StatefulWidget {
-  final bool isFollowing;
+class _FollowButton extends StatelessWidget {
+  final FollowingUser user;
+  final VoidCallback onToggle;
 
-  const _FollowButton({required this.isFollowing});
-
-  @override
-  State<_FollowButton> createState() => _FollowButtonState();
-}
-
-class _FollowButtonState extends State<_FollowButton> {
-  late bool _isFollowing;
-
-  @override
-  void initState() {
-    super.initState();
-    _isFollowing = widget.isFollowing;
-  }
+  const _FollowButton({required this.user, required this.onToggle});
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isFollowing = user.isFollowing;
 
     return Semantics(
       button: true,
-      label: _isFollowing ? 'Unfollow' : 'Follow',
+      label: isFollowing ? 'Unfollow' : 'Follow',
       child: GestureDetector(
-        onTap: () => setState(() => _isFollowing = !_isFollowing),
+        onTap: onToggle,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           decoration: BoxDecoration(
-            color: _isFollowing ? colorScheme.surfaceContainerHighest : colorScheme.secondary,
+            color: isFollowing
+                ? colorScheme.surfaceContainerHighest
+                : colorScheme.secondary,
             borderRadius: BorderRadius.circular(50),
-            border: _isFollowing
+            border: isFollowing
                 ? Border.all(color: colorScheme.outlineVariant)
                 : null,
           ),
           child: Text(
-            _isFollowing ? 'Following' : 'Follow',
+            isFollowing ? 'Following' : 'Follow',
             style: TextStyle(
-              color: _isFollowing
+              color: isFollowing
                   ? colorScheme.onSurfaceVariant
                   : colorScheme.onSecondaryContainer,
               fontWeight: FontWeight.w600,
@@ -123,30 +149,3 @@ class _FollowButtonState extends State<_FollowButton> {
     );
   }
 }
-
-class _Friend {
-  final String name;
-  final String initials;
-  final int moviesWatched;
-  final bool isFollowing;
-  final Color avatarColor;
-
-  const _Friend({
-    required this.name,
-    required this.initials,
-    required this.moviesWatched,
-    required this.isFollowing,
-    required this.avatarColor,
-  });
-}
-
-const _mockFriends = [
-  _Friend(name: 'Alice Martins', initials: 'AM', moviesWatched: 312, isFollowing: true, avatarColor: Color(0xFFFFD1DC)),
-  _Friend(name: 'Bruno Carvalho', initials: 'BC', moviesWatched: 187, isFollowing: false, avatarColor: Color(0xFFF7E07E)),
-  _Friend(name: 'Camila Torres', initials: 'CT', moviesWatched: 540, isFollowing: true, avatarColor: Color(0xFFFFD1DC)),
-  _Friend(name: 'Diego Ferreira', initials: 'DF', moviesWatched: 95, isFollowing: false, avatarColor: Color(0xFFF7E07E)),
-  _Friend(name: 'Elena Souza', initials: 'ES', moviesWatched: 228, isFollowing: true, avatarColor: Color(0xFFFFD1DC)),
-  _Friend(name: 'Felipe Lima', initials: 'FL', moviesWatched: 413, isFollowing: false, avatarColor: Color(0xFFF7E07E)),
-  _Friend(name: 'Gabriela Nunes', initials: 'GN', moviesWatched: 76, isFollowing: true, avatarColor: Color(0xFFFFD1DC)),
-  _Friend(name: 'Henrique Costa', initials: 'HC', moviesWatched: 601, isFollowing: false, avatarColor: Color(0xFFF7E07E)),
-];

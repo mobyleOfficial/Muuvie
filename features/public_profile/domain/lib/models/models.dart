@@ -7,3 +7,4 @@ export 'profile_user.dart';
 export 'profile_watched_movie.dart';
 export 'profile_watchlist_item.dart';
 export 'public_profile.dart';
+export 'following_user.dart';

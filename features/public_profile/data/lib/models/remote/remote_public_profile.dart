@@ -16,6 +16,7 @@ class RemotePublicProfile {
   final List<RemoteProfileFavoriteMovie> favoriteMovies;
   final List<RemoteProfileRecentActivity> recentActivities;
   final List<RemoteProfileWatchlistItem> watchlist;
+  final bool isFollowing;
 
   const RemotePublicProfile({
     required this.id,
@@ -28,6 +29,7 @@ class RemotePublicProfile {
     required this.favoriteMovies,
     required this.recentActivities,
     required this.watchlist,
+    this.isFollowing = false,
   });
 
   factory RemotePublicProfile.fromJson(Map<String, dynamic> json) =>
@@ -36,51 +38,58 @@ class RemotePublicProfile {
         displayName: json['display_name'] as String? ?? '',
         initials: json['initials'] as String? ?? '',
         bio: json['bio'] as String? ?? '',
-        moviesWatched: (json['movies_watched'] as List<dynamic>?)
+        moviesWatched:
+            (json['movies_watched'] as List<dynamic>?)
                 ?.cast<Map<String, dynamic>>()
                 .map(RemoteProfileWatchedMovie.fromJson)
                 .toList() ??
             [],
-        following: (json['following'] as List<dynamic>?)
+        following:
+            (json['following'] as List<dynamic>?)
                 ?.cast<Map<String, dynamic>>()
                 .map(RemoteProfileUser.fromJson)
                 .toList() ??
             [],
-        followers: (json['followers'] as List<dynamic>?)
+        followers:
+            (json['followers'] as List<dynamic>?)
                 ?.cast<Map<String, dynamic>>()
                 .map(RemoteProfileUser.fromJson)
                 .toList() ??
             [],
-        favoriteMovies: (json['favorite_movies'] as List<dynamic>?)
+        favoriteMovies:
+            (json['favorite_movies'] as List<dynamic>?)
                 ?.cast<Map<String, dynamic>>()
                 .map(RemoteProfileFavoriteMovie.fromJson)
                 .toList() ??
             [],
-        recentActivities: (json['recent_activities'] as List<dynamic>?)
+        recentActivities:
+            (json['recent_activities'] as List<dynamic>?)
                 ?.cast<Map<String, dynamic>>()
                 .map(RemoteProfileRecentActivity.fromJson)
                 .toList() ??
             [],
-        watchlist: (json['watchlist'] as List<dynamic>?)
+        watchlist:
+            (json['watchlist'] as List<dynamic>?)
                 ?.cast<Map<String, dynamic>>()
                 .map(RemoteProfileWatchlistItem.fromJson)
                 .toList() ??
             [],
+        isFollowing: json['is_following'] as bool? ?? false,
       );
 
   PublicProfile toDomain() => PublicProfile(
-        id: id,
-        displayName: displayName,
-        initials: initials,
-        bio: bio,
-        moviesWatched:
-            moviesWatched.map((movie) => movie.toDomain()).toList(),
-        following: following.map((user) => user.toDomain()).toList(),
-        followers: followers.map((user) => user.toDomain()).toList(),
-        favoriteMovies:
-            favoriteMovies.map((movie) => movie.toDomain()).toList(),
-        recentActivities:
-            recentActivities.map((activity) => activity.toDomain()).toList(),
-        watchlist: watchlist.map((item) => item.toDomain()).toList(),
-      );
+    id: id,
+    displayName: displayName,
+    initials: initials,
+    bio: bio,
+    moviesWatched: moviesWatched.map((movie) => movie.toDomain()).toList(),
+    following: following.map((user) => user.toDomain()).toList(),
+    followers: followers.map((user) => user.toDomain()).toList(),
+    favoriteMovies: favoriteMovies.map((movie) => movie.toDomain()).toList(),
+    recentActivities: recentActivities
+        .map((activity) => activity.toDomain())
+        .toList(),
+    watchlist: watchlist.map((item) => item.toDomain()).toList(),
+    isFollowing: isFollowing,
+  );
 }

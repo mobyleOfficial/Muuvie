@@ -7,16 +7,26 @@ abstract class PublicProfileModule {
   @lazySingleton
   PublicProfileRemoteDataSource publicProfileRemoteDataSource(
     @Named('tmdb') HttpClient httpClient,
-  ) =>
-      PublicProfileRemoteDataSourceImpl(httpClient);
+  ) => PublicProfileRemoteDataSourceImpl(httpClient);
 
   @lazySingleton
   PublicProfileRepository publicProfileRepository(
     PublicProfileRemoteDataSource remoteDataSource,
-  ) =>
-      PublicProfileRepositoryImpl(remoteDataSource);
+  ) => PublicProfileRepositoryImpl(remoteDataSource);
 
   @injectable
   GetPublicProfile getPublicProfile(PublicProfileRepository repository) =>
       GetPublicProfile(repository);
+
+  @injectable
+  FollowUser followUser(PublicProfileRepository repository) =>
+      FollowUser(repository);
+
+  @injectable
+  UnfollowUser unfollowUser(PublicProfileRepository repository) =>
+      UnfollowUser(repository);
+
+  @injectable
+  GetMyFollowing getMyFollowing(PublicProfileRepository repository) =>
+      GetMyFollowing(repository);
 }

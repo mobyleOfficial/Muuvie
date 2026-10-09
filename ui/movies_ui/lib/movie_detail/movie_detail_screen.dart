@@ -548,7 +548,12 @@ class _StatsSection extends StatelessWidget {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => context.read<MovieDetailCubit>().toggleLike(),
+            onTap: () async {
+              final authenticated = await AuthGate.check(context);
+              if (authenticated && context.mounted) {
+                context.read<MovieDetailCubit>().toggleLike();
+              }
+            },
             child: _StatItem(
               icon: isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
               label: l10n?.movieDetailLikes(info?.likeCount ?? 0) ?? '',

@@ -14,7 +14,9 @@ import 'package:public_profile/public_profile_router.dart';
 import 'package:public_profile_domain/models/profile_user.dart';
 import 'package:public_profile_domain/models/profile_watched_movie.dart';
 import 'package:public_profile_domain/models/public_profile.dart';
+import 'package:public_profile_domain/usecases/follow_user.dart';
 import 'package:public_profile_domain/usecases/get_public_profile.dart';
+import 'package:public_profile_domain/usecases/unfollow_user.dart';
 
 class ProfileInfoTab extends StatefulWidget {
   final String userId;
@@ -28,10 +30,10 @@ class ProfileInfoTab extends StatefulWidget {
 class _ProfileInfoTabState extends State<ProfileInfoTab> {
   late final PublicProfileInfoCubit _cubit = PublicProfileInfoCubit(
     getPublicProfile: GetIt.I<GetPublicProfile>(),
+    followUser: GetIt.I<FollowUser>(),
+    unfollowUser: GetIt.I<UnfollowUser>(),
     userId: widget.userId,
   );
-
-  bool _isFollowing = false;
 
   @override
   void dispose() {
@@ -58,8 +60,8 @@ class _ProfileInfoTabState extends State<ProfileInfoTab> {
           ),
           PublicProfileInfoSuccess(:final profile) => _ProfileInfoContent(
             profile: profile,
-            isFollowing: _isFollowing,
-            onFollowToggle: () => setState(() => _isFollowing = !_isFollowing),
+            isFollowing: profile.isFollowing,
+            onFollowToggle: _cubit.toggleFollow,
           ),
         },
       ),
@@ -512,15 +514,13 @@ class _MoviesListSheet extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               child: Text(
                 emptyMessage,
-                style: textTheme.bodyMedium
-                    ?.copyWith(color: colorScheme.onSurfaceVariant),
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             )
           : ListView.separated(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               shrinkWrap: true,
               itemCount: movies.length,
               separatorBuilder: (_, _) => const SizedBox(height: 12),
@@ -543,7 +543,9 @@ class _MoviesListSheet extends StatelessWidget {
                         borderRadius: BorderRadius.circular(6),
                         child: movie.posterPath.isNotEmpty
                             ? CachedNetworkImage(
-                                imageUrl: TmdbImageUrl.buildPosterMedium(movie.posterPath),
+                                imageUrl: TmdbImageUrl.buildPosterMedium(
+                                  movie.posterPath,
+                                ),
                                 width: 48,
                                 height: 72,
                                 fit: BoxFit.cover,
@@ -613,15 +615,13 @@ class _UsersListSheet extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               child: Text(
                 emptyMessage,
-                style: textTheme.bodyMedium
-                    ?.copyWith(color: colorScheme.onSurfaceVariant),
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             )
           : ListView.separated(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 8,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               shrinkWrap: true,
               itemCount: users.length,
               separatorBuilder: (_, _) => const SizedBox(height: 4),
@@ -632,8 +632,10 @@ class _UsersListSheet extends StatelessWidget {
                     Navigator.of(context).pop();
                     context.router.push(PublicProfileRoute(userId: user.id));
                   },
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   leading: CircleAvatar(
                     radius: 22,
                     backgroundColor: colorScheme.secondaryContainer,

@@ -2,6 +2,7 @@ import 'package:social/social_bloc.dart';
 import 'package:social/social_state.dart';
 import 'package:social/tabs/activities/activities_bloc.dart';
 import 'package:social/tabs/activities/activities_screen.dart';
+import 'package:social/tabs/friends/friends_cubit.dart';
 import 'package:social/tabs/friends/friends_screen.dart';
 import 'package:common/common.dart';
 import 'package:flutter/material.dart';
@@ -10,11 +11,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class SocialScreen extends StatelessWidget {
   final SocialCubit cubit;
   final ActivitiesCubit activitiesCubit;
+  final FriendsCubit friendsCubit;
 
   const SocialScreen({
     super.key,
     required this.cubit,
     required this.activitiesCubit,
+    required this.friendsCubit,
   });
 
   @override
@@ -27,12 +30,15 @@ class SocialScreen extends StatelessWidget {
         builder: (context, state) => switch (state) {
           SocialLoading() => const Center(child: CircularProgressIndicator()),
           SocialError() => MuuvieEmptyState(
-              title: l10n?.emptyStateErrorTitle ?? '',
-              message: state.message,
-              action: cubit.reload,
-              actionLabel: l10n?.emptyStateRetry ?? '',
-            ),
-          SocialSuccess() => _SocialContent(activitiesCubit: activitiesCubit),
+            title: l10n?.emptyStateErrorTitle ?? '',
+            message: state.message,
+            action: cubit.reload,
+            actionLabel: l10n?.emptyStateRetry ?? '',
+          ),
+          SocialSuccess() => _SocialContent(
+            activitiesCubit: activitiesCubit,
+            friendsCubit: friendsCubit,
+          ),
         },
       ),
     );
@@ -41,8 +47,12 @@ class SocialScreen extends StatelessWidget {
 
 class _SocialContent extends StatelessWidget {
   final ActivitiesCubit activitiesCubit;
+  final FriendsCubit friendsCubit;
 
-  const _SocialContent({required this.activitiesCubit});
+  const _SocialContent({
+    required this.activitiesCubit,
+    required this.friendsCubit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -52,12 +62,19 @@ class _SocialContent extends StatelessWidget {
       length: 2,
       child: Column(
         children: [
-          MuuvieTabBar(tabs: [l10n?.socialFriendsTab ?? '', l10n?.socialActivitiesTab ?? '']),
+          MuuvieTabBar(
+            tabs: [
+              l10n?.socialFriendsTab ?? '',
+              l10n?.socialActivitiesTab ?? '',
+            ],
+          ),
           Expanded(
             child: TabBarView(
               children: [
-                const MuuvieKeepAliveTab(child: FriendsScreen()),
-                MuuvieKeepAliveTab(child: ActivitiesScreen(cubit: activitiesCubit)),
+                MuuvieKeepAliveTab(child: FriendsScreen(cubit: friendsCubit)),
+                MuuvieKeepAliveTab(
+                  child: ActivitiesScreen(cubit: activitiesCubit),
+                ),
               ],
             ),
           ),

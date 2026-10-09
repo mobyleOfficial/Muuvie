@@ -15,6 +15,7 @@ class PublicProfile {
   final List<ProfileFavoriteMovie> favoriteMovies;
   final List<ProfileRecentActivity> recentActivities;
   final List<ProfileWatchlistItem> watchlist;
+  final bool isFollowing;
 
   const PublicProfile({
     required this.id,
@@ -27,5 +28,34 @@ class PublicProfile {
     required this.favoriteMovies,
     required this.recentActivities,
     required this.watchlist,
+    this.isFollowing = false,
   });
+
+  PublicProfile copyWith({
+    String? id,
+    String? displayName,
+    String? initials,
+    String? bio,
+    List<ProfileWatchedMovie>? moviesWatched,
+    List<ProfileUser>? following,
+    List<ProfileUser>? followers,
+    List<ProfileFavoriteMovie>? favoriteMovies,
+    List<ProfileRecentActivity>? recentActivities,
+    List<ProfileWatchlistItem>? watchlist,
+    bool? isFollowing,
+  }) {
+    return PublicProfile(
+      id: id ?? this.id,
+      displayName: displayName ?? this.displayName,
+      initials: initials ?? this.initials,
+      bio: bio ?? this.bio,
+      moviesWatched: moviesWatched ?? this.moviesWatched,
+      following: following ?? this.following,
+      followers: followers ?? this.followers,
+      favoriteMovies: favoriteMovies ?? this.favoriteMovies,
+      recentActivities: recentActivities ?? this.recentActivities,
+      watchlist: watchlist ?? this.watchlist,
+      isFollowing: isFollowing ?? this.isFollowing,
+    );
+  }
 }
