@@ -6,7 +6,7 @@ import 'package:public_profile_feature/public_profile_feature.dart';
 abstract class PublicProfileModule {
   @lazySingleton
   PublicProfileRemoteDataSource publicProfileRemoteDataSource(
-    @Named('tmdb') HttpClient httpClient,
+    @Named('backend') HttpClient httpClient,
   ) => PublicProfileRemoteDataSourceImpl(httpClient);
 
   @lazySingleton

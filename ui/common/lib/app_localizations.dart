@@ -430,6 +430,12 @@ abstract class AppLocalizations {
   /// **'Activities'**
   String get socialActivitiesTab;
 
+  /// Empty state message when the user has no friends
+  ///
+  /// In en, this message translates to:
+  /// **'No friends yet'**
+  String get socialNoFriends;
+
   /// Lists tab label on the movies list screen
   ///
   /// In en, this message translates to:

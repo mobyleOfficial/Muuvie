@@ -15,16 +15,17 @@ class RemoteUserActivity {
 
   factory RemoteUserActivity.fromJson(Map<String, dynamic> json) =>
       RemoteUserActivity(
-        userName: json['user_name'] as String? ?? '',
+        userName:
+            json['userName'] as String? ?? json['user_name'] as String? ?? '',
         action: json['action'] as String? ?? '',
         movie: json['movie'] as String? ?? '',
         time: json['time'] as String? ?? '',
       );
 
   UserActivity toDomain() => UserActivity(
-        userName: userName,
-        action: action,
-        movie: movie,
-        time: time,
-      );
+    userName: userName,
+    action: action,
+    movie: movie,
+    time: time,
+  );
 }

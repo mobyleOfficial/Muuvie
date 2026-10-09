@@ -182,6 +182,8 @@
   "@socialFriendsTab": { "description": "Friends tab label on the social screen" },
   "socialActivitiesTab": "Activities",
   "@socialActivitiesTab": { "description": "Activities tab label on the social screen" },
+  "socialNoFriends": "No friends yet",
+  "@socialNoFriends": { "description": "Empty state message when the user has no friends" },
   "moviesListListsTab": "Lists",
   "@moviesListListsTab": { "description": "Lists tab label on the movies list screen" },
   "moviesListArticlesTab": "Articles",

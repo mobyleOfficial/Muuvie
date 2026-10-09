@@ -8,26 +8,23 @@ import 'package:user_activities/user_activities.dart';
 abstract class UserActivitiesModule {
   @lazySingleton
   UserActivitiesRemoteDataSource userActivitiesRemoteDataSource(
-    @Named('tmdb') HttpClient httpClient,
-  ) =>
-      UserActivitiesRemoteDataSourceImpl(httpClient);
+    @Named('backend') HttpClient httpClient,
+  ) => UserActivitiesRemoteDataSourceImpl(httpClient);
 
   @lazySingleton
   UserActivitiesLocalDataSource userActivitiesLocalDataSource(
     Store store,
     LocalClient localClient,
-  ) =>
-      UserActivitiesLocalDataSourceImpl(
-        store.box<LocalMovieReviewDraft>(),
-        localClient,
-      );
+  ) => UserActivitiesLocalDataSourceImpl(
+    store.box<LocalMovieReviewDraft>(),
+    localClient,
+  );
 
   @lazySingleton
   UserActivitiesRepository userActivitiesRepository(
     UserActivitiesRemoteDataSource remoteDataSource,
     UserActivitiesLocalDataSource localDataSource,
-  ) =>
-      UserActivitiesRepositoryImpl(remoteDataSource, localDataSource);
+  ) => UserActivitiesRepositoryImpl(remoteDataSource, localDataSource);
 
   @injectable
   GetUserActivities getUserActivities(UserActivitiesRepository repository) =>
@@ -40,8 +37,7 @@ abstract class UserActivitiesModule {
   @injectable
   ObserveMovieReviewDraftsList observeMovieReviewDraftsList(
     UserActivitiesRepository repository,
-  ) =>
-      ObserveMovieReviewDraftsList(repository);
+  ) => ObserveMovieReviewDraftsList(repository);
 
   @injectable
   DeleteDraft deleteDraft(UserActivitiesRepository repository) =>
@@ -50,8 +46,7 @@ abstract class UserActivitiesModule {
   @injectable
   GetFriendsActivities getFriendsActivities(
     UserActivitiesRepository repository,
-  ) =>
-      GetFriendsActivities(repository);
+  ) => GetFriendsActivities(repository);
 
   @injectable
   SubmitReview submitReview(UserActivitiesRepository repository) =>
@@ -60,6 +55,5 @@ abstract class UserActivitiesModule {
   @injectable
   ObserveSubmittingDrafts observeSubmittingDrafts(
     UserActivitiesRepository repository,
-  ) =>
-      ObserveSubmittingDrafts(repository);
+  ) => ObserveSubmittingDrafts(repository);
 }

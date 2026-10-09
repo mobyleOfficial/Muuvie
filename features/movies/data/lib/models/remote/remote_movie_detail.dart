@@ -52,32 +52,30 @@ class RemoteMovieDetail {
     final genres = rawGenres.isEmpty
         ? <String>[]
         : rawGenres.first is String
-            ? rawGenres.cast<String>()
-            : rawGenres
-                .cast<Map<String, dynamic>>()
-                .map((g) => g['name'] as String)
-                .toList();
+        ? rawGenres.cast<String>()
+        : rawGenres
+              .cast<Map<String, dynamic>>()
+              .map((g) => g['name'] as String)
+              .toList();
 
     return RemoteMovieDetail(
       id: json['id'] as int,
       title: json['title'] as String,
       localTitle: (json['localTitle'] ?? json['local_title']) as String?,
       overview: json['overview'] as String,
-      posterPath:
-          (json['posterPath'] ?? json['poster_path']) as String? ?? '',
+      posterPath: (json['posterPath'] ?? json['poster_path']) as String? ?? '',
       backdropPath:
           (json['backdropPath'] ?? json['backdrop_path']) as String? ?? '',
       voteAverage:
-          ((json['voteAverage'] ?? json['vote_average']) as num?)
-              ?.toDouble() ??
+          ((json['voteAverage'] ?? json['vote_average']) as num?)?.toDouble() ??
           0.0,
       releaseDate:
           (json['releaseDate'] ?? json['release_date']) as String? ?? '',
       tagline: json['tagline'] as String? ?? '',
       runtime: json['runtime'] as int?,
       genres: genres,
-      director: json['director'] as String?,
-      cast: (json['cast'] as List<dynamic>?)?.cast<String>(),
+      director: _parseDirector(json['director']),
+      cast: _parseCast(json['cast']),
       watchProviders: (json['watchProviders'] as List<dynamic>?)
           ?.cast<Map<String, dynamic>>()
           .map(RemoteWatchProvider.fromJson)
@@ -97,33 +95,54 @@ class RemoteMovieDetail {
     );
   }
 
+  static String? _parseDirector(dynamic raw) {
+    if (raw == null) return null;
+    if (raw is String) return raw;
+    if (raw is Map<String, dynamic>) return raw['name'] as String?;
+    return null;
+  }
+
+  static List<String>? _parseCast(dynamic raw) {
+    if (raw == null) return null;
+    if (raw is! List) return null;
+    if (raw.isEmpty) return [];
+    if (raw.first is String) return raw.cast<String>();
+    return raw
+        .cast<Map<String, dynamic>>()
+        .map((c) => c['name'] as String? ?? c['character'] as String? ?? '')
+        .where((name) => name.isNotEmpty)
+        .toList();
+  }
+
   Movie toDomain() => Movie(
-        id: id,
-        title: title,
-        localTitle: localTitle,
-        posterPath: posterPath,
-        info: MovieInfo(
-          overview: overview,
-          backdropPath: backdropPath,
-          voteAverage: voteAverage,
-          releaseDate: releaseDate,
-          tagline: tagline,
-          runtime: runtime ?? 0,
-          genres: genres,
-          director: director ?? '',
-          cast: cast ?? const [],
-          watchProviders:
-              watchProviders?.map((provider) => provider.toDomain()).toList() ?? const [],
-          similarMovies:
-              similarMovies?.map((movie) => movie.toDomain()).toList() ?? const [],
-          popularReviews:
-              popularReviews?.map((review) => review.toDomain()).toList() ?? const [],
-          reviewCount: reviewCount ?? 0,
-          listCount: listCount ?? 0,
-          likeCount: likeCount ?? 0,
-          isLikedByCurrentUser: likedByMe ?? false,
-        ),
-      );
+    id: id,
+    title: title,
+    localTitle: localTitle,
+    posterPath: posterPath,
+    info: MovieInfo(
+      overview: overview,
+      backdropPath: backdropPath,
+      voteAverage: voteAverage,
+      releaseDate: releaseDate,
+      tagline: tagline,
+      runtime: runtime ?? 0,
+      genres: genres,
+      director: director ?? '',
+      cast: cast ?? const [],
+      watchProviders:
+          watchProviders?.map((provider) => provider.toDomain()).toList() ??
+          const [],
+      similarMovies:
+          similarMovies?.map((movie) => movie.toDomain()).toList() ?? const [],
+      popularReviews:
+          popularReviews?.map((review) => review.toDomain()).toList() ??
+          const [],
+      reviewCount: reviewCount ?? 0,
+      listCount: listCount ?? 0,
+      likeCount: likeCount ?? 0,
+      isLikedByCurrentUser: likedByMe ?? false,
+    ),
+  );
 }
 
 class RemoteWatchProvider {

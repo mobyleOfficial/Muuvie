@@ -182,6 +182,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get socialActivitiesTab => 'Atividades';
 
   @override
+  String get socialNoFriends => 'Nenhum amigo ainda';
+
+  @override
   String get moviesListListsTab => 'Listas';
 
   @override
