@@ -27,6 +27,7 @@ export 'src/muuvie_keep_alive_tab.dart';
 export 'src/muuvie_movies_grid.dart';
 export 'src/tmdb_image_url.dart';
 export 'src/muuvie_empty_state.dart';
+export 'src/muuvie_modal_screen.dart';
 export 'src/muuvie_submission_banner.dart';
 export 'share/share_service.dart';
 export 'src/auth_gate.dart';

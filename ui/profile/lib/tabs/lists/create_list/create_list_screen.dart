@@ -65,52 +65,38 @@ class _CreateListScreenState extends State<CreateListScreen> {
 
     return BlocProvider.value(
       value: widget.cubit,
-      child: Scaffold(
-        body: SafeArea(
-          child: ColoredBox(
-            color: colorScheme.surface,
-            child: Column(
-              children: [
-                MuuvieAnimatedAppBar(
-                  leading: const MuuvieCloseButton(),
-                  titleWidget: Text(
-                    'New List',
-                    style: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  actions: [
-                    BlocBuilder<CreateListCubit, CreateListState>(
-                      builder: (context, state) {
-                        final isSaving = state is CreateListSaving;
-                        return TextButton(
-                          onPressed: isSaving
-                              ? null
-                              : () => widget.cubit.createList(
-                                    _nameController.text,
-                                    _descriptionController.text,
-                                  ),
-                          child: isSaving
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                      strokeWidth: 2),
-                                )
-                              : Text(
-                                  'Save',
-                                  style: textTheme.labelLarge?.copyWith(
-                                    color: colorScheme.primary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                Expanded(
-                  child: BlocListener<CreateListCubit, CreateListState>(
+      child: MuuvieModalScreen(
+        title: 'New List',
+        actions: [
+          BlocBuilder<CreateListCubit, CreateListState>(
+            builder: (context, state) {
+              final isSaving = state is CreateListSaving;
+              return TextButton(
+                onPressed: isSaving
+                    ? null
+                    : () => widget.cubit.createList(
+                          _nameController.text,
+                          _descriptionController.text,
+                        ),
+                child: isSaving
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2),
+                      )
+                    : Text(
+                        'Save',
+                        style: textTheme.labelLarge?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+              );
+            },
+          ),
+        ],
+        body: BlocListener<CreateListCubit, CreateListState>(
                     listener: (context, state) {
                       switch (state) {
                         case CreateListSuccess():
@@ -244,12 +230,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
                       },
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
         ),
-      ),
     );
   }
 

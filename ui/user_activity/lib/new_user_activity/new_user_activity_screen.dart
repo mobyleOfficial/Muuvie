@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:common/common.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reviews/review_creation/review_creation_router.dart';
 import 'package:movies/movies.dart';
@@ -26,7 +25,9 @@ class _NewUserActivityScreenState extends State<NewUserActivityScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _focusNode.requestFocus());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _focusNode.requestFocus(),
+    );
   }
 
   @override
@@ -40,30 +41,29 @@ class _NewUserActivityScreenState extends State<NewUserActivityScreen> {
     AppLocalizations? l10n,
     List<MovieReviewDraft> drafts,
     List<RecentSearch> recentSearches,
-  ) =>
-      [
-        if (drafts.isNotEmpty) ...[
-          SectionHeader(l10n?.newUserActivityDraftsSection ?? ''),
-          ...drafts.map(
-            (draft) => DraftItem(
-              title: draft.movieTitle,
-              subtitle: draft.reviewTitle.isEmpty
-                  ? formatTimeAgo(draft.updatedAt)
-                  : '${draft.reviewTitle} · ${formatTimeAgo(draft.updatedAt)}',
-              draft: draft,
-            ),
-          ),
-        ],
-        if (recentSearches.isNotEmpty) ...[
-          SectionHeader(l10n?.newUserActivityRecentSection ?? ''),
-          ...recentSearches.map(
-            (search) => SearchItem(
-              query: search.query,
-              time: formatTimeAgo(search.searchedAt),
-            ),
-          ),
-        ],
-      ];
+  ) => [
+    if (drafts.isNotEmpty) ...[
+      SectionHeader(l10n?.newUserActivityDraftsSection ?? ''),
+      ...drafts.map(
+        (draft) => DraftItem(
+          title: draft.movieTitle,
+          subtitle: draft.reviewTitle.isEmpty
+              ? formatTimeAgo(draft.updatedAt)
+              : '${draft.reviewTitle} · ${formatTimeAgo(draft.updatedAt)}',
+          draft: draft,
+        ),
+      ),
+    ],
+    if (recentSearches.isNotEmpty) ...[
+      SectionHeader(l10n?.newUserActivityRecentSection ?? ''),
+      ...recentSearches.map(
+        (search) => SearchItem(
+          query: search.query,
+          time: formatTimeAgo(search.searchedAt),
+        ),
+      ),
+    ],
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -106,110 +106,78 @@ class _NewUserActivityScreenState extends State<NewUserActivityScreen> {
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
-      child: AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light
-          .copyWith(statusBarColor: Colors.transparent),
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        body: SafeArea(
-          child: ColoredBox(
-            color: colorScheme.surface,
-            child: Column(
-              children: [
-                MuuvieAnimatedAppBar(
-                  backgroundColor: Colors.black,
-                  foregroundColor: Colors.white,
-                  leading: const MuuvieCloseButton(),
-                  titleWidget: searchField,
-                ),
-                Expanded(
-                  child: BlocProvider.value(
-                    value: widget.cubit,
-                    child: BlocBuilder<NewUserActivityCubit,
-                        NewUserActivityState>(
-                      builder: (context, state) => switch (state) {
-                        NewUserActivityLoading() => const Center(
-                            child: CircularProgressIndicator(),
+      child: MuuvieModalScreen(
+        titleWidget: searchField,
+        body: BlocProvider.value(
+          value: widget.cubit,
+          child: BlocBuilder<NewUserActivityCubit, NewUserActivityState>(
+            builder: (context, state) => switch (state) {
+              NewUserActivityLoading() => const Center(
+                child: CircularProgressIndicator(),
+              ),
+              NewUserActivityError() => MuuvieEmptyState(
+                title: l10n?.emptyStateErrorTitle ?? '',
+                message: state.message,
+              ),
+              NewUserActivitySearching() => const Center(
+                child: CircularProgressIndicator(),
+              ),
+              NewUserActivitySearchResults() => _SearchResultsList(
+                movies: state.movies,
+                onMovieSelected: () =>
+                    widget.cubit.onSearchSubmitted(_searchController.text),
+              ),
+              NewUserActivitySuccess() => Builder(
+                builder: (context) {
+                  final items = _buildItems(
+                    l10n,
+                    state.drafts,
+                    state.recentSearches,
+                  );
+                  return ListView.builder(
+                    itemCount: items.length,
+                    itemBuilder: (context, index) => switch (items[index]) {
+                      SectionHeader(:final label) => _SectionHeaderTile(
+                        label: label,
+                      ),
+                      DraftItem(:final title, :final subtitle, :final draft) =>
+                        _SwipeToDismissDraft(
+                          movieId: draft.movieId,
+                          onConfirmDelete: () =>
+                              widget.cubit.deleteDraft(draft.movieId),
+                          child: _DraftTile(
+                            title: title,
+                            subtitle: subtitle,
+                            onTap: () => context.router.root.push(
+                              ReviewCreationRoute(
+                                movieId: draft.movieId,
+                                movieTitle: draft.movieTitle,
+                                posterPath: draft.posterPath,
+                                initialDraft: draft,
+                              ),
+                            ),
+                            showSubmit:
+                                draft.reviewTitle.isNotEmpty &&
+                                draft.rating > 0 &&
+                                draft.reviewBody.isNotEmpty &&
+                                draft.tags.isNotEmpty,
                           ),
-                        NewUserActivityError() => MuuvieEmptyState(
-                            title: l10n?.emptyStateErrorTitle ?? '',
-                            message: state.message,
-                          ),
-                        NewUserActivitySearching() => const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        NewUserActivitySearchResults() =>
-                          _SearchResultsList(
-                            movies: state.movies,
-                            onMovieSelected: () => widget.cubit
-                                .onSearchSubmitted(_searchController.text),
-                          ),
-                        NewUserActivitySuccess() => Builder(
-                            builder: (context) {
-                              final items = _buildItems(
-                                l10n,
-                                state.drafts,
-                                state.recentSearches,
-                              );
-                              return ListView.builder(
-                                itemCount: items.length,
-                                itemBuilder: (context, index) =>
-                                    switch (items[index]) {
-                                  SectionHeader(:final label) =>
-                                    _SectionHeaderTile(label: label),
-                                  DraftItem(
-                                    :final title,
-                                    :final subtitle,
-                                    :final draft
-                                  ) =>
-                                    _SwipeToDismissDraft(
-                                      movieId: draft.movieId,
-                                      onConfirmDelete: () => widget
-                                          .cubit
-                                          .deleteDraft(draft.movieId),
-                                      child: _DraftTile(
-                                        title: title,
-                                        subtitle: subtitle,
-                                        onTap: () =>
-                                            context.router.root.push(
-                                          ReviewCreationRoute(
-                                            movieId: draft.movieId,
-                                            movieTitle: draft.movieTitle,
-                                            posterPath: draft.posterPath,
-                                            initialDraft: draft,
-                                          ),
-                                        ),
-                                        showSubmit: draft.reviewTitle.isNotEmpty &&
-                                            draft.rating > 0 &&
-                                            draft.reviewBody.isNotEmpty &&
-                                            draft.tags.isNotEmpty,
-                                      ),
-                                    ),
-                                  SearchItem(
-                                    :final query,
-                                    :final time
-                                  ) =>
-                                    _SearchTile(
-                                      query: query,
-                                      time: time,
-                                      onTap: () {
-                                        _searchController.text = query;
-                                        widget.cubit.onSearchChanged(query);
-                                      },
-                                    ),
-                                },
-                              );
-                            },
-                          ),
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
+                        ),
+                      SearchItem(:final query, :final time) => _SearchTile(
+                        query: query,
+                        time: time,
+                        onTap: () {
+                          _searchController.text = query;
+                          widget.cubit.onSearchChanged(query);
+                        },
+                      ),
+                    },
+                  );
+                },
+              ),
+            },
           ),
         ),
-      ),
       ),
     );
   }
@@ -218,7 +186,6 @@ class _NewUserActivityScreenState extends State<NewUserActivityScreen> {
 class _SearchResultsList extends StatelessWidget {
   final List<Movie> movies;
   final VoidCallback? onMovieSelected;
-
 
   const _SearchResultsList({required this.movies, this.onMovieSelected});
 
@@ -239,15 +206,10 @@ class _SearchResultsList extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: movies.length,
-      separatorBuilder: (_, _) => Divider(
-        indent: 72,
-        height: 1,
-        color: colorScheme.outlineVariant,
-      ),
-      itemBuilder: (context, index) => _MovieResultTile(
-        movie: movies[index],
-        onTap: onMovieSelected,
-      ),
+      separatorBuilder: (_, _) =>
+          Divider(indent: 72, height: 1, color: colorScheme.outlineVariant),
+      itemBuilder: (context, index) =>
+          _MovieResultTile(movie: movies[index], onTap: onMovieSelected),
     );
   }
 }
@@ -289,7 +251,9 @@ class _MovieResultTile extends StatelessWidget {
                     height: 64,
                     child: movie.posterPath.isNotEmpty
                         ? CachedNetworkImage(
-                            imageUrl: TmdbImageUrl.buildPosterSmall(movie.posterPath),
+                            imageUrl: TmdbImageUrl.buildPosterSmall(
+                              movie.posterPath,
+                            ),
                             fit: BoxFit.cover,
                             placeholder: (_, _) => Container(
                               color: colorScheme.surfaceContainerHighest,
@@ -407,10 +371,7 @@ class _SwipeToDismissDraft extends StatelessWidget {
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 24),
         color: colorScheme.error,
-        child: Icon(
-          Icons.delete_outline,
-          color: colorScheme.onError,
-        ),
+        child: Icon(Icons.delete_outline, color: colorScheme.onError),
       ),
       child: child,
     );
