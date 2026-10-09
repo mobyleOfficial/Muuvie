@@ -239,4 +239,64 @@ class MoviesRepositoryImpl implements MoviesRepository {
       Failure(:final error) => Failure(error),
     };
   }
+
+  @override
+  Future<Result<MovieList>> createMovieList({
+    required String name,
+    String? description,
+    List<int> movieIds = const [],
+  }) async {
+    final result = await _dataSource.createMovieList(
+      name: name,
+      description: description,
+      movieIds: movieIds,
+    );
+
+    return switch (result) {
+      Success(:final data) => Success(data.toDomain()),
+      Failure(:final error) => Failure(error),
+    };
+  }
+
+  @override
+  Future<Result<void>> deleteMovieList({required int listId}) async {
+    final result = await _dataSource.deleteMovieList(listId: listId);
+
+    return switch (result) {
+      Success() => const Success(null),
+      Failure(:final error) => Failure(error),
+    };
+  }
+
+  @override
+  Future<Result<void>> addMovieToList({
+    required int listId,
+    required int movieId,
+  }) async {
+    final result = await _dataSource.addMovieToList(
+      listId: listId,
+      movieId: movieId,
+    );
+
+    return switch (result) {
+      Success() => const Success(null),
+      Failure(:final error) => Failure(error),
+    };
+  }
+
+  @override
+  Future<Result<void>> removeMovieFromList({
+    required int listId,
+    required int movieId,
+  }) async {
+    final result = await _dataSource.removeMovieFromList(
+      listId: listId,
+      movieId: movieId,
+    );
+
+    return switch (result) {
+      Success() => const Success(null),
+      Failure(:final error) => Failure(error),
+    };
+  }
 }

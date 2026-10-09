@@ -7,6 +7,7 @@ import 'package:movies/movies.dart';
 import 'package:movies_ui/movie_list_detail/movie_list_detail_router.dart';
 import 'package:movies_ui/tabs/lists/movies_list_tile.dart';
 
+import 'package:profile_ui/profile_router.dart';
 import 'package:profile_ui/tabs/lists/user_movie_lists_bloc.dart';
 import 'package:profile_ui/tabs/lists/user_movie_lists_state.dart';
 
@@ -30,44 +31,66 @@ class UserMovieListsScreen extends StatelessWidget {
               title: l10n?.emptyStateErrorTitle ?? '',
               message: message,
             ),
-          UserMovieListsSuccess() => PagingListener(
-              controller: cubit.pagingController,
-              builder: (context, pagingState, fetchNextPage) =>
-                  PagedListView<int, MovieList>(
-                state: pagingState,
-                fetchNextPage: fetchNextPage,
-                padding: const EdgeInsets.all(16),
-                builderDelegate: PagedChildBuilderDelegate<MovieList>(
-                  itemBuilder: (context, movieList, index) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: MoviesListTile(
-                      title: movieList.name,
-                      creator: movieList.creator,
-                      description: movieList.description,
-                      posterPaths: movieList.info?.posterPaths ?? const [],
-                      onTap: () => context.router.push(
-                        MovieListDetailRoute(
-                          listId: movieList.id,
-                          listName: movieList.name,
-                          posterPaths: movieList.info?.posterPaths ?? const [],
+          UserMovieListsSuccess() => Stack(
+              children: [
+                PagingListener(
+                  controller: cubit.pagingController,
+                  builder: (context, pagingState, fetchNextPage) =>
+                      PagedListView<int, MovieList>(
+                    state: pagingState,
+                    fetchNextPage: fetchNextPage,
+                    padding: const EdgeInsets.all(16),
+                    builderDelegate: PagedChildBuilderDelegate<MovieList>(
+                      itemBuilder: (context, movieList, index) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: MoviesListTile(
+                          title: movieList.name,
+                          creator: movieList.creator,
+                          description: movieList.description,
+                          posterPaths:
+                              movieList.info?.posterPaths ?? const [],
+                          onTap: () => context.router.push(
+                            MovieListDetailRoute(
+                              listId: movieList.id,
+                              listName: movieList.name,
+                              posterPaths:
+                                  movieList.info?.posterPaths ?? const [],
+                            ),
+                          ),
                         ),
+                      ),
+                      firstPageProgressIndicatorBuilder: (_) =>
+                          const Center(child: CircularProgressIndicator()),
+                      firstPageErrorIndicatorBuilder: (_) =>
+                          MuuvieEmptyState(
+                        title: l10n?.emptyStateErrorTitle ?? '',
+                        message: l10n?.emptyStateErrorMessage ?? '',
+                        action: fetchNextPage,
+                        actionLabel: l10n?.emptyStateRetry ?? '',
+                      ),
+                      noItemsFoundIndicatorBuilder: (_) => MuuvieEmptyState(
+                        title: l10n?.emptyStateNoItemsTitle ?? '',
+                        message: l10n?.emptyStateNoItemsMessage ?? '',
                       ),
                     ),
                   ),
-                  firstPageProgressIndicatorBuilder: (_) =>
-                      const Center(child: CircularProgressIndicator()),
-                  firstPageErrorIndicatorBuilder: (_) => MuuvieEmptyState(
-                    title: l10n?.emptyStateErrorTitle ?? '',
-                    message: l10n?.emptyStateErrorMessage ?? '',
-                    action: fetchNextPage,
-                    actionLabel: l10n?.emptyStateRetry ?? '',
-                  ),
-                  noItemsFoundIndicatorBuilder: (_) => MuuvieEmptyState(
-                    title: l10n?.emptyStateNoItemsTitle ?? '',
-                    message: l10n?.emptyStateNoItemsMessage ?? '',
+                ),
+                Positioned(
+                  right: 16,
+                  bottom: 16,
+                  child: FloatingActionButton(
+                    heroTag: 'createListFab',
+                    onPressed: () async {
+                      final result = await context.router.root
+                          .push<bool>(const CreateListRoute());
+                      if (result == true) {
+                        cubit.pagingController.refresh();
+                      }
+                    },
+                    child: const Icon(Icons.add),
                   ),
                 ),
-              ),
+              ],
             ),
         },
       ),

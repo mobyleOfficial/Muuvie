@@ -2,6 +2,7 @@ import 'package:core/core.dart';
 import 'package:injectable/injectable.dart';
 
 import 'package:movies_data/datasources/remote/movies_remote_data_source.dart';
+import 'package:movies_data/models/remote/remote_movie_list.dart';
 import 'package:movies_data/models/remote/remote_movie_list_detail.dart';
 import 'package:movies_data/models/remote/remote_movie_list_listing.dart';
 import 'package:movies_data/models/remote/remote_movie_detail.dart';
@@ -341,6 +342,71 @@ class MoviesRemoteDataSourceImpl implements MoviesRemoteDataSource {
       Success<Map<String, dynamic>>(:final data) =>
         Success(RemoteMovieListListing.fromJson(data)),
       Failure<Map<String, dynamic>>(:final error) => Failure(error),
+    };
+  }
+
+  @override
+  Future<Result<RemoteMovieList>> createMovieList({
+    required String name,
+    String? description,
+    List<int> movieIds = const [],
+  }) async {
+    final result = await _httpClient.post<Map<String, dynamic>>(
+      '/movies/lists',
+      body: {
+        'name': name,
+        if (description != null) 'description': description,
+        if (movieIds.isNotEmpty) 'movieIds': movieIds,
+      },
+    );
+
+    return switch (result) {
+      Success<Map<String, dynamic>>(:final data) =>
+        Success(RemoteMovieList.fromJson(data)),
+      Failure<Map<String, dynamic>>(:final error) => Failure(error),
+    };
+  }
+
+  @override
+  Future<Result<void>> deleteMovieList({required int listId}) async {
+    final result = await _httpClient.delete<dynamic>(
+      '/movies/lists/$listId',
+    );
+
+    return switch (result) {
+      Success() => const Success(null),
+      Failure(:final error) => Failure(error),
+    };
+  }
+
+  @override
+  Future<Result<void>> addMovieToList({
+    required int listId,
+    required int movieId,
+  }) async {
+    final result = await _httpClient.post<dynamic>(
+      '/movies/lists/$listId/movies',
+      body: {'movieId': movieId},
+    );
+
+    return switch (result) {
+      Success() => const Success(null),
+      Failure(:final error) => Failure(error),
+    };
+  }
+
+  @override
+  Future<Result<void>> removeMovieFromList({
+    required int listId,
+    required int movieId,
+  }) async {
+    final result = await _httpClient.delete<dynamic>(
+      '/movies/lists/$listId/movies/$movieId',
+    );
+
+    return switch (result) {
+      Success() => const Success(null),
+      Failure(:final error) => Failure(error),
     };
   }
 }

@@ -1,5 +1,6 @@
 import 'package:core/core.dart';
 
+import 'package:movies_data/models/remote/remote_movie_list.dart';
 import 'package:movies_data/models/remote/remote_movie_list_detail.dart';
 import 'package:movies_data/models/remote/remote_movie_list_listing.dart';
 import 'package:movies_data/models/remote/remote_movie_detail.dart';
@@ -39,4 +40,8 @@ abstract interface class MoviesRemoteDataSource {
   Future<Result<RemoteMovieListing>> getUserFavoriteMovies({required String userId, required int page});
   Future<Result<RemoteMovieListing>> getUserWatchList({required String userId, required int page});
   Future<Result<RemoteMovieListListing>> getFeaturedLists({required int page});
+  Future<Result<RemoteMovieList>> createMovieList({required String name, String? description, List<int> movieIds = const []});
+  Future<Result<void>> deleteMovieList({required int listId});
+  Future<Result<void>> addMovieToList({required int listId, required int movieId});
+  Future<Result<void>> removeMovieFromList({required int listId, required int movieId});
 }

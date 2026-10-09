@@ -121,4 +121,30 @@ class FakeMoviesRepository implements MoviesRepository {
   @override
   Future<Result<void>> unlikeMovie({required int movieId}) =>
       throw UnimplementedError();
+
+  @override
+  Future<Result<MovieList>> createMovieList({
+    required String name,
+    String? description,
+    List<int> movieIds = const [],
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Future<Result<void>> deleteMovieList({required int listId}) =>
+      throw UnimplementedError();
+
+  @override
+  Future<Result<void>> addMovieToList({
+    required int listId,
+    required int movieId,
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Future<Result<void>> removeMovieFromList({
+    required int listId,
+    required int movieId,
+  }) =>
+      throw UnimplementedError();
 }

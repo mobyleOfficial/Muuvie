@@ -102,4 +102,20 @@ abstract class MoviesModule {
   @injectable
   UnlikeMovie unlikeMovie(MoviesRepository repository) =>
       UnlikeMovie(repository);
+
+  @injectable
+  CreateMovieList createMovieList(MoviesRepository repository) =>
+      CreateMovieList(repository);
+
+  @injectable
+  DeleteMovieList deleteMovieList(MoviesRepository repository) =>
+      DeleteMovieList(repository);
+
+  @injectable
+  AddMovieToList addMovieToList(MoviesRepository repository) =>
+      AddMovieToList(repository);
+
+  @injectable
+  RemoveMovieFromList removeMovieFromList(MoviesRepository repository) =>
+      RemoveMovieFromList(repository);
 }

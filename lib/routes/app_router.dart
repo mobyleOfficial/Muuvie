@@ -95,6 +95,12 @@ class AppRouter extends RootStackRouter {
           reverseDuration: _animationDuration,
         ),
         CustomRoute(
+          page: CreateListRoute.page,
+          transitionsBuilder: TransitionsBuilders.slideBottom,
+          duration: _animationDuration,
+          reverseDuration: _animationDuration,
+        ),
+        CustomRoute(
           page: EditProfileRoute.page,
           transitionsBuilder: TransitionsBuilders.slideBottom,
           duration: _animationDuration,

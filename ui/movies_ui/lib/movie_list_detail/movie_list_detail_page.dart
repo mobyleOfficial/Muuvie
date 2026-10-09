@@ -26,6 +26,10 @@ class MovieListDetailPage extends StatefulWidget {
 class _MovieListDetailPageState extends State<MovieListDetailPage> {
   late final MovieListDetailCubit _cubit = MovieListDetailCubit(
     GetIt.I<GetMovieListDetail>(),
+    GetIt.I<DeleteMovieList>(),
+    GetIt.I<AddMovieToList>(),
+    GetIt.I<RemoveMovieFromList>(),
+    GetIt.I<SearchMovies>(),
     widget.listId,
   );
 

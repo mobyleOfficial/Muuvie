@@ -41,4 +41,8 @@ abstract interface class MoviesRepository {
   Stream<List<RecentSearch>> observeRecentSearches();
   Future<Result<MovieListing>> getUserWatchList({required String userId, required int page});
   Future<Result<MovieListListing>> getFeaturedLists({required int page});
+  Future<Result<MovieList>> createMovieList({required String name, String? description, List<int> movieIds = const []});
+  Future<Result<void>> deleteMovieList({required int listId});
+  Future<Result<void>> addMovieToList({required int listId, required int movieId});
+  Future<Result<void>> removeMovieFromList({required int listId, required int movieId});
 }
