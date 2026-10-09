@@ -8,13 +8,84 @@ import 'package:movies/movies.dart';
 import 'package:movies_ui/movie_detail/movie_detail_bloc.dart';
 import 'package:movies_ui/movie_detail/movie_detail_router.dart';
 import 'package:movies_ui/movie_detail/movie_detail_state.dart';
+import 'package:reviews/review_creation/review_creation_router.dart';
 import 'package:reviews/review_details/review_details_router.dart';
 import 'package:reviews/reviews_list/reviews_router.dart';
 
+void _showActionsSheet(
+  BuildContext context,
+  Movie detail,
+  void Function(int, String, String)? onWriteReview,
+  void Function(int, String, String)? onCreateList,
+) {
+  final colorScheme = Theme.of(context).colorScheme;
+  final textTheme = Theme.of(context).textTheme;
+
+  showModalBottomSheet<void>(
+    context: context,
+    builder: (sheetContext) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 8),
+          Container(
+            width: 32,
+            height: 4,
+            decoration: BoxDecoration(
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (onWriteReview != null)
+            ListTile(
+              leading:
+                  Icon(Icons.rate_review_outlined, color: colorScheme.primary),
+              title: Text('Write a Review',
+                  style:
+                      textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500)),
+              onTap: () async {
+                Navigator.of(sheetContext).pop();
+                final authenticated = await AuthGate.check(context);
+                if (authenticated && context.mounted) {
+                  onWriteReview(detail.id, detail.title, detail.posterPath);
+                }
+              },
+            ),
+          if (onCreateList != null)
+            ListTile(
+              leading: Icon(Icons.playlist_add, color: colorScheme.primary),
+              title: Text('Create a List',
+                  style:
+                      textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500)),
+              onTap: () async {
+                Navigator.of(sheetContext).pop();
+                final authenticated = await AuthGate.check(context);
+                if (authenticated && context.mounted) {
+                  onCreateList(detail.id, detail.title, detail.posterPath);
+                }
+              },
+            ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    ),
+  );
+}
+
 class MovieDetailScreen extends StatelessWidget {
   final MovieDetailCubit cubit;
+  final void Function(int movieId, String movieTitle, String posterPath)?
+      onWriteReview;
+  final void Function(int movieId, String movieTitle, String posterPath)?
+      onCreateList;
 
-  const MovieDetailScreen({super.key, required this.cubit});
+  const MovieDetailScreen({
+    super.key,
+    required this.cubit,
+    this.onWriteReview,
+    this.onCreateList,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +107,11 @@ class MovieDetailScreen extends StatelessWidget {
               ),
             ),
           MovieDetailSuccess(:final detail) => Scaffold(
-              body: _MovieDetailBody(detail: detail),
+              body: _MovieDetailBody(
+                detail: detail,
+                onWriteReview: onWriteReview,
+                onCreateList: onCreateList,
+              ),
             ),
         },
       ),
@@ -46,21 +121,48 @@ class MovieDetailScreen extends StatelessWidget {
 
 class _MovieDetailBody extends StatelessWidget {
   final Movie detail;
+  final void Function(int movieId, String movieTitle, String posterPath)?
+      onWriteReview;
+  final void Function(int movieId, String movieTitle, String posterPath)?
+      onCreateList;
 
-  const _MovieDetailBody({required this.detail});
+  const _MovieDetailBody({
+    required this.detail,
+    this.onWriteReview,
+    this.onCreateList,
+  });
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
+    final hasActions = onWriteReview != null || onCreateList != null;
+
     return DefaultTabController(
       length: 2,
       child: Column(
         children: [
-          MuuvieTabBar(tabs: [
-            l10n?.movieDetailAboutTab ?? '',
-            l10n?.comments ?? '',
-          ]),
+          Row(
+            children: [
+              Expanded(
+                child: MuuvieTabBar(tabs: [
+                  l10n?.movieDetailAboutTab ?? '',
+                  l10n?.comments ?? '',
+                ]),
+              ),
+              if (hasActions)
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  tooltip: 'Actions',
+                  onPressed: () => _showActionsSheet(
+                    context,
+                    detail,
+                    onWriteReview,
+                    onCreateList,
+                  ),
+                ),
+            ],
+          ),
           Expanded(
             child: TabBarView(
               children: [
@@ -108,6 +210,7 @@ class _AboutTabState extends State<_AboutTab>
               if (detail.info != null)
                 _SynopsisSection(overview: detail.info!.overview),
               _RatingSection(detail: detail),
+              _WatchStatusSection(detail: detail),
               _StatsSection(detail: detail),
               if (detail.info?.popularReviews.isNotEmpty ?? false)
                 _PopularReviewsSection(
@@ -195,6 +298,7 @@ class _HeroAppBar extends StatelessWidget {
       ),
     );
   }
+
 }
 
 class _MovieInfoSection extends StatelessWidget {
@@ -503,26 +607,138 @@ class _RatingSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final userRating = detail.info?.userRating;
+    final userStars = userRating != null ? (userRating / 2).round() : 0;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.star_rounded,
+                  color: colorScheme.onTertiaryContainer, size: 32),
+              const SizedBox(width: 8),
+              Text(
+                (detail.info?.voteAverage ?? 0).toStringAsFixed(1),
+                style: textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              Text(
+                ' / 10',
+                style: textTheme.bodyLarge?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Text(
+                'Your rating',
+                style: textTheme.labelMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(width: 8),
+              ...List.generate(5, (index) {
+                final starIndex = index + 1;
+                final isFilled = starIndex <= userStars;
+                return GestureDetector(
+                  onTap: () async {
+                    final authenticated = await AuthGate.check(context);
+                    if (authenticated && context.mounted) {
+                      context
+                          .read<MovieDetailCubit>()
+                          .rateMovie(starIndex * 2.0);
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                    child: Icon(
+                      isFilled
+                          ? Icons.star_rounded
+                          : Icons.star_border_rounded,
+                      color: colorScheme.primary,
+                      size: 28,
+                    ),
+                  ),
+                );
+              }),
+              if (userRating != null) ...[
+                const SizedBox(width: 6),
+                Text(
+                  userRating.toStringAsFixed(0),
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WatchStatusSection extends StatelessWidget {
+  final Movie detail;
+
+  const _WatchStatusSection({required this.detail});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final watchStatus = detail.info?.watchStatus;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Row(
         children: [
-          Icon(Icons.star_rounded,
-              color: colorScheme.onTertiaryContainer, size: 32),
-          const SizedBox(width: 8),
-          Text(
-            (detail.info?.voteAverage ?? 0).toStringAsFixed(1),
-            style: textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: colorScheme.onSurface,
+          FilterChip(
+            label: const Text('Want to Watch'),
+            avatar: Icon(
+              Icons.visibility_outlined,
+              size: 18,
+              color: watchStatus == 'want_to_watch'
+                  ? colorScheme.onSecondaryContainer
+                  : colorScheme.onSurfaceVariant,
             ),
+            selected: watchStatus == 'want_to_watch',
+            onSelected: (_) async {
+              final authenticated = await AuthGate.check(context);
+              if (authenticated && context.mounted) {
+                context
+                    .read<MovieDetailCubit>()
+                    .setWatchStatus('want_to_watch');
+              }
+            },
           ),
-          Text(
-            ' / 10',
-            style: textTheme.bodyLarge?.copyWith(
-              color: colorScheme.onSurfaceVariant,
+          const SizedBox(width: 8),
+          FilterChip(
+            label: const Text('Watched'),
+            avatar: Icon(
+              Icons.check_circle_outline,
+              size: 18,
+              color: watchStatus == 'watched'
+                  ? colorScheme.onSecondaryContainer
+                  : colorScheme.onSurfaceVariant,
             ),
+            selected: watchStatus == 'watched',
+            onSelected: (_) async {
+              final authenticated = await AuthGate.check(context);
+              if (authenticated && context.mounted) {
+                context
+                    .read<MovieDetailCubit>()
+                    .setWatchStatus('watched');
+              }
+            },
           ),
         ],
       ),
@@ -888,3 +1104,4 @@ class _Dot extends StatelessWidget {
         ),
       );
 }
+

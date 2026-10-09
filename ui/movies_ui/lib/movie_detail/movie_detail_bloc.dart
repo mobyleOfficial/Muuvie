@@ -7,12 +7,16 @@ class MovieDetailCubit extends Cubit<MovieDetailState> {
   final GetMovieDetail _getMovieDetail;
   final LikeMovie _likeMovie;
   final UnlikeMovie _unlikeMovie;
+  final RateMovie _rateMovie;
+  final SetMovieStatus _setMovieStatus;
   final int _movieId;
 
   MovieDetailCubit(
     this._getMovieDetail,
     this._likeMovie,
     this._unlikeMovie,
+    this._rateMovie,
+    this._setMovieStatus,
     this._movieId,
   ) : super(const MovieDetailLoading()) {
     _fetchMovieDetail();
@@ -57,6 +61,62 @@ class MovieDetailCubit extends Cubit<MovieDetailState> {
       final s = state;
       if (s is MovieDetailSuccess) {
         emit(s.copyWith(isLiking: false));
+      }
+    }
+  }
+
+  Future<void> rateMovie(double rating) async {
+    final current = state;
+    if (current is! MovieDetailSuccess) return;
+
+    final info = current.detail.info;
+    if (info == null) return;
+
+    final optimisticInfo = info.copyWith(
+      userRating: () => rating,
+    );
+    final optimisticDetail = current.detail.copyWith(info: optimisticInfo);
+    emit(current.copyWith(detail: optimisticDetail));
+
+    final result = await _rateMovie(
+      RateMovieParams(movieId: _movieId, rating: rating),
+    );
+
+    if (result is Failure) {
+      emit(current.copyWith(detail: current.detail));
+    }
+  }
+
+  Future<void> setWatchStatus(String status) async {
+    final current = state;
+    if (current is! MovieDetailSuccess) return;
+
+    final info = current.detail.info;
+    if (info == null) return;
+
+    final isSameStatus = info.watchStatus == status;
+    final newStatus = isSameStatus ? null : status;
+
+    final optimisticInfo = info.copyWith(
+      watchStatus: () => newStatus,
+    );
+    final optimisticDetail = current.detail.copyWith(info: optimisticInfo);
+    emit(current.copyWith(detail: optimisticDetail));
+
+    if (isSameStatus) {
+      // Clear status — send empty string to backend
+      final result = await _setMovieStatus(
+        SetMovieStatusParams(movieId: _movieId, status: ''),
+      );
+      if (result is Failure) {
+        emit(current.copyWith(detail: current.detail));
+      }
+    } else {
+      final result = await _setMovieStatus(
+        SetMovieStatusParams(movieId: _movieId, status: status),
+      );
+      if (result is Failure) {
+        emit(current.copyWith(detail: current.detail));
       }
     }
   }

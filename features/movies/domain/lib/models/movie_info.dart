@@ -19,6 +19,8 @@ class MovieInfo {
   final int listCount;
   final int likeCount;
   final bool isLikedByCurrentUser;
+  final double? userRating;
+  final String? watchStatus;
 
   const MovieInfo({
     required this.overview,
@@ -37,11 +39,15 @@ class MovieInfo {
     this.listCount = 0,
     this.likeCount = 0,
     this.isLikedByCurrentUser = false,
+    this.userRating,
+    this.watchStatus,
   });
 
   MovieInfo copyWith({
     int? likeCount,
     bool? isLikedByCurrentUser,
+    double? Function()? userRating,
+    String? Function()? watchStatus,
   }) =>
       MovieInfo(
         overview: overview,
@@ -60,5 +66,7 @@ class MovieInfo {
         listCount: listCount,
         likeCount: likeCount ?? this.likeCount,
         isLikedByCurrentUser: isLikedByCurrentUser ?? this.isLikedByCurrentUser,
+        userRating: userRating != null ? userRating() : this.userRating,
+        watchStatus: watchStatus != null ? watchStatus() : this.watchStatus,
       );
 }

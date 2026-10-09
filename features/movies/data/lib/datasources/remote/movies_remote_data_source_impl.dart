@@ -409,4 +409,36 @@ class MoviesRemoteDataSourceImpl implements MoviesRemoteDataSource {
       Failure(:final error) => Failure(error),
     };
   }
+
+  @override
+  Future<Result<void>> rateMovie({
+    required int movieId,
+    required double rating,
+  }) async {
+    final result = await _httpClient.post<dynamic>(
+      '/movies/$movieId/rate',
+      body: {'rating': rating},
+    );
+
+    return switch (result) {
+      Success() => const Success(null),
+      Failure(:final error) => Failure(error),
+    };
+  }
+
+  @override
+  Future<Result<void>> setMovieStatus({
+    required int movieId,
+    required String status,
+  }) async {
+    final result = await _httpClient.post<dynamic>(
+      '/movies/$movieId/status',
+      body: {'status': status},
+    );
+
+    return switch (result) {
+      Success() => const Success(null),
+      Failure(:final error) => Failure(error),
+    };
+  }
 }

@@ -118,4 +118,12 @@ abstract class MoviesModule {
   @injectable
   RemoveMovieFromList removeMovieFromList(MoviesRepository repository) =>
       RemoveMovieFromList(repository);
+
+  @injectable
+  RateMovie rateMovie(MoviesRepository repository) =>
+      RateMovie(repository);
+
+  @injectable
+  SetMovieStatus setMovieStatus(MoviesRepository repository) =>
+      SetMovieStatus(repository);
 }

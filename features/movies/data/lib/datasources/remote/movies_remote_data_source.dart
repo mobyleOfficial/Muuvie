@@ -44,4 +44,6 @@ abstract interface class MoviesRemoteDataSource {
   Future<Result<void>> deleteMovieList({required int listId});
   Future<Result<void>> addMovieToList({required int listId, required int movieId});
   Future<Result<void>> removeMovieFromList({required int listId, required int movieId});
+  Future<Result<void>> rateMovie({required int movieId, required double rating});
+  Future<Result<void>> setMovieStatus({required int movieId, required String status});
 }

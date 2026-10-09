@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:movies/movies.dart';
 import 'package:movies_ui/movie_detail/movie_detail_bloc.dart';
 import 'package:movies_ui/movie_detail/movie_detail_screen.dart';
+import 'package:reviews/review_creation/review_creation_router.dart';
 
 @RoutePage()
 class MovieDetailPage extends StatefulWidget {
@@ -25,6 +26,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     GetIt.I<GetMovieDetail>(),
     GetIt.I<LikeMovie>(),
     GetIt.I<UnlikeMovie>(),
+    GetIt.I<RateMovie>(),
+    GetIt.I<SetMovieStatus>(),
     widget.movieId,
   );
 
@@ -35,5 +38,21 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   }
 
   @override
-  Widget build(BuildContext context) => MovieDetailScreen(cubit: _cubit);
+  Widget build(BuildContext context) => MovieDetailScreen(
+        cubit: _cubit,
+        onWriteReview: (movieId, movieTitle, posterPath) {
+          context.router.root.push(
+            ReviewCreationRoute(
+              movieId: movieId,
+              movieTitle: movieTitle,
+              posterPath: posterPath,
+            ),
+          );
+        },
+        onCreateList: (_, __, ___) {
+          context.router.root.navigate(
+            PageRouteInfo('CreateListRoute'),
+          );
+        },
+      );
 }

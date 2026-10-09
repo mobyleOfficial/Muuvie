@@ -23,4 +23,6 @@ export 'get_countries.dart';
 export 'get_languages.dart';
 export 'get_user_watch_list.dart';
 export 'get_featured_lists.dart';
+export 'rate_movie.dart';
 export 'remove_movie_from_list.dart';
+export 'set_movie_status.dart';

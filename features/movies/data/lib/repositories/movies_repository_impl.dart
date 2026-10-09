@@ -299,4 +299,36 @@ class MoviesRepositoryImpl implements MoviesRepository {
       Failure(:final error) => Failure(error),
     };
   }
+
+  @override
+  Future<Result<void>> rateMovie({
+    required int movieId,
+    required double rating,
+  }) async {
+    final result = await _dataSource.rateMovie(
+      movieId: movieId,
+      rating: rating,
+    );
+
+    return switch (result) {
+      Success() => const Success(null),
+      Failure(:final error) => Failure(error),
+    };
+  }
+
+  @override
+  Future<Result<void>> setMovieStatus({
+    required int movieId,
+    required String status,
+  }) async {
+    final result = await _dataSource.setMovieStatus(
+      movieId: movieId,
+      status: status,
+    );
+
+    return switch (result) {
+      Success() => const Success(null),
+      Failure(:final error) => Failure(error),
+    };
+  }
 }

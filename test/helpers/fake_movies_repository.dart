@@ -147,4 +147,18 @@ class FakeMoviesRepository implements MoviesRepository {
     required int movieId,
   }) =>
       throw UnimplementedError();
+
+  @override
+  Future<Result<void>> rateMovie({
+    required int movieId,
+    required double rating,
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Future<Result<void>> setMovieStatus({
+    required int movieId,
+    required String status,
+  }) =>
+      throw UnimplementedError();
 }

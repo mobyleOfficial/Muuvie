@@ -66,67 +66,77 @@ class _CreateListScreenState extends State<CreateListScreen> {
     return BlocProvider.value(
       value: widget.cubit,
       child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-            icon: const Icon(Icons.close),
-            onPressed: () => context.router.maybePop(),
-          ),
-          title: const Text('New List'),
-          centerTitle: true,
-          actions: [
-            BlocBuilder<CreateListCubit, CreateListState>(
-              builder: (context, state) {
-                final isSaving = state is CreateListSaving;
-                return TextButton(
-                  onPressed: isSaving
-                      ? null
-                      : () => widget.cubit.createList(
-                            _nameController.text,
-                            _descriptionController.text,
-                          ),
-                  child: isSaving
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(
-                          'Save',
-                          style: textTheme.labelLarge?.copyWith(
-                            color: colorScheme.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                );
-              },
-            ),
-          ],
-        ),
-        body: BlocListener<CreateListCubit, CreateListState>(
-          listener: (context, state) {
-            switch (state) {
-              case CreateListSuccess():
-                context.router.maybePop(true);
-              case CreateListError(:final message):
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(message)),
-                );
-              default:
-                break;
-            }
-          },
-          child: BlocBuilder<CreateListCubit, CreateListState>(
-            builder: (context, state) {
-              final selectedMovies = switch (state) {
-                CreateListIdle(:final selectedMovies) => selectedMovies,
-                CreateListSaving(:final selectedMovies) => selectedMovies,
-                CreateListError(:final selectedMovies) => selectedMovies,
-                _ => <Movie>[],
-              };
+        body: SafeArea(
+          child: ColoredBox(
+            color: colorScheme.surface,
+            child: Column(
+              children: [
+                MuuvieAnimatedAppBar(
+                  leading: const MuuvieCloseButton(),
+                  titleWidget: Text(
+                    'New List',
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  actions: [
+                    BlocBuilder<CreateListCubit, CreateListState>(
+                      builder: (context, state) {
+                        final isSaving = state is CreateListSaving;
+                        return TextButton(
+                          onPressed: isSaving
+                              ? null
+                              : () => widget.cubit.createList(
+                                    _nameController.text,
+                                    _descriptionController.text,
+                                  ),
+                          child: isSaving
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2),
+                                )
+                              : Text(
+                                  'Save',
+                                  style: textTheme.labelLarge?.copyWith(
+                                    color: colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: BlocListener<CreateListCubit, CreateListState>(
+                    listener: (context, state) {
+                      switch (state) {
+                        case CreateListSuccess():
+                          context.router.maybePop(true);
+                        case CreateListError(:final message):
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(message)),
+                          );
+                        default:
+                          break;
+                      }
+                    },
+                    child: BlocBuilder<CreateListCubit, CreateListState>(
+                      builder: (context, state) {
+                        final selectedMovies = switch (state) {
+                          CreateListIdle(:final selectedMovies) =>
+                            selectedMovies,
+                          CreateListSaving(:final selectedMovies) =>
+                            selectedMovies,
+                          CreateListError(:final selectedMovies) =>
+                            selectedMovies,
+                          _ => <Movie>[],
+                        };
 
-              return CustomScrollView(
-                slivers: [
+                        return CustomScrollView(
+                          slivers: [
                   // Name & description fields
                   SliverToBoxAdapter(
                     child: Padding(
@@ -227,11 +237,16 @@ class _CreateListScreenState extends State<CreateListScreen> {
                     ),
 
                   // Bottom padding
-                  const SliverPadding(
-                      padding: EdgeInsets.only(bottom: 24)),
-                ],
-              );
-            },
+                            const SliverPadding(
+                                padding: EdgeInsets.only(bottom: 24)),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
