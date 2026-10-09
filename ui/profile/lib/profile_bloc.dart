@@ -8,11 +8,15 @@ import 'package:profile_ui/profile_state.dart';
 
 class ProfileCubit extends Cubit<ProfileState> {
   final ObserveUserProfile _getUserProfile;
+  final RefreshUserProfile _refreshUserProfile;
   StreamSubscription<UserProfile>? _subscription;
 
-  ProfileCubit({required ObserveUserProfile getUserProfile})
-    : _getUserProfile = getUserProfile,
-      super(const ProfileLoading()) {
+  ProfileCubit({
+    required ObserveUserProfile getUserProfile,
+    required RefreshUserProfile refreshUserProfile,
+  }) : _getUserProfile = getUserProfile,
+       _refreshUserProfile = refreshUserProfile,
+       super(const ProfileLoading()) {
     dev.log('[ProfileWS] Profile stream started');
     _listen();
   }
@@ -34,7 +38,8 @@ class ProfileCubit extends Cubit<ProfileState> {
   }
 
   void retry() {
-    // TBD
+    emit(const ProfileLoading());
+    _refreshUserProfile();
   }
 
   void updateProfile(UserProfile updated) {

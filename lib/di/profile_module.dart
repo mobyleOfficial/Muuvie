@@ -8,20 +8,18 @@ abstract class ProfileModule {
   @lazySingleton
   ProfileRemoteDataSource profileRemoteDataSource(
     @Named('backend') HttpClient httpClient,
-  ) =>
-      ProfileRemoteDataSourceImpl(httpClient);
+  ) => ProfileRemoteDataSourceImpl(httpClient);
 
   @lazySingleton
   ProfileRepository profileRepository(
     MoviesRemoteDataSource moviesRemoteDataSource,
     ProfileRemoteDataSource profileRemoteDataSource,
     WebSocketClient webSocketClient,
-  ) =>
-      ProfileRepositoryImpl(
-        moviesRemoteDataSource,
-        profileRemoteDataSource,
-        webSocketClient,
-      );
+  ) => ProfileRepositoryImpl(
+    moviesRemoteDataSource,
+    profileRemoteDataSource,
+    webSocketClient,
+  );
 
   @injectable
   GetUserReviews getUserReviews(ProfileRepository repository) =>
@@ -38,6 +36,10 @@ abstract class ProfileModule {
   @injectable
   ObserveUserProfile getUserProfile(ProfileRepository repository) =>
       ObserveUserProfile(repository);
+
+  @injectable
+  RefreshUserProfile refreshUserProfile(ProfileRepository repository) =>
+      RefreshUserProfile(repository);
 
   @injectable
   StartScrape startScrape(ProfileRepository repository) =>

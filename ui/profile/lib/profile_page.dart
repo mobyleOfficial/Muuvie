@@ -17,6 +17,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   late final ProfileCubit _cubit = ProfileCubit(
     getUserProfile: GetIt.I<ObserveUserProfile>(),
+    refreshUserProfile: GetIt.I<RefreshUserProfile>(),
   );
 
   @override
@@ -26,8 +27,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   @override
-  Widget build(BuildContext context) => ProfileScreen(
-        cubit: _cubit,
-        getMovieReviews: GetIt.I<GetMovieReviews>(),
-      );
+  Widget build(BuildContext context) =>
+      ProfileScreen(cubit: _cubit, getMovieReviews: GetIt.I<GetMovieReviews>());
 }

@@ -34,11 +34,15 @@ class ProfileRepositoryImpl implements ProfileRepository {
     return _profileSubject.stream;
   }
 
+  @override
   Future<void> fetchProfile() async {
     final result = await _profileRemoteDataSource.getUserProfile();
 
-    if (result is Success<UserProfile>) {
-      _profileSubject.add(result.data);
+    switch (result) {
+      case Success(:final data):
+        _profileSubject.add(data);
+      case Failure(:final error):
+        _profileSubject.addError(error);
     }
   }
 
@@ -72,20 +76,25 @@ class ProfileRepositoryImpl implements ProfileRepository {
       case WsMessageType.scrapeStarted:
         dev.log('[ProfileWS] Scrape started');
         if (_profileSubject.hasValue) {
-          _profileSubject
-              .add(_profileSubject.value.copyWith(isScraping: true));
+          _profileSubject.add(_profileSubject.value.copyWith(isScraping: true));
         }
       case WsMessageType.scrapeFinished:
         final payload = message.data;
         final watched = int.tryParse(payload?['watched'] as String? ?? '');
-        final recentMovies = _parseRecentMovies(payload?['recentlyWatched'] as String?);
-        dev.log('[ProfileWS] Scrape finished, watched=$watched, recentMovies=${recentMovies.length}');
+        final recentMovies = _parseRecentMovies(
+          payload?['recentlyWatched'] as String?,
+        );
+        dev.log(
+          '[ProfileWS] Scrape finished, watched=$watched, recentMovies=${recentMovies.length}',
+        );
         if (_profileSubject.hasValue) {
-          _profileSubject.add(_profileSubject.value.copyWith(
-            isScraping: false,
-            moviesWatchedCount: watched,
-            recentMovies: recentMovies.isNotEmpty ? recentMovies : null,
-          ));
+          _profileSubject.add(
+            _profileSubject.value.copyWith(
+              isScraping: false,
+              moviesWatchedCount: watched,
+              recentMovies: recentMovies.isNotEmpty ? recentMovies : null,
+            ),
+          );
         }
       default:
     }
@@ -96,7 +105,10 @@ class ProfileRepositoryImpl implements ProfileRepository {
     try {
       final list = jsonDecode(jsonString) as List<dynamic>;
       return list
-          .map((e) => RecentMovieModel.fromJson(e as Map<String, dynamic>).toDomain())
+          .map(
+            (e) =>
+                RecentMovieModel.fromJson(e as Map<String, dynamic>).toDomain(),
+          )
           .toList();
     } catch (e) {
       dev.log('[ProfileWS] Failed to parse recentlyWatched: $e');
