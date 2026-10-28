@@ -1,0 +1,10 @@
+# Splash screen for the dev flavor (same palette as its launcher icon).
+# Regenerate with: dart run flutter_native_splash:create --flavors dev,staging,prod
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/launcher/splash_dev.png
+  android_12:
+    color: "#FFFFFF"
+    image: assets/launcher/splash_dev_android12.png
+    icon_background_color: "#FFFFFF"
+  web: false

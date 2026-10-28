@@ -79,12 +79,14 @@ class _MovieShelvesPageState extends State<MovieShelvesPage> {
       if (_loading) return const Center(child: MuuvieActivityIndicator());
       return _error != null
           ? MuuvieEmptyState(
+              illustration: MuuvieIllustration.error,
               title: l10n?.emptyStateErrorTitle ?? '',
               message: l10n?.emptyStateErrorMessage ?? '',
               action: _retry,
               actionLabel: l10n?.emptyStateRetry ?? '',
             )
           : MuuvieEmptyState(
+              illustration: MuuvieIllustration.movies,
               title: widget.movieTitle,
               message: l10n?.movieShelvesEmpty ?? '',
             );

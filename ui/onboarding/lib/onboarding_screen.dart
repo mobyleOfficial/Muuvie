@@ -39,32 +39,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   List<_Panel> _panels(AppLocalizations? l10n) => [
     _Panel(
-      '🎬',
+      MuuvieIllustration.onboardingWelcome,
       l10n?.onboardingWelcomeTitle ?? '',
       l10n?.onboardingWelcomeText ?? '',
     ),
     _Panel(
-      '📚',
+      MuuvieIllustration.onboardingShelves,
       l10n?.onboardingShelvesTitle ?? '',
       l10n?.onboardingShelvesText ?? '',
     ),
     _Panel(
-      '📝',
+      MuuvieIllustration.onboardingLogs,
       l10n?.onboardingLogsTitle ?? '',
       l10n?.onboardingLogsText ?? '',
     ),
     _Panel(
-      '🏆',
+      MuuvieIllustration.onboardingProgramacao,
       l10n?.onboardingProgramacaoTitle ?? '',
       l10n?.onboardingProgramacaoText ?? '',
     ),
     _Panel(
-      '🍿',
+      MuuvieIllustration.onboardingSocial,
       l10n?.onboardingSocialTitle ?? '',
       l10n?.onboardingSocialText ?? '',
     ),
     _Panel(
-      '📥',
+      MuuvieIllustration.onboardingImport,
       l10n?.onboardingImportTitle ?? '',
       l10n?.onboardingImportText ?? '',
       import: true,
@@ -167,12 +167,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 }
 
 class _Panel {
-  final String emoji;
+  final MuuvieIllustration illustration;
   final String title;
   final String text;
   final bool import;
 
-  const _Panel(this.emoji, this.title, this.text, {this.import = false});
+  const _Panel(this.illustration, this.title, this.text, {this.import = false});
 }
 
 class _PanelView extends StatelessWidget {
@@ -190,11 +190,10 @@ class _PanelView extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
       children: [
-        ExcludeSemantics(
-          child: Text(
-            panel.emoji,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 96),
+        _Spotlight(
+          child: MuuvieIllustrationView(
+            illustration: panel.illustration,
+            height: 200,
           ),
         ),
         const SizedBox(height: 24),
@@ -245,6 +244,13 @@ class _Suggestions extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       children: [
+        const _Spotlight(
+          child: MuuvieIllustrationView(
+            illustration: MuuvieIllustration.onboardingSuggestions,
+            height: 140,
+          ),
+        ),
+        const SizedBox(height: 16),
         Semantics(
           header: true,
           child: Text(
@@ -286,6 +292,28 @@ class _Suggestions extends StatelessWidget {
             ),
         ],
       ],
+    );
+  }
+}
+
+/// Soft pink glow behind the mascot, like a spotlight on a stage.
+class _Spotlight extends StatelessWidget {
+  final Widget child;
+
+  const _Spotlight({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final glow = Theme.of(context).colorScheme.secondaryContainer;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          radius: 0.6,
+          colors: [glow, glow.withValues(alpha: 0)],
+        ),
+      ),
+      child: child,
     );
   }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Staging icon background — amber -->
-    <color name="ic_launcher_background">#FFC107</color>
+    <!-- Staging icon background — pink brand color (white cow) -->
+    <color name="ic_launcher_background">#FFD1DC</color>
 </resources>

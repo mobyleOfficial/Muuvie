@@ -30,6 +30,7 @@ class ImportUnmatchedScreen extends StatelessWidget {
             child: CircularProgressIndicator(),
           ),
           ImportUnmatchedError(:final message) => MuuvieEmptyState(
+            illustration: MuuvieIllustration.error,
             title: l10n?.emptyStateErrorTitle ?? '',
             message: message,
             action: cubit.load,
@@ -37,6 +38,7 @@ class ImportUnmatchedScreen extends StatelessWidget {
           ),
           ImportUnmatchedSuccess(:final items) when items.isEmpty =>
             MuuvieEmptyState(
+              illustration: MuuvieIllustration.search,
               title: l10n?.importUnmatchedEmpty ?? '',
               message: '',
             ),

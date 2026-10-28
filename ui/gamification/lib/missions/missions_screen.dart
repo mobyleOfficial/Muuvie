@@ -24,6 +24,7 @@ class MissionsScreen extends StatelessWidget {
       builder: (context, state) => switch (state) {
         MissionsLoading() => const Center(child: MuuvieActivityIndicator()),
         MissionsError() => MuuvieEmptyState(
+          illustration: MuuvieIllustration.error,
           title: l10n?.emptyStateErrorTitle ?? '',
           message: l10n?.emptyStateErrorMessage ?? '',
           action: cubit.load,

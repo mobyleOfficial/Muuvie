@@ -350,6 +350,7 @@ class _MoviesResultsTab extends StatelessWidget {
                   ),
                 ),
         SearchError(:final message) => MuuvieEmptyState(
+          illustration: MuuvieIllustration.error,
           title: l10n?.emptyStateErrorTitle ?? '',
           message: message,
         ),

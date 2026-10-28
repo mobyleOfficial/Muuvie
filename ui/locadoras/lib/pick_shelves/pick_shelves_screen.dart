@@ -30,6 +30,7 @@ class PickShelvesScreen extends StatelessWidget {
               child: CircularProgressIndicator(),
             ),
             PickShelvesError(:final message) => MuuvieEmptyState(
+              illustration: MuuvieIllustration.error,
               title: l10n?.emptyStateErrorTitle ?? '',
               message: message,
               action: cubit.load,
@@ -38,6 +39,7 @@ class PickShelvesScreen extends StatelessWidget {
             PickShelvesSuccess(:final shelves, :final selectedIds) =>
               shelves.isEmpty
                   ? MuuvieEmptyState(
+                      illustration: MuuvieIllustration.movies,
                       title: l10n?.emptyStateNoItemsTitle ?? '',
                       message: l10n?.locadoraPickShelvesEmpty ?? '',
                     )

@@ -1,8 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:common/common.dart';
 import 'package:flutter/material.dart';
-import 'package:auth_ui/login_router.dart';
 
+/// Hosts login and sign up. The screens carry their own headline, so the
+/// bar only offers back (when there is a screen to go back to) and close.
 @RoutePage()
 class AuthFlowPage extends StatefulWidget {
   const AuthFlowPage({super.key});
@@ -12,7 +13,7 @@ class AuthFlowPage extends StatefulWidget {
 }
 
 class _AuthFlowPageState extends State<AuthFlowPage> {
-  final _appBarController = AppBarController();
+  final _canGoBack = ValueNotifier(false);
   StackRouter? _innerRouter;
 
   void _attachRouter(StackRouter router) {
@@ -20,39 +21,20 @@ class _AuthFlowPageState extends State<AuthFlowPage> {
     _detachListeners();
     _innerRouter = router;
     router.addListener(_onRouteChanged);
-    router.navigationHistory.addListener(_onRouteChanged);
-    _resolveTitle();
+    _onRouteChanged();
   }
 
-  void _detachListeners() {
-    _innerRouter?.removeListener(_onRouteChanged);
-    _innerRouter?.navigationHistory.removeListener(_onRouteChanged);
-  }
+  void _detachListeners() => _innerRouter?.removeListener(_onRouteChanged);
 
   void _onRouteChanged() {
     if (!mounted) return;
-    _resolveTitle();
-  }
-
-  void _resolveTitle() {
-    final router = _innerRouter;
-    if (router == null) return;
-    final title = switch (router.topRoute.name) {
-      SignUpRoute.name => _signUpTitle,
-      _ => null,
-    };
-    _appBarController.update(title: title);
-  }
-
-  String? get _signUpTitle {
-    final l10n = AppLocalizations.of(context);
-    return l10n?.signUpTitle;
+    _canGoBack.value = (_innerRouter?.stack.length ?? 0) > 1;
   }
 
   @override
   void dispose() {
     _detachListeners();
-    _appBarController.dispose();
+    _canGoBack.dispose();
     super.dispose();
   }
 
@@ -71,37 +53,31 @@ class _AuthFlowPageState extends State<AuthFlowPage> {
             body: SafeArea(
               child: Column(
                 children: [
-                  ListenableBuilder(
-                    listenable: _appBarController,
-                    builder: (context, _) {
-                      final titleOverride = _appBarController.currentTitle;
-                      final hasTitle = titleOverride != null;
-
-                      return MuuvieAnimatedAppBar(
-                        title: titleOverride,
-                        leading: hasTitle
-                            ? IconButton(
-                                icon: const Icon(Icons.arrow_back),
-                                onPressed: () => _innerRouter?.maybePop(),
-                                tooltip: MaterialLocalizations.of(
-                                  context,
-                                ).backButtonTooltip,
-                              )
-                            : null,
-                        actions: [
-                          IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () => Navigator.of(
-                              context,
-                              rootNavigator: true,
-                            ).pop(false),
-                            tooltip: MaterialLocalizations.of(
-                              context,
-                            ).closeButtonTooltip,
-                          ),
-                        ],
-                      );
-                    },
+                  ValueListenableBuilder(
+                    valueListenable: _canGoBack,
+                    builder: (context, canGoBack, _) => MuuvieAnimatedAppBar(
+                      leading: canGoBack
+                          ? IconButton(
+                              icon: const Icon(Icons.arrow_back),
+                              onPressed: () => _innerRouter?.maybePop(),
+                              tooltip: MaterialLocalizations.of(
+                                context,
+                              ).backButtonTooltip,
+                            )
+                          : null,
+                      actions: [
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.of(
+                            context,
+                            rootNavigator: true,
+                          ).pop(false),
+                          tooltip: MaterialLocalizations.of(
+                            context,
+                          ).closeButtonTooltip,
+                        ),
+                      ],
+                    ),
                   ),
                   Expanded(child: content),
                 ],

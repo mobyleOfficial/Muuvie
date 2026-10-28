@@ -61,6 +61,7 @@ class MovieHistoryScreen extends StatelessWidget {
             child: CircularProgressIndicator(),
           ),
           MovieHistoryError(:final message) => MuuvieEmptyState(
+            illustration: MuuvieIllustration.error,
             title: l10n?.emptyStateErrorTitle ?? '',
             message: message,
             action: cubit.load,
@@ -68,6 +69,7 @@ class MovieHistoryScreen extends StatelessWidget {
           ),
           MovieHistorySuccess(:final logs) when logs.isEmpty =>
             MuuvieEmptyState(
+              illustration: MuuvieIllustration.movies,
               title: l10n?.historyEmpty ?? '',
               message: movieTitle,
             ),

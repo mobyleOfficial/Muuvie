@@ -1,3 +1,5 @@
+import 'package:auth/auth.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:common/common.dart';
 import 'package:core/core.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +14,14 @@ import 'package:programacao/programacao.dart';
 
 import '../../helpers/fake_cineclubes_repository.dart';
 import '../../helpers/fake_maratonas_repository.dart';
+
+class _LoggedOutAuthRepository implements AuthRepository {
+  @override
+  Future<Result<bool>> isUserAuthenticated() async => const Success(false);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 void main() {
   late FakeMaratonasRepository repository;
@@ -142,5 +152,72 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(repository.filters.last.trusted, true);
+  });
+
+  testWidgets('Criadas por mim asks a logged out user to log in', (
+    tester,
+  ) async {
+    GetIt.instance.registerFactory<IsUserAuthenticated>(
+      () => IsUserAuthenticated(_LoggedOutAuthRepository()),
+    );
+    AuthGate.configure(loginRoute: const NamedRoute('Login'));
+    final cubit = ProgramacaoCubit()..load();
+    addTearDown(cubit.close);
+    final router = RootStackRouter.build(
+      routes: [
+        NamedRouteDef(
+          name: 'Home',
+          path: '/',
+          initial: true,
+          builder: (context, _) => Scaffold(
+            body: ProgramacaoScreen(
+              cubit: cubit,
+              maratonaListKey: GlobalKey<MaratonaListViewState>(),
+              cineclubeListKey: GlobalKey<CineClubeListViewState>(),
+              onOpenCineClube: (_) {},
+              onCreateCineClube: () {},
+              onOpenMaratona: (_) {},
+              onCreateMaratona: () {},
+              onParticipatingChanged: cubit.setParticipatingOnly,
+            ),
+          ),
+        ),
+        NamedRouteDef(
+          name: 'Login',
+          builder: (context, _) => Scaffold(
+            body: TextButton(
+              onPressed: () => context.router.pop(false),
+              child: const Text('login modal'),
+            ),
+          ),
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(
+      MaterialApp.router(
+        routerConfig: router.config(),
+        locale: const Locale('pt'),
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+      ),
+    );
+    await tester.pumpAndSettle();
+    final chip = find.widgetWithText(FilterChip, 'Criadas por mim');
+    await tester.tap(chip);
+    await tester.pumpAndSettle();
+
+    expect(find.text('login modal'), findsOneWidget);
+
+    await tester.tap(find.text('login modal'));
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<FilterChip>(chip).selected, false);
+    expect(repository.filters.last.mine, isNot(true));
   });
 }

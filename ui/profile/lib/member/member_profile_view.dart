@@ -162,6 +162,7 @@ class _MemberProfileViewState extends State<MemberProfileView> {
           child: CircularProgressIndicator(),
         ),
         MemberProfileError(:final message, :final notFound) => MuuvieEmptyState(
+          illustration: MuuvieIllustration.error,
           title: notFound
               ? l10n?.profileNotFound ?? ''
               : l10n?.emptyStateErrorTitle ?? '',

@@ -135,6 +135,7 @@ class _Feed extends StatelessWidget {
                 child: SizedBox(
                   height: constraints.maxHeight,
                   child: MuuvieEmptyState(
+                    illustration: MuuvieIllustration.sleeping,
                     title: l10n?.attsEmptyTitle ?? '',
                     message: state.scope == FeedScope.me
                         ? l10n?.attsEmptyMe ?? ''
@@ -191,6 +192,7 @@ class _Error extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
 
     return MuuvieEmptyState(
+      illustration: MuuvieIllustration.error,
       title: l10n?.emptyStateErrorTitle ?? '',
       message: l10n?.emptyStateErrorMessage ?? '',
       action: onRetry,

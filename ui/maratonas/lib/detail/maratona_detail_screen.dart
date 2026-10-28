@@ -52,6 +52,7 @@ class MaratonaDetailScreen extends StatelessWidget {
             child: MuuvieActivityIndicator(),
           ),
           MaratonaDetailError() => MuuvieEmptyState(
+            illustration: MuuvieIllustration.error,
             title: l10n?.emptyStateErrorTitle ?? '',
             message: l10n?.emptyStateErrorMessage ?? '',
             action: cubit.load,

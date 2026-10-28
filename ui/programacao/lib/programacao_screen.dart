@@ -44,6 +44,7 @@ class ProgramacaoScreen extends StatelessWidget {
             child: MuuvieActivityIndicator(),
           ),
           ProgramacaoError(:final message) => MuuvieEmptyState(
+            illustration: MuuvieIllustration.error,
             title: l10n?.emptyStateErrorTitle ?? '',
             message: message,
           ),

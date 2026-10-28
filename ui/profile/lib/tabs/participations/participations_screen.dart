@@ -29,6 +29,7 @@ class ParticipationsScreen extends StatelessWidget {
             child: MuuvieActivityIndicator(),
           ),
           ParticipationsError(:final message) => MuuvieEmptyState(
+            illustration: MuuvieIllustration.error,
             title: l10n?.emptyStateErrorTitle ?? '',
             message: message,
             action: cubit.load,
@@ -36,6 +37,7 @@ class ParticipationsScreen extends StatelessWidget {
           ),
           ParticipationsSuccess(:final maratonas) when maratonas.isEmpty =>
             MuuvieEmptyState(
+              illustration: MuuvieIllustration.maratona,
               title: l10n?.profileTabParticipations ?? '',
               message: l10n?.maratonaParticipatingEmpty ?? '',
             ),

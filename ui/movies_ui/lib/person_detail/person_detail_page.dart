@@ -45,6 +45,7 @@ class _PersonDetailPageState extends State<PersonDetailPage> {
       builder: (context, snapshot) => switch (snapshot.data) {
         null => const Center(child: CircularProgressIndicator()),
         Failure(:final error) => MuuvieEmptyState(
+          illustration: MuuvieIllustration.error,
           title: l10n?.emptyStateErrorTitle ?? '',
           message: error.message,
           action: () => setState(() => _detail = _load()),

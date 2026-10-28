@@ -234,12 +234,14 @@ class _MovieActivitiesFeedState extends State<MovieActivitiesFeed> {
     if (state.activities.isEmpty) {
       return state.error != null
           ? MuuvieEmptyState(
+              illustration: MuuvieIllustration.error,
               title: l10n?.emptyStateErrorTitle ?? '',
               message: l10n?.emptyStateErrorMessage ?? '',
               action: _cubit.load,
               actionLabel: l10n?.emptyStateRetry ?? '',
             )
           : MuuvieEmptyState(
+              illustration: MuuvieIllustration.movies,
               title: l10n?.movieDetailRecordsTab ?? '',
               message: l10n?.movieRecordsEmpty ?? '',
             );

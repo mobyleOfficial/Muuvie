@@ -37,7 +37,10 @@ class _SignUpPageState extends State<SignUpPage> {
           Navigator.of(context, rootNavigator: true).pop(true);
         }
       },
-      builder: (context, state) => SignUpScreen(state: state),
+      builder: (context, state) => SignUpScreen(
+        state: state,
+        onLoginTap: () => context.router.maybePop(),
+      ),
     ),
   );
 }

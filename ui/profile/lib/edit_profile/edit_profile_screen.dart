@@ -154,6 +154,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: CircularProgressIndicator(),
           ),
           EditProfileError(:final message) => MuuvieEmptyState(
+            illustration: MuuvieIllustration.error,
             title: l10n?.emptyStateErrorTitle ?? '',
             message: message,
           ),

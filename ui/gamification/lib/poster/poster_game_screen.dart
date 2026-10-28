@@ -24,6 +24,7 @@ class PosterGameScreen extends StatelessWidget {
       builder: (context, state) => switch (state) {
         PosterGameLoading() => const Center(child: MuuvieActivityIndicator()),
         PosterGameError() => MuuvieEmptyState(
+          illustration: MuuvieIllustration.error,
           title: l10n?.emptyStateErrorTitle ?? '',
           message: l10n?.emptyStateErrorMessage ?? '',
           action: cubit.next,

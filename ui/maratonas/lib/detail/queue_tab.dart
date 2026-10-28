@@ -66,6 +66,7 @@ class _MaratonaQueueTabState extends State<MaratonaQueueTab> {
 
     if (_shelfId == null) {
       return MuuvieEmptyState(
+        illustration: MuuvieIllustration.maratona,
         title: l10n?.maratonaTabQueue ?? '',
         message: l10n?.maratonaQueueJoin ?? '',
       );
@@ -73,6 +74,7 @@ class _MaratonaQueueTabState extends State<MaratonaQueueTab> {
     if (_loading) return const Center(child: MuuvieActivityIndicator());
     if (_failed) {
       return MuuvieEmptyState(
+        illustration: MuuvieIllustration.error,
         title: l10n?.emptyStateErrorTitle ?? '',
         message: l10n?.emptyStateErrorMessage ?? '',
         action: _load,
@@ -102,6 +104,7 @@ class _MaratonaQueueTabState extends State<MaratonaQueueTab> {
             SliverFillRemaining(
               hasScrollBody: false,
               child: MuuvieEmptyState(
+                illustration: MuuvieIllustration.maratona,
                 title: l10n?.maratonaTabQueue ?? '',
                 message: l10n?.maratonaQueueEmpty ?? '',
               ),

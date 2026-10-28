@@ -113,6 +113,7 @@ class _MaratonaDiscoveryTabState extends State<MaratonaDiscoveryTab> {
 
     if (selected == null) {
       return MuuvieEmptyState(
+        illustration: MuuvieIllustration.maratona,
         title: l10n?.maratonaTabDiscovery ?? '',
         message: l10n?.maratonaDiscoveryNone ?? '',
       );
@@ -156,6 +157,7 @@ class _MaratonaDiscoveryTabState extends State<MaratonaDiscoveryTab> {
             SliverFillRemaining(
               hasScrollBody: false,
               child: MuuvieEmptyState(
+                illustration: MuuvieIllustration.error,
                 title: l10n?.emptyStateErrorTitle ?? '',
                 message: l10n?.emptyStateErrorMessage ?? '',
                 action: _load,
@@ -171,6 +173,7 @@ class _MaratonaDiscoveryTabState extends State<MaratonaDiscoveryTab> {
             SliverFillRemaining(
               hasScrollBody: false,
               child: MuuvieEmptyState(
+                illustration: MuuvieIllustration.maratona,
                 title: l10n?.maratonaTabDiscovery ?? '',
                 message: l10n?.maratonaPickerEmpty ?? '',
               ),

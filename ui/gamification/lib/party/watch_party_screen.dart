@@ -47,6 +47,7 @@ class WatchPartyScreen extends StatelessWidget {
           onJoin: onJoin,
         ),
         WatchPartyClosed() => MuuvieEmptyState(
+          illustration: MuuvieIllustration.sleeping,
           title: l10n?.partyClosed ?? '',
           message: '',
         ),

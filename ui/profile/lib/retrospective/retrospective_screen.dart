@@ -74,6 +74,7 @@ class _RetrospectiveScreenState extends State<RetrospectiveScreen> {
                 ),
                 Expanded(
                   child: MuuvieEmptyState(
+                    illustration: MuuvieIllustration.error,
                     title: error == AppError.notFound
                         ? l10n?.retrospectiveEmpty ?? ''
                         : l10n?.emptyStateErrorTitle ?? '',

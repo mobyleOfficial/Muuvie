@@ -27,6 +27,7 @@ class WhispersScreen extends StatelessWidget {
         builder: (context, state) => switch (state) {
           WhispersLoading() => const Center(child: CircularProgressIndicator()),
           WhispersError() => MuuvieEmptyState(
+            illustration: MuuvieIllustration.error,
             title: l10n?.emptyStateErrorTitle ?? '',
             message: l10n?.emptyStateErrorMessage ?? '',
             action: cubit.load,
@@ -34,6 +35,7 @@ class WhispersScreen extends StatelessWidget {
           ),
           WhispersSuccess(:final conversations) when conversations.isEmpty =>
             MuuvieEmptyState(
+              illustration: MuuvieIllustration.sleeping,
               title: l10n?.whispersEmptyTitle ?? '',
               message: l10n?.whispersEmptyMessage ?? '',
             ),

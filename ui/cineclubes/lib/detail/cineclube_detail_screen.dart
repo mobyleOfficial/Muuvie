@@ -46,6 +46,7 @@ class CineClubeDetailScreen extends StatelessWidget {
             child: MuuvieActivityIndicator(),
           ),
           CineClubeDetailError() => MuuvieEmptyState(
+            illustration: MuuvieIllustration.error,
             title: l10n?.emptyStateErrorTitle ?? '',
             message: l10n?.emptyStateErrorMessage ?? '',
             action: cubit.load,

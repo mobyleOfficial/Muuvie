@@ -153,6 +153,7 @@ class _HighlightsEditorPageState extends State<HighlightsEditorPage> {
             child: CircularProgressIndicator(),
           ),
           HighlightsEditorError(:final message) => MuuvieEmptyState(
+            illustration: MuuvieIllustration.error,
             title: l10n?.emptyStateErrorTitle ?? '',
             message: message,
             action: _cubit.load,

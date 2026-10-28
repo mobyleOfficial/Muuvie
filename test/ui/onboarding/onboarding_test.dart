@@ -18,6 +18,7 @@ import 'package:profile_ui/settings/settings_state.dart';
 import 'package:social_network/social_network.dart';
 
 import '../../helpers/fake_cineclubes_repository.dart';
+import '../../helpers/golden.dart';
 import '../../helpers/fake_maratonas_repository.dart';
 import '../../helpers/fake_social_network_repository.dart';
 
@@ -57,6 +58,8 @@ void main() {
   late _MemoryOnboarding onboarding;
   late FakeMaratonasRepository maratonas;
   late FakeCineClubesRepository cineclubes;
+
+  setUpAll(useTolerantGoldens);
 
   setUp(() {
     onboarding = _MemoryOnboarding();
@@ -162,6 +165,53 @@ void main() {
     await tester.tap(find.text('Terror dos anos 70'));
     expect(opened?.slug, 'terror-70');
   });
+
+  for (final brightness in Brightness.values) {
+    testWidgets('the first panel shows the mascot (${brightness.name})', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1170, 2532);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      final intro = cubit()..load();
+      addTearDown(intro.close);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: brightness == Brightness.light
+              ? MuuvieTheme.light
+              : MuuvieTheme.dark,
+          locale: const Locale('pt'),
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: OnboardingScreen(
+            cubit: intro,
+            onFinish: () {},
+            onImport: () {},
+            onOpenMaratona: (_) {},
+            onOpenCineClube: (_) {},
+          ),
+        ),
+      );
+      // SVGs are decoded off the test clock; let the loads finish.
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 300)),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MuuvieIllustrationView), findsWidgets);
+      await expectLater(
+        find.byType(OnboardingScreen),
+        matchesGoldenFile('goldens/onboarding_${brightness.name}.png'),
+      );
+    });
+  }
 
   test('settings save the push preferences and log out', () async {
     final social = FakeSocialNetworkRepository();

@@ -53,6 +53,13 @@ class CineClubeListViewState extends State<CineClubeList> {
     super.dispose();
   }
 
+  /// "Criadas por mim" needs an account: asks to log in first.
+  Future<void> _setMine(bool mine) async {
+    if (mine && !await AuthGate.check(context)) return;
+    if (!mounted) return;
+    _cubit.setFilter(_cubit.state.filter.copyWith(mine: mine));
+  }
+
   /// Reloads, e.g. after creating a CineClube.
   Future<void> reload() => _cubit.load();
 
@@ -125,9 +132,7 @@ class CineClubeListViewState extends State<CineClubeList> {
                             _Filter(
                               label: l10n?.maratonaFilterMine ?? '',
                               selected: filter.mine,
-                              onSelected: (value) => _cubit.setFilter(
-                                filter.copyWith(mine: value),
-                              ),
+                              onSelected: _setMine,
                             ),
                           ],
                         ),
@@ -142,6 +147,7 @@ class CineClubeListViewState extends State<CineClubeList> {
                       SliverFillRemaining(
                         hasScrollBody: false,
                         child: MuuvieEmptyState(
+                          illustration: MuuvieIllustration.error,
                           title: l10n?.emptyStateErrorTitle ?? '',
                           message: l10n?.emptyStateErrorMessage ?? '',
                           action: _cubit.load,
@@ -152,6 +158,7 @@ class CineClubeListViewState extends State<CineClubeList> {
                       SliverFillRemaining(
                         hasScrollBody: false,
                         child: MuuvieEmptyState(
+                          illustration: MuuvieIllustration.cineclube,
                           title: l10n?.cineclubeListEmptyTitle ?? '',
                           message: widget.participating
                               ? l10n?.cineclubeParticipatingEmpty ?? ''

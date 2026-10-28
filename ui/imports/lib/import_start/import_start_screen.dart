@@ -31,6 +31,7 @@ class ImportStartScreen extends StatelessWidget {
             child: CircularProgressIndicator(),
           ),
           ImportStartError(:final message) => MuuvieEmptyState(
+            illustration: MuuvieIllustration.error,
             title: l10n?.emptyStateErrorTitle ?? '',
             message: message,
             action: cubit.load,

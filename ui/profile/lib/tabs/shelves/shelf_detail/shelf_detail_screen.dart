@@ -77,6 +77,7 @@ class ShelfDetailScreen extends StatelessWidget {
               child: CircularProgressIndicator(),
             ),
             ShelfDetailError(:final message) => MuuvieEmptyState(
+              illustration: MuuvieIllustration.error,
               title: l10n?.emptyStateErrorTitle ?? '',
               message: message,
               action: cubit.load,
@@ -116,6 +117,7 @@ class ShelfDetailScreen extends StatelessWidget {
               SliverFillRemaining(
                 hasScrollBody: false,
                 child: MuuvieEmptyState(
+                  illustration: MuuvieIllustration.movies,
                   title: l10n?.emptyStateNoItemsTitle ?? '',
                   message: state.filter.isEmpty
                       ? l10n?.emptyStateNoItemsMessage ?? ''

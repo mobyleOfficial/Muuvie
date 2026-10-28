@@ -103,6 +103,7 @@ class _MovieSearchSheetState extends State<MovieSearchSheet> {
                 Expanded(
                   child: _failed
                       ? MuuvieEmptyState(
+                          illustration: null,
                           title: l10n?.emptyStateErrorTitle ?? '',
                           message: l10n?.emptyStateErrorMessage ?? '',
                         )

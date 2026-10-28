@@ -74,12 +74,14 @@ class NewsListScreen extends StatelessWidget {
                               const Center(child: CircularProgressIndicator()),
                           firstPageErrorIndicatorBuilder: (_) =>
                               MuuvieEmptyState(
+                                illustration: MuuvieIllustration.error,
                                 title: l10n?.emptyStateErrorTitle ?? '',
                                 message: l10n?.emptyStateErrorMessage ?? '',
                                 action: fetchNextPage,
                                 actionLabel: l10n?.emptyStateRetry ?? '',
                               ),
                           noItemsFoundIndicatorBuilder: (_) => MuuvieEmptyState(
+                            illustration: MuuvieIllustration.sleeping,
                             title: l10n?.emptyStateNoItemsTitle ?? '',
                             message: l10n?.emptyStateNoItemsMessage ?? '',
                           ),
