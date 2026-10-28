@@ -9,4 +9,7 @@ abstract interface class AuthRemoteDataSource {
     String nickname,
   );
   Future<Result<bool>> checkNicknameAvailability(String nickname);
+
+  /// Revokes the access token (sent by the interceptor) and, if given, the refresh token.
+  Future<Result<void>> logout(String? refreshToken);
 }

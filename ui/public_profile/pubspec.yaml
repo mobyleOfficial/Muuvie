@@ -22,18 +22,12 @@ dependencies:
     path: ../../features/movies
   movies_ui:
     path: ../movies_ui
+  locadoras_ui:
+    path: ../locadoras
+  profile_ui:
+    path: ../profile
   profile:
     path: ../../features/profile
-  public_profile_feature:
-    path: ../../features/public_profile
-  public_profile_domain:
-    path: ../../features/public_profile/domain
-  public_profile_data:
-    path: ../../features/public_profile/data
-  user_activity:
-    path: ../user_activity
-  reviews:
-    path: ../reviews
 
 dev_dependencies:
   auto_route_generator: ^10.5.0

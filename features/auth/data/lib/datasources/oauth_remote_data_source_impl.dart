@@ -19,10 +19,7 @@ class OAuthRemoteDataSourceImpl implements OAuthRemoteDataSource {
           : 'mock-facebook-access-token-${DateTime.now().millisecondsSinceEpoch}';
 
       return Success(
-        OAuthResultModel(
-          provider: provider,
-          providerToken: mockToken,
-        ),
+        OAuthResultModel(provider: provider, providerToken: mockToken),
       );
     } catch (exception) {
       return const Failure(AppError.unknown);

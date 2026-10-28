@@ -9,11 +9,8 @@ class BrowseCategoriesCubit extends Cubit<BrowseCategoriesState> {
   final GetCountries _getCountries;
   final GetLanguages _getLanguages;
 
-  BrowseCategoriesCubit(
-    this._getGenres,
-    this._getCountries,
-    this._getLanguages,
-  ) : super(const BrowseCategoriesLoading()) {
+  BrowseCategoriesCubit(this._getGenres, this._getCountries, this._getLanguages)
+    : super(const BrowseCategoriesLoading()) {
     _load();
   }
 
@@ -33,15 +30,19 @@ class BrowseCategoriesCubit extends Cubit<BrowseCategoriesState> {
     final countriesResult = results[1] as Result<List<Country>>;
     final languagesResult = results[2] as Result<List<Language>>;
 
-    if (genresResult is Failure || countriesResult is Failure || languagesResult is Failure) {
+    if (genresResult is Failure ||
+        countriesResult is Failure ||
+        languagesResult is Failure) {
       emit(const BrowseCategoriesError('Failed to load categories'));
       return;
     }
 
-    emit(BrowseCategoriesSuccess(
-      genres: (genresResult as Success<List<Genre>>).data,
-      countries: (countriesResult as Success<List<Country>>).data,
-      languages: (languagesResult as Success<List<Language>>).data,
-    ));
+    emit(
+      BrowseCategoriesSuccess(
+        genres: (genresResult as Success<List<Genre>>).data,
+        countries: (countriesResult as Success<List<Country>>).data,
+        languages: (languagesResult as Success<List<Language>>).data,
+      ),
+    );
   }
 }

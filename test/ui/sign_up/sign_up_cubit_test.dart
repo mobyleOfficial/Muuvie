@@ -39,12 +39,17 @@ class _FakeAuthRepository implements AuthRepository {
       const Failure(AppError.unknown);
 
   @override
+  Future<Result<void>> logout() async => const Success(null);
+
+  @override
+  Stream<void> observeSessionEnded() => const Stream.empty();
+
+  @override
   Future<Result<void>> signUp(
     String email,
     String password,
     String nickname,
-  ) async =>
-      const Failure(AppError.unknown);
+  ) async => const Failure(AppError.unknown);
 
   @override
   Future<Result<bool>> checkNicknameAvailability(String nickname) async =>
@@ -61,9 +66,9 @@ void main() {
   });
 
   SignUpCubit buildCubit() => SignUpCubit(
-        signUp: mockSignUp,
-        checkNicknameAvailability: mockCheckNickname,
-      );
+    signUp: mockSignUp,
+    checkNicknameAvailability: mockCheckNickname,
+  );
 
   group('createAccount', () {
     blocTest<SignUpCubit, SignUpState>(
@@ -109,8 +114,7 @@ void main() {
     blocTest<SignUpCubit, SignUpState>(
       'emits [SignUpFormState with emailError] for invalid email',
       build: buildCubit,
-      act: (cubit) =>
-          cubit.createAccount('invalid', 'password123', 'nick'),
+      act: (cubit) => cubit.createAccount('invalid', 'password123', 'nick'),
       expect: () => [
         isA<SignUpFormState>().having(
           (s) => s.emailError,

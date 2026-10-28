@@ -61,4 +61,4 @@ deploy_android: false
 # Note: Ensure compatibility between xcode_version and macos_version
 xcode_version: "26.3"
 macos_version: "26"
-flutter_version: "3.41.6"
+flutter_version: "3.47.6"

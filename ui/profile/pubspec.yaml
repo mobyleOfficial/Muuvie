@@ -16,21 +16,50 @@ dependencies:
   get_it: ^8.0.3
   infinite_scroll_pagination: ^5.0.0
   cached_network_image: any
-  webview_flutter: ^4.10.0
+  share_plus: ^11.0.0
+  intl: any
+  url_launcher: ^6.3.1
+
   common:
     path: ../common
   core:
     path: ../../core
   movies:
     path: ../../features/movies
+  shelves:
+    path: ../../features/shelves
+  locadoras_ui:
+    path: ../locadoras
   movies_ui:
     path: ../movies_ui
-  reviews:
-    path: ../reviews
+  watch_logs:
+    path: ../../features/watch_logs
+  watch_logs_ui:
+    path: ../watch_logs
   profile:
     path: ../../features/profile
+  auth:
+    path: ../../features/auth
+  imports_ui:
+    path: ../imports
+  social_network:
+    path: ../../features/social_network
+  maratonas:
+    path: ../../features/maratonas
+  onboarding:
+    path: ../../features/onboarding
+  onboarding_ui:
+    path: ../onboarding
+  gamification_ui:
+    path: ../gamification
+  stats:
+    path: ../../features/stats
+  maratonas_ui:
+    path: ../maratonas
   public_profile:
     path: ../public_profile
+  whispers:
+    path: ../whispers
 
 dev_dependencies:
   auto_route_generator: ^10.5.0

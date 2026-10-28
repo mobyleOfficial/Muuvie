@@ -15,6 +15,7 @@ dependencies:
   cached_network_image: any
   intl: any
   share_plus: ^11.0.0
+  infinite_scroll_pagination: ^5.0.0
   common:
     path: ../common
   core:
@@ -23,6 +24,12 @@ dependencies:
     path: ../../features/news
   news_domain:
     path: ../../features/news/domain
+  movies_ui:
+    path: ../movies_ui
+  shelves:
+    path: ../../features/shelves
+  shelves_ui:
+    path: ../shelves
 
 dev_dependencies:
   auto_route_generator: ^10.5.0

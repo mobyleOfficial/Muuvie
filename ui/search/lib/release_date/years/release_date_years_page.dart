@@ -27,10 +27,7 @@ class ReleaseDateYearsPage extends StatelessWidget {
         ),
       ),
       onYearTap: (year) => context.router.push(
-        ReleaseDateMoviesRoute(
-          title: '$year',
-          primaryReleaseYear: year,
-        ),
+        ReleaseDateMoviesRoute(title: '$year', primaryReleaseYear: year),
       ),
     );
   }

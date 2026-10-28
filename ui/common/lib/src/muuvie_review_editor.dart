@@ -35,8 +35,9 @@ class _MuuvieReviewEditorState extends State<MuuvieReviewEditor>
     _controller = TextEditingController(text: initialText);
     _focusNode = FocusNode();
     _tabController = TabController(length: 2, vsync: this);
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _focusNode.requestFocus());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _focusNode.requestFocus(),
+    );
   }
 
   @override
@@ -57,8 +58,7 @@ class _MuuvieReviewEditorState extends State<MuuvieReviewEditor>
           '${text.substring(0, offset)}$openTag$closeTag${text.substring(offset)}';
       _controller.value = TextEditingValue(
         text: newText,
-        selection:
-            TextSelection.collapsed(offset: offset + openTag.length),
+        selection: TextSelection.collapsed(offset: offset + openTag.length),
       );
       return;
     }
@@ -69,7 +69,8 @@ class _MuuvieReviewEditorState extends State<MuuvieReviewEditor>
     _controller.value = TextEditingValue(
       text: newText,
       selection: TextSelection.collapsed(
-        offset: selection.start +
+        offset:
+            selection.start +
             openTag.length +
             selectedText.length +
             closeTag.length,
@@ -144,21 +145,27 @@ class _MuuvieReviewEditorState extends State<MuuvieReviewEditor>
           buffer.write('</ul>');
           inList = false;
         }
-        buffer.write('<h1>${_applyInlineFormatting(trimmed.substring(2))}</h1>');
+        buffer.write(
+          '<h1>${_applyInlineFormatting(trimmed.substring(2))}</h1>',
+        );
       } else if (trimmed.startsWith('## ')) {
         flushParagraph();
         if (inList) {
           buffer.write('</ul>');
           inList = false;
         }
-        buffer.write('<h2>${_applyInlineFormatting(trimmed.substring(3))}</h2>');
+        buffer.write(
+          '<h2>${_applyInlineFormatting(trimmed.substring(3))}</h2>',
+        );
       } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
         flushParagraph();
         if (!inList) {
           buffer.write('<ul>');
           inList = true;
         }
-        buffer.write('<li>${_applyInlineFormatting(trimmed.substring(2))}</li>');
+        buffer.write(
+          '<li>${_applyInlineFormatting(trimmed.substring(2))}</li>',
+        );
       } else if (trimmed.isEmpty) {
         flushParagraph();
         if (inList) {
@@ -264,8 +271,7 @@ class _MuuvieReviewEditorState extends State<MuuvieReviewEditor>
         height: MediaQuery.of(context).size.height * 0.85,
         decoration: BoxDecoration(
           color: colorScheme.surface,
-          borderRadius:
-              const BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
           children: [
@@ -294,8 +300,9 @@ class _MuuvieReviewEditorState extends State<MuuvieReviewEditor>
                         decoration: InputDecoration(
                           hintText: l10n?.reviewEditorPlaceholder ?? '',
                           hintStyle: textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurfaceVariant
-                                .withValues(alpha: 0.6),
+                            color: colorScheme.onSurfaceVariant.withValues(
+                              alpha: 0.6,
+                            ),
                           ),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.zero,
@@ -415,10 +422,7 @@ class _PreviewTab extends StatefulWidget {
   final TextEditingController controller;
   final TabController tabController;
 
-  const _PreviewTab({
-    required this.controller,
-    required this.tabController,
-  });
+  const _PreviewTab({required this.controller, required this.tabController});
 
   @override
   State<_PreviewTab> createState() => _PreviewTabState();
@@ -445,14 +449,13 @@ class _PreviewTabState extends State<_PreviewTab> {
     }
   }
 
-  void _toggleSpoiler(int index) =>
-      setState(() {
-        if (_revealedSpoilers.contains(index)) {
-          _revealedSpoilers.remove(index);
-        } else {
-          _revealedSpoilers.add(index);
-        }
-      });
+  void _toggleSpoiler(int index) => setState(() {
+    if (_revealedSpoilers.contains(index)) {
+      _revealedSpoilers.remove(index);
+    } else {
+      _revealedSpoilers.add(index);
+    }
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -464,8 +467,9 @@ class _PreviewTabState extends State<_PreviewTab> {
       child: ListenableBuilder(
         listenable: widget.controller,
         builder: (context, _) {
-          final html =
-              _MuuvieReviewEditorState.editableToHtml(widget.controller.text);
+          final html = _MuuvieReviewEditorState.editableToHtml(
+            widget.controller.text,
+          );
 
           if (html.trim().isEmpty) {
             return Center(
@@ -528,13 +532,15 @@ class _HtmlPreviewWithSpoilers extends StatelessWidget {
 
     final matches = tagRegex.allMatches(html);
     if (matches.isEmpty) {
-      widgets.add(Text(
-        _stripTags(html),
-        style: textTheme.bodyMedium?.copyWith(
-          color: colorScheme.onSurface,
-          height: 1.6,
+      widgets.add(
+        Text(
+          _stripTags(html),
+          style: textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurface,
+            height: 1.6,
+          ),
         ),
-      ));
+      );
       return widgets;
     }
 
@@ -544,62 +550,70 @@ class _HtmlPreviewWithSpoilers extends StatelessWidget {
 
       switch (tag) {
         case 'h1':
-          widgets.add(Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Text.rich(
-              _buildSpans(content, colorScheme),
-              style: textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
-              ),
-            ),
-          ));
-        case 'h2':
-          widgets.add(Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Text.rich(
-              _buildSpans(content, colorScheme),
-              style: textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface,
-              ),
-            ),
-          ));
-        case 'p':
-          widgets.add(Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Text.rich(
-              _buildSpans(content, colorScheme),
-              style: textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface,
-                height: 1.6,
-              ),
-            ),
-          ));
-        case 'li':
-          widgets.add(Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 4),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '\u2022 ',
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface,
-                  ),
+          widgets.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text.rich(
+                _buildSpans(content, colorScheme),
+                style: textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
                 ),
-                Expanded(
-                  child: Text.rich(
-                    _buildSpans(content, colorScheme),
+              ),
+            ),
+          );
+        case 'h2':
+          widgets.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text.rich(
+                _buildSpans(content, colorScheme),
+                style: textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ),
+          );
+        case 'p':
+          widgets.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text.rich(
+                _buildSpans(content, colorScheme),
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                  height: 1.6,
+                ),
+              ),
+            ),
+          );
+        case 'li':
+          widgets.add(
+            Padding(
+              padding: const EdgeInsets.only(left: 16, bottom: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '\u2022 ',
                     style: textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurface,
-                      height: 1.6,
                     ),
                   ),
-                ),
-              ],
+                  Expanded(
+                    child: Text.rich(
+                      _buildSpans(content, colorScheme),
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurface,
+                        height: 1.6,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ));
+          );
       }
     }
 
@@ -626,32 +640,40 @@ class _HtmlPreviewWithSpoilers extends StatelessWidget {
 
       switch (tag) {
         case 'b':
-          spans.add(TextSpan(
-            text: text,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ));
+          spans.add(
+            TextSpan(
+              text: text,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          );
         case 'i':
-          spans.add(TextSpan(
-            text: text,
-            style: const TextStyle(fontStyle: FontStyle.italic),
-          ));
+          spans.add(
+            TextSpan(
+              text: text,
+              style: const TextStyle(fontStyle: FontStyle.italic),
+            ),
+          );
         case 's':
-          spans.add(TextSpan(
-            text: text,
-            style: const TextStyle(decoration: TextDecoration.lineThrough),
-          ));
+          spans.add(
+            TextSpan(
+              text: text,
+              style: const TextStyle(decoration: TextDecoration.lineThrough),
+            ),
+          );
         default:
           final currentIndex = spoilerIndex++;
           final revealed = revealedSpoilers.contains(currentIndex);
-          spans.add(WidgetSpan(
-            alignment: PlaceholderAlignment.middle,
-            child: _SpoilerChip(
-              text: text,
-              revealed: revealed,
-              onDoubleTap: () => onSpoilerDoubleTap(currentIndex),
-              colorScheme: colorScheme,
+          spans.add(
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: _SpoilerChip(
+                text: text,
+                revealed: revealed,
+                onDoubleTap: () => onSpoilerDoubleTap(currentIndex),
+                colorScheme: colorScheme,
+              ),
             ),
-          ));
+          );
       }
 
       lastEnd = match.end;
@@ -837,11 +859,7 @@ class _FormattingToolbar extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.check,
-                          size: 18,
-                          color: colorScheme.primary,
-                        ),
+                        Icon(Icons.check, size: 18, color: colorScheme.primary),
                         const SizedBox(width: 6),
                         Text(
                           'Done',

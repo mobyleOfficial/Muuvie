@@ -4,6 +4,7 @@ import 'package:movies_domain/domain.dart';
 
 import 'package:movies_data/datasources/local/movies_local_data_source.dart';
 import 'package:movies_data/datasources/remote/movies_remote_data_source.dart';
+
 @LazySingleton(as: MoviesRepository)
 class MoviesRepositoryImpl implements MoviesRepository {
   final MoviesRemoteDataSource _dataSource;
@@ -12,92 +13,8 @@ class MoviesRepositoryImpl implements MoviesRepository {
   MoviesRepositoryImpl(this._dataSource, this._localDataSource);
 
   @override
-  Future<Result<MovieListing>> getTrendingMovieList({
-    required int page,
-  }) async {
-    final result = await _dataSource.getTrendingMovieList(page: page);
-
-    return switch (result) {
-      Success(:final data) => Success(data.toDomain()),
-      Failure(:final error) => Failure(error),
-    };
-  }
-
-  @override
   Future<Result<Movie>> getMovieDetail({required int movieId}) async {
     final result = await _dataSource.getMovieDetail(movieId: movieId);
-
-    return switch (result) {
-      Success(:final data) => Success(data.toDomain()),
-      Failure(:final error) => Failure(error),
-    };
-  }
-
-  @override
-  Future<Result<MovieReviewListing>> getMovieReviews({
-    required int page,
-    String? userId,
-    int? movieId,
-  }) async {
-    final result = await _dataSource.getMovieReviews(page: page, userId: userId, movieId: movieId);
-
-    return switch (result) {
-      Success(:final data) => Success(data.toDomain()),
-      Failure(:final error) => Failure(error),
-    };
-  }
-
-  @override
-  Future<Result<MovieReview>> getReviewDetails({
-    required String reviewId,
-  }) async {
-    final result = await _dataSource.getReviewDetails(reviewId: reviewId);
-
-    return switch (result) {
-      Success(:final data) => Success(data.toDomain()),
-      Failure(:final error) => Failure(error),
-    };
-  }
-
-  @override
-  Future<Result<void>> likeReview({required String reviewId}) async {
-    final result = await _dataSource.likeReview(reviewId: reviewId);
-
-    return switch (result) {
-      Success() => const Success(null),
-      Failure(:final error) => Failure(error),
-    };
-  }
-
-  @override
-  Future<Result<void>> unlikeReview({required String reviewId}) async {
-    final result = await _dataSource.unlikeReview(reviewId: reviewId);
-
-    return switch (result) {
-      Success() => const Success(null),
-      Failure(:final error) => Failure(error),
-    };
-  }
-
-  @override
-  Future<Result<MovieListListing>> getMovieLists({
-    required int page,
-    String? userId,
-  }) async {
-    final result = await _dataSource.getMovieLists(page: page, userId: userId);
-
-    return switch (result) {
-      Success(:final data) => Success(data.toDomain()),
-      Failure(:final error) => Failure(error),
-    };
-  }
-
-  @override
-  Future<Result<MovieList>> getMovieListDetail({
-    required int listId,
-    required int page,
-  }) async {
-    final result = await _dataSource.getMovieListDetail(listId: listId, page: page);
 
     return switch (result) {
       Success(:final data) => Success(data.toDomain()),
@@ -149,12 +66,28 @@ class MoviesRepositoryImpl implements MoviesRepository {
   }
 
   @override
+  Future<Result<MovieListing>> getTrendingOnMuuvie({required int page}) async =>
+      switch (await _dataSource.getTrendingOnMuuvie(page: page)) {
+        Success(:final data) => Success(data.toDomain()),
+        Failure(:final error) => Failure(error),
+      };
+
+  @override
+  Future<Result<MovieListing>> getMostLovedOnMuuvie({
+    required int page,
+  }) async => switch (await _dataSource.getMostLovedOnMuuvie(page: page)) {
+    Success(:final data) => Success(data.toDomain()),
+    Failure(:final error) => Failure(error),
+  };
+
+  @override
   Future<Result<List<Genre>>> getGenres() async {
     final result = await _dataSource.getGenres();
 
     return switch (result) {
-      Success(:final data) =>
-        Success(data.map((genre) => genre.toDomain()).toList()),
+      Success(:final data) => Success(
+        data.map((genre) => genre.toDomain()).toList(),
+      ),
       Failure(:final error) => Failure(error),
     };
   }
@@ -164,8 +97,9 @@ class MoviesRepositoryImpl implements MoviesRepository {
     final result = await _dataSource.getCountries();
 
     return switch (result) {
-      Success(:final data) =>
-        Success(data.map((country) => country.toDomain()).toList()),
+      Success(:final data) => Success(
+        data.map((country) => country.toDomain()).toList(),
+      ),
       Failure(:final error) => Failure(error),
     };
   }
@@ -175,8 +109,9 @@ class MoviesRepositoryImpl implements MoviesRepository {
     final result = await _dataSource.getLanguages();
 
     return switch (result) {
-      Success(:final data) =>
-        Success(data.map((language) => language.toDomain()).toList()),
+      Success(:final data) => Success(
+        data.map((language) => language.toDomain()).toList(),
+      ),
       Failure(:final error) => Failure(error),
     };
   }
@@ -186,37 +121,13 @@ class MoviesRepositoryImpl implements MoviesRepository {
       _localDataSource.addRecentSearch(query);
 
   @override
+  Result<void> removeRecentSearches({int? id}) =>
+      _localDataSource.removeRecentSearches(id: id);
+
+  @override
   Stream<List<RecentSearch>> observeRecentSearches() =>
       _localDataSource.watchRecentSearches().map(
-            (localSearches) =>
-                localSearches.map((search) => search.toDomain()).toList(),
-          );
-
-  @override
-  Future<Result<MovieListing>> getUserWatchList({
-    required String userId,
-    required int page,
-  }) async {
-    final result = await _dataSource.getUserWatchList(
-      userId: userId,
-      page: page,
-    );
-
-    return switch (result) {
-      Success(:final data) => Success(data.toDomain()),
-      Failure(:final error) => Failure(error),
-    };
-  }
-
-  @override
-  Future<Result<MovieListListing>> getFeaturedLists({
-    required int page,
-  }) async {
-    final result = await _dataSource.getFeaturedLists(page: page);
-
-    return switch (result) {
-      Success(:final data) => Success(data.toDomain()),
-      Failure(:final error) => Failure(error),
-    };
-  }
+        (localSearches) =>
+            localSearches.map((search) => search.toDomain()).toList(),
+      );
 }

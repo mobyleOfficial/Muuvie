@@ -7,4 +7,6 @@ abstract interface class AuthRepository {
   Future<Result<void>> signUp(String email, String password, String nickname);
   Future<Result<bool>> checkNicknameAvailability(String nickname);
   Future<Result<bool>> isUserAuthenticated();
+  Future<Result<void>> logout();
+  Stream<void> observeSessionEnded();
 }

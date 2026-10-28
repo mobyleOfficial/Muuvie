@@ -25,6 +25,23 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Profile links (F5.5): https://muuvie.app/@handle opens the app once the
+                 domain is verified; muuvie://muuvie.app/@handle works without it.
+                 Maratona links (F7.3) are /m/<slug>, CineClube links (F8.3) /c/<slug>. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="muuvie.app" android:pathPrefix="/@"/>
+                <data android:scheme="https" android:host="muuvie.app" android:pathPrefix="/m/"/>
+                <data android:scheme="https" android:host="muuvie.app" android:pathPrefix="/c/"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="muuvie" android:host="muuvie.app"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
@@ -41,6 +58,11 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- Profile links and the Spotify or YouTube Music soundtrack open in other apps (url_launcher). -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
         </intent>
     </queries>
 </manifest>

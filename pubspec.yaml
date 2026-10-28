@@ -47,18 +47,18 @@ dependencies:
   webview_flutter: ^4.10.0
   core:
     path: core
-  comments:
-    path: features/comments
-  comments_domain:
-    path: features/comments/domain
-  comments_data:
-    path: features/comments/data
   movies:
     path: features/movies
   movies_domain:
     path: features/movies/domain
   movies_data:
     path: features/movies/data
+  shelves:
+    path: features/shelves
+  imports:
+    path: features/imports
+  watch_logs:
+    path: features/watch_logs
   news:
     path: features/news
   news_domain:
@@ -71,42 +71,56 @@ dependencies:
     path: features/profile/domain
   profile_data:
     path: features/profile/data
-  public_profile_feature:
-    path: features/public_profile
-  public_profile_domain:
-    path: features/public_profile/domain
-  public_profile_data:
-    path: features/public_profile/data
   auth:
     path: features/auth
   auth_domain:
     path: features/auth/domain
   auth_data:
     path: features/auth/data
-  user_activities:
-    path: features/user_activities
-  user_activities_domain:
-    path: features/user_activities/domain
-  user_activities_data:
-    path: features/user_activities/data
+  social_network:
+    path: features/social_network
+  maratonas:
+    path: features/maratonas
+  cineclubes:
+    path: features/cineclubes
+  onboarding:
+    path: features/onboarding
+  onboarding_ui:
+    path: ui/onboarding
+  gamification:
+    path: features/gamification
+  gamification_ui:
+    path: ui/gamification
+  stats:
+    path: features/stats
+  cineclubes_ui:
+    path: ui/cineclubes
+  maratonas_ui:
+    path: ui/maratonas
   movies_ui:
     path: ui/movies_ui
+  programacao:
+    path: ui/programacao
+  shelves_ui:
+    path: ui/shelves
+  locadoras_ui:
+    path: ui/locadoras
+  imports_ui:
+    path: ui/imports
+  watch_logs_ui:
+    path: ui/watch_logs
   news_ui:
     path: ui/news
   common:
     path: ui/common
-  comments_ui:
-    path: ui/comments
   profile_ui:
     path: ui/profile
-  reviews:
-    path: ui/reviews
   search:
     path: ui/search
   social:
     path: ui/social
-  user_activity:
-    path: ui/user_activity
+  whispers:
+    path: ui/whispers
   auth_ui:
     path: ui/auth
 
@@ -115,7 +129,6 @@ dependencies:
   auto_route: ^11.1.0
   get_it: ^8.0.3
   injectable: ^2.5.0
-  workmanager: ^0.9.0
   infinite_scroll_pagination: ^5.0.0
   flutter_secure_storage: ^9.2.4
 

@@ -15,9 +15,7 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  late final SearchCubit _cubit = SearchCubit(
-    GetIt.I<SearchMovies>(),
-  );
+  late final SearchCubit _cubit = SearchCubit(GetIt.I<SearchMovies>());
 
   @override
   void dispose() {

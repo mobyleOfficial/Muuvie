@@ -20,16 +20,17 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Result<void>> login(OAuthProvider provider) async {
-    final providerString =
-        provider == OAuthProvider.google ? 'google' : 'facebook';
+    final providerString = provider == OAuthProvider.google
+        ? 'google'
+        : 'facebook';
 
-    final oauthResult =
-        await _oauthRemoteDataSource.initiateOAuth(providerString);
+    final oauthResult = await _oauthRemoteDataSource.initiateOAuth(
+      providerString,
+    );
 
     switch (oauthResult) {
       case Success(:final data):
-        final tokenResult =
-            await _oauthRemoteDataSource.completeOAuth(data);
+        final tokenResult = await _oauthRemoteDataSource.completeOAuth(data);
 
         switch (tokenResult) {
           case Success(:final data):
@@ -60,7 +61,11 @@ class AuthRepositoryImpl implements AuthRepository {
     String password,
     String nickname,
   ) async {
-    final result = await _authRemoteDataSource.signUp(email, password, nickname);
+    final result = await _authRemoteDataSource.signUp(
+      email,
+      password,
+      nickname,
+    );
 
     switch (result) {
       case Success(:final data):
@@ -78,11 +83,31 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Result<bool>> isUserAuthenticated() async {
     final result = await _localDataSource.getToken();
 
+    // An expired access token still counts while there is a refresh token:
+    // the interceptor renews it, and clears it if the refresh is rejected.
     return switch (result) {
       Success(:final data) => Success(
-          data != null && data.expiresAt.isAfter(DateTime.now()),
-        ),
+        data != null &&
+            (data.expiresAt.isAfter(DateTime.now()) ||
+                data.refreshToken != null),
+      ),
       Failure(:final error) => Failure(error),
     };
   }
+
+  @override
+  Future<Result<void>> logout() async {
+    final tokenResult = await _localDataSource.getToken();
+    final refreshToken = switch (tokenResult) {
+      Success(:final data) => data?.refreshToken,
+      Failure() => null,
+    };
+
+    // Best effort on the server: the local session ends even when offline.
+    await _authRemoteDataSource.logout(refreshToken);
+    return _localDataSource.clearToken();
+  }
+
+  @override
+  Stream<void> observeSessionEnded() => _localDataSource.observeTokenCleared();
 }

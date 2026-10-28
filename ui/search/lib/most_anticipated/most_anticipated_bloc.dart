@@ -20,7 +20,7 @@ class MostAnticipatedCubit extends Cubit<MostAnticipatedState> {
   );
 
   MostAnticipatedCubit(this._discoverMovies)
-      : super(const MostAnticipatedSuccess());
+    : super(const MostAnticipatedSuccess());
 
   Future<List<Movie>> _fetchPage(int page) async {
     final today = DateTime.now().toIso8601String().substring(0, 10);

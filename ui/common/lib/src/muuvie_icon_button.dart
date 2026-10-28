@@ -23,11 +23,7 @@ class MuuvieIconButton extends StatelessWidget {
       return CupertinoButton(
         padding: EdgeInsets.zero,
         onPressed: onPressed,
-        child: Icon(
-          icon,
-          size: size,
-          color: color,
-        ),
+        child: Icon(icon, size: size, color: color),
       );
     }
 

@@ -24,8 +24,8 @@ class RemoteMovieListing {
       );
 
   MovieListing toDomain() => MovieListing(
-        totalPages: totalPages,
-        totalResults: totalResults,
-        movies: movies.map((movie) => movie.toDomain()).toList(),
-      );
+    totalPages: totalPages,
+    totalResults: totalResults,
+    movies: movies.map((movie) => movie.toDomain()).toList(),
+  );
 }

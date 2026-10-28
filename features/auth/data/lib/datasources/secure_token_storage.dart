@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -5,9 +6,13 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class SecureTokenStorage {
   static const String _tokenKey = 'auth_token';
   final FlutterSecureStorage _storage;
+  final StreamController<void> _cleared = StreamController<void>.broadcast();
 
   SecureTokenStorage({FlutterSecureStorage? storage})
-      : _storage = storage ?? const FlutterSecureStorage();
+    : _storage = storage ?? const FlutterSecureStorage();
+
+  /// Emits every time the stored token is removed (logout or failed refresh).
+  Stream<void> get onCleared => _cleared.stream;
 
   Future<void> saveToken(Map<String, dynamic> tokenJson) async {
     final encoded = jsonEncode(tokenJson);
@@ -22,5 +27,6 @@ class SecureTokenStorage {
 
   Future<void> clearToken() async {
     await _storage.delete(key: _tokenKey);
+    _cleared.add(null);
   }
 }

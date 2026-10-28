@@ -1,18 +1,21 @@
 import 'package:core/core.dart';
-import 'package:injectable/injectable.dart';
 import 'package:news_domain/domain.dart';
 
+import 'package:news_data/datasources/local/news_read_local_data_source.dart';
 import 'package:news_data/datasources/remote/news_remote_data_source.dart';
 
-@LazySingleton(as: NewsRepository)
 class NewsRepositoryImpl implements NewsRepository {
   final NewsRemoteDataSource _dataSource;
+  final NewsReadLocalDataSource? _readDataSource;
 
-  NewsRepositoryImpl(this._dataSource);
+  NewsRepositoryImpl(this._dataSource, [this._readDataSource]);
 
   @override
-  Future<Result<ArticleListing>> getArticles({required int page}) async {
-    final result = await _dataSource.getArticles(page: page);
+  Future<Result<ArticleListing>> getArticles({
+    required int page,
+    String? source,
+  }) async {
+    final result = await _dataSource.getArticles(page: page, source: source);
 
     return switch (result) {
       Success(:final data) => Success(data.toDomain()),
@@ -29,4 +32,15 @@ class NewsRepositoryImpl implements NewsRepository {
       Failure(:final error) => Failure(error),
     };
   }
+
+  @override
+  Future<Result<List<String>>> getSources() => _dataSource.getSources();
+
+  @override
+  Result<Set<int>> readArticleIds() =>
+      _readDataSource?.readIds() ?? const Success({});
+
+  @override
+  Result<void> markArticleRead(int articleId) =>
+      _readDataSource?.markRead(articleId) ?? const Success(null);
 }

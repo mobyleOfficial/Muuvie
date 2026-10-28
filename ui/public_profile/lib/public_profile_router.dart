@@ -7,7 +7,5 @@ part 'public_profile_router.gr.dart';
 @AutoRouterConfig(generateForDir: ['lib'])
 class PublicProfileRouter extends RootStackRouter {
   @override
-  List<AutoRoute> get routes => [
-        AutoRoute(page: PublicProfileRoute.page),
-      ];
+  List<AutoRoute> get routes => [AutoRoute(page: PublicProfileRoute.page)];
 }

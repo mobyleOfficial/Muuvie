@@ -15,8 +15,6 @@ class GetMovieDetail extends UseCase<GetMovieDetailParams, Result<Movie>> {
 
   @override
   Future<Result<Movie>> call([GetMovieDetailParams? params]) async {
-    return _moviesRepository.getMovieDetail(
-      movieId: params?.movieId ?? 0,
-    );
+    return _moviesRepository.getMovieDetail(movieId: params?.movieId ?? 0);
   }
 }

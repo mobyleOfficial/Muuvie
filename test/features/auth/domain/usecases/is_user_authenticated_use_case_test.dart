@@ -10,6 +10,12 @@ class MockAuthRepository implements AuthRepository {
       isUserAuthenticatedResult ?? const Failure(AppError.unknown);
 
   @override
+  Future<Result<void>> logout() async => const Success(null);
+
+  @override
+  Stream<void> observeSessionEnded() => const Stream.empty();
+
+  @override
   Future<Result<void>> login(OAuthProvider provider) async =>
       const Failure(AppError.unknown);
 
@@ -22,8 +28,7 @@ class MockAuthRepository implements AuthRepository {
     String email,
     String password,
     String nickname,
-  ) async =>
-      const Failure(AppError.unknown);
+  ) async => const Failure(AppError.unknown);
 
   @override
   Future<Result<bool>> checkNicknameAvailability(String nickname) async =>
@@ -58,8 +63,7 @@ void main() {
   });
 
   test('returns failure on error', () async {
-    mockRepository.isUserAuthenticatedResult =
-        const Failure(AppError.unknown);
+    mockRepository.isUserAuthenticatedResult = const Failure(AppError.unknown);
 
     final result = await useCase();
 

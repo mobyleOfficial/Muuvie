@@ -1,0 +1,16 @@
+name: onboarding_data
+description: Data layer for the onboarding feature
+publish_to: 'none'
+
+version: 1.0.0
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  onboarding_domain:
+    path: ../domain
+  core:
+    path: ../../../core

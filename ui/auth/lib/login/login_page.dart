@@ -31,18 +31,17 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) => BlocProvider<LoginCubit>.value(
-        value: _cubit,
-        child: BlocConsumer<LoginCubit, LoginState>(
-          listener: (context, state) {
-            if (state is LoginAuthenticated) {
-              Navigator.of(context, rootNavigator: true).pop(true);
-            }
-          },
-          builder: (context, state) => LoginScreen(
-            state: state,
-            onSignUpTap: () =>
-                context.router.push(const SignUpRoute()),
-          ),
-        ),
-      );
+    value: _cubit,
+    child: BlocConsumer<LoginCubit, LoginState>(
+      listener: (context, state) {
+        if (state is LoginAuthenticated) {
+          Navigator.of(context, rootNavigator: true).pop(true);
+        }
+      },
+      builder: (context, state) => LoginScreen(
+        state: state,
+        onSignUpTap: () => context.router.push(const SignUpRoute()),
+      ),
+    ),
+  );
 }

@@ -1,6 +1,6 @@
 # Moovie
 
-A modular Flutter app for discovering movies, reading reviews, and social interaction. Built by Mobyle using Clean Architecture, BLoC state management, and a multi-package monorepo structure.
+A modular Flutter app for movie marathons: shelves, watch logs, maratonas, CineClubes and a social feed. Built by Mobyle using Clean Architecture, BLoC state management, and a multi-package monorepo structure.
 
 ---
 
@@ -9,10 +9,11 @@ A modular Flutter app for discovering movies, reading reviews, and social intera
 Moovie is a multi-flavor Flutter application that consumes The Movie Database (TMDB) API and a custom backend. It supports English, Spanish, and Portuguese, adapts to light/dark themes, and is structured as a monorepo with independently versioned packages for each feature and UI module.
 
 **Main tabs:**
-- **Home** — Trending movies and reviews
-- **Search** — Movie search
-- **Social** — Social activity feed
-- **Profile** — User profile
+- **Atts** — Social feed
+- **Programação** — Maratonas and CineClubes
+- **Catálogo** — Discovery and search
+- **Notícias** — News
+- **Perfil** — User profile
 
 ---
 
@@ -109,6 +110,7 @@ moovie/
 │   │   └── movies_module.dart  # Movies use case bindings
 │   └── routes/
 │       ├── app_router.dart     # Route definitions (auto_route)
+│       ├── main_navigation.dart # The five tabs and their rules (login, initial tab)
 │       └── main_screen.dart    # Bottom navigation shell
 │
 ├── core/                       # Shared abstractions package
@@ -120,23 +122,40 @@ moovie/
 │   │   │   └── lib/            # Entities, repository contracts, use cases
 │   │   └── data/               # Package: movies_data (implements domain)
 │   │       └── lib/            # Data models, repositories, datasources
-│   ├── news/
+│   ├── news/                   # News on /api/v1: source filter, quoted movies, "read" marks kept on the device
 │   │   ├── domain/             # Package: news_domain
 │   │   └── data/               # Package: news_data
-│   └── profile/
+│   ├── shelves/                # Shelves on /api/v1 (Já assisti, Quero ver and the user's own), locadoras (groups of shelves) and their discovery
+│   ├── watch_logs/             # Watch sessions, star rating, favorite, situations and comments on /api/v1
+│   ├── imports/                # Filmow import jobs on /api/v1: preview, progress (WebSocket), match queue
+│   ├── social_network/         # Feed (Atts), "amei", follows with the mutual state and Sussurros on /api/v1; new messages and the unread badge arrive on the WebSocket. Also the progress feed of a maratona
+│   ├── maratonas/              # Maratonas on /api/v1: list and filters, detail, join/leave, challenges and their links, suggestions per challenge, ranking, editor form and templates
+│   ├── cineclubes/             # CineClubes on /api/v1: list and filters, detail with sessions and watch providers, join/leave, progress (spoiler gate from the server), participants, editor form
+│   ├── stats/                  # Charts of a year, calendar, retrospective and yearly goals on /api/v1
+│   ├── gamification/           # Bichinho shelter, weekly missions, Caderninho, watch parties (rooms refreshed by the watch_party WebSocket event) and the poster game on /api/v1
+│   ├── onboarding/             # Whether the introduction of the new concept was seen, kept on the device
+│   └── profile/                # Profile on /api/v1: @handle, counters, highlights, discovery of profiles
 │       ├── domain/             # Package: profile_domain
 │       └── data/               # Package: profile_data
 │
 └── ui/                         # Presentation layer (UI packages)
     ├── common/                 # Shared: theme, components, localization
-    ├── home/                   # Home tab
-    ├── movies_list/            # Paginated movie list
-    ├── movie_detail/           # Movie detail screen
-    ├── search/                 # Search tab
-    ├── social/                 # Social tab
-    ├── profile/                # Profile tab (package: profile_ui)
-    ├── reviews/                # Reviews sub-feature
-    └── new_user_activity/      # Onboarding modal
+    ├── movies_ui/              # Movie detail (rating, Na Programação, Registros tab, trailer) and person page
+    ├── search/                 # Catálogo: discovery hub (releases, community shelves and locadoras, profiles) and search
+    ├── social/                 # Atts tab: the feed with Todos · Seguindo · Só eu, "amei" and hiding my own activities
+    ├── whispers/               # Sussurros: conversations with mutuals, in real time; the unread badge sits in the Atts app bar
+    ├── profile/                # Profile view shared by my profile and others' (header, Destaques · Estantes · Registros · Locadoras · Participações · Gráficos tabs), retrospective stories shared as an image, yearly goal, settings (import, push preferences, introduction again, logout), edit profile, highlights editor, shelf detail, followers and following lists (package: profile_ui)
+    ├── public_profile/         # Someone else's profile; route opened by id or @handle
+    ├── shelves/                # "Add to shelves" modal used by movie detail (package: shelves_ui)
+    ├── locadoras/              # Locadoras tab (own and public profile), detail with corridors, shelf picker (package: locadoras_ui)
+    ├── watch_logs/             # Session form, rating, history, GIF picker, comments, movie panel, "watching now" (package: watch_logs_ui)
+    ├── imports/                # Import flow: Filmow login, preview, progress, report, match queue (package: imports_ui)
+    ├── programacao/            # Programação tab: Maratonas | CineClubes, each with search, filters, "Participando" and create
+    ├── maratonas/              # Maratona detail (Sobre · Desafios · Minha Fila · Descoberta · Ranking), join sheet, marking a challenge with a movie, editor with criteria builder and templates (package: maratonas_ui)
+    ├── cineclubes/             # CineClube detail (Sobre · Progresso · Participantes, the movies of a cycle), editor with movie search and sessions (package: cineclubes_ui)
+    ├── gamification/           # Bichinho da Bombonière, missions, Caderninho, watch party and poster game screens, the bichinho row of the profile (package: gamification_ui)
+    ├── onboarding/             # Introduction shown once per install: panels, Filmow import, open maratonas and CineClubes (package: onboarding_ui)
+    └── news/                   # Notícias tab (featured article, source filter, read marks) + article detail with quoted movies (package: news_ui)
 ```
 
 ### Package dependency graph
@@ -183,16 +202,22 @@ dart run build_runner build --delete-conflicting-outputs
 
 Auto Route with nested tab navigation:
 
+The tabs live in `lib/routes/main_navigation.dart`: Atts (SocialTab) · Programação · Catálogo (SearchTab) · Notícias · Perfil. Programação and Notícias work logged out; logged in, the app opens on Atts.
+
 ```
 MainRoute
-├── HomeTab       → HomeRoute → [MoviesListRoute, ReviewsRoute]
-├── SearchTab     → SearchRoute
-├── SocialTab     → SocialRoute
-└── ProfileTab    → ProfileRoute
+├── SocialTab       → SocialRoute (Atts)
+├── ProgramacaoTab  → ProgramacaoRoute
+├── SearchTab       → SearchRoute (Catálogo)
+├── NoticiasTab     → NewsListRoute
+└── ProfileTab      → ProfileRoute
 
-(modal) NewUserActivityRoute  # slide-bottom transition
-(push)  MovieDetailRoute
+(push) MovieDetailRoute, MaratonaDetailRoute, CineClubeDetailRoute, ... inside each tab
 ```
+
+Maratona links: `/m/<slug>` (e.g. `muuvie://muuvie.app/m/terror-70`) open `MaratonaDetailRoute` over the main screen the same way, and CineClube links `/c/<slug>` open `CineClubeDetailRoute`.
+
+Profile links: `https://muuvie.app/@handle` (and `muuvie://muuvie.app/@handle`, which works before the domain is verified) open `PublicProfileRoute` over the main screen (`profileDeepLink` in `lib/routes/app_router.dart`). Test on Android with `adb shell am start -a android.intent.action.VIEW -d "muuvie://muuvie.app/@handle"`.
 
 After any route annotation changes, regenerate with `build_runner`.
 

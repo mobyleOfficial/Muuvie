@@ -1,0 +1,26 @@
+name: imports_ui
+description: Filmow import flow UI, with preview, progress, report and match queue (roadmap phase 3)
+publish_to: none
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_bloc: ^9.1.1
+  bloc: ^9.2.0
+  auto_route: ^11.1.0
+  get_it: ^8.0.3
+  cached_network_image: any
+  webview_flutter: ^4.10.0
+  common:
+    path: ../common
+  core:
+    path: ../../core
+  imports:
+    path: ../../features/imports
+
+dev_dependencies:
+  auto_route_generator: ^10.5.0
+  build_runner: ^2.13.1

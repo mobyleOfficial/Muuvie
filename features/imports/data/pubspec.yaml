@@ -1,0 +1,16 @@
+name: imports_data
+description: Data layer for the Imports feature
+publish_to: 'none'
+
+version: 1.0.0
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  imports_domain:
+    path: ../domain
+  core:
+    path: ../../../core

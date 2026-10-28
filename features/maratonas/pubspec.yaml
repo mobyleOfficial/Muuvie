@@ -1,0 +1,16 @@
+name: maratonas
+description: Maratonas (challenge events) for Muuvie (roadmap phase 7)
+publish_to: 'none'
+
+version: 1.0.0
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  maratonas_domain:
+    path: domain
+  maratonas_data:
+    path: data

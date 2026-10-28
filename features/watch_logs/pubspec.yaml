@@ -1,0 +1,16 @@
+name: watch_logs
+description: Watch sessions, rating and comments for Muuvie (roadmap phase 2)
+publish_to: 'none'
+
+version: 1.0.0
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  watch_logs_domain:
+    path: domain
+  watch_logs_data:
+    path: data

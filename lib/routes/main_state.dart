@@ -1,5 +1,3 @@
-import 'package:movies/movies.dart';
-
 sealed class MainState {
   const MainState();
 }
@@ -9,21 +7,7 @@ class MainLoading extends MainState {
 }
 
 class MainSuccess extends MainState {
-  final List<MovieReviewDraft> submittingDrafts;
   final bool isScraping;
 
-  const MainSuccess({this.submittingDrafts = const [], this.isScraping = false});
-
-  bool get hasSubmissions => submittingDrafts.isNotEmpty;
-
-  bool get hasError =>
-      submittingDrafts.any((draft) => draft.status == MovieReviewStatus.error);
-
-  MovieReviewDraft? get firstSubmitting => submittingDrafts
-      .where((draft) => draft.status == MovieReviewStatus.submitting)
-      .firstOrNull;
-
-  MovieReviewDraft? get firstError => submittingDrafts
-      .where((draft) => draft.status == MovieReviewStatus.error)
-      .firstOrNull;
+  const MainSuccess({this.isScraping = false});
 }

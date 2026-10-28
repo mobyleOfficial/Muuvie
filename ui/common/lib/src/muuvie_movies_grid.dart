@@ -8,11 +8,11 @@ const double muuvieGridPadding = 16;
 
 const SliverGridDelegateWithFixedCrossAxisCount muuvieGridDelegate =
     SliverGridDelegateWithFixedCrossAxisCount(
-  crossAxisCount: muuvieGridCrossAxisCount,
-  childAspectRatio: muuvieGridChildAspectRatio,
-  crossAxisSpacing: muuvieGridSpacing,
-  mainAxisSpacing: muuvieGridSpacing,
-);
+      crossAxisCount: muuvieGridCrossAxisCount,
+      childAspectRatio: muuvieGridChildAspectRatio,
+      crossAxisSpacing: muuvieGridSpacing,
+      mainAxisSpacing: muuvieGridSpacing,
+    );
 
 class MuuvieMoviePosterCard extends StatelessWidget {
   final String? imageUrl;
@@ -28,20 +28,18 @@ class MuuvieMoviePosterCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ClipRRect(
-      borderRadius: BorderRadius.circular(_borderRadius),
-      child: Material(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        child: InkWell(
-          onTap: onTap,
-          child: imageUrl != null
-              ? Ink.image(
-                  image: CachedNetworkImageProvider(imageUrl!),
-                  fit: BoxFit.cover,
-                )
-              : const Center(
-                  child: Icon(Icons.movie, size: 36),
-                ),
-        ),
+    borderRadius: BorderRadius.circular(_borderRadius),
+    child: Material(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: InkWell(
+        onTap: onTap,
+        child: imageUrl != null
+            ? Ink.image(
+                image: CachedNetworkImageProvider(imageUrl!),
+                fit: BoxFit.cover,
+              )
+            : const Center(child: Icon(Icons.movie, size: 36)),
       ),
-    );
+    ),
+  );
 }

@@ -7,10 +7,7 @@ class SearchMoviesParams {
   final String query;
   final int page;
 
-  const SearchMoviesParams({
-    required this.query,
-    this.page = 1,
-  });
+  const SearchMoviesParams({required this.query, this.page = 1});
 }
 
 class SearchMovies extends UseCase<SearchMoviesParams, Result<MovieListing>> {

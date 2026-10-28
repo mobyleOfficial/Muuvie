@@ -34,21 +34,21 @@ final class SignUpFormState extends SignUpState {
     bool? isCheckingNickname,
     bool? isNicknameAvailable,
     bool clearNicknameAvailability = false,
-  }) =>
-      SignUpFormState(
-        emailError: clearEmailError ? null : (emailError ?? this.emailError),
-        passwordError:
-            clearPasswordError ? null : (passwordError ?? this.passwordError),
-        nicknameError:
-            clearNicknameError ? null : (nicknameError ?? this.nicknameError),
-        isSubmitting: isSubmitting ?? this.isSubmitting,
-        signUpError:
-            clearSignUpError ? null : (signUpError ?? this.signUpError),
-        isCheckingNickname: isCheckingNickname ?? this.isCheckingNickname,
-        isNicknameAvailable: clearNicknameAvailability
-            ? null
-            : (isNicknameAvailable ?? this.isNicknameAvailable),
-      );
+  }) => SignUpFormState(
+    emailError: clearEmailError ? null : (emailError ?? this.emailError),
+    passwordError: clearPasswordError
+        ? null
+        : (passwordError ?? this.passwordError),
+    nicknameError: clearNicknameError
+        ? null
+        : (nicknameError ?? this.nicknameError),
+    isSubmitting: isSubmitting ?? this.isSubmitting,
+    signUpError: clearSignUpError ? null : (signUpError ?? this.signUpError),
+    isCheckingNickname: isCheckingNickname ?? this.isCheckingNickname,
+    isNicknameAvailable: clearNicknameAvailability
+        ? null
+        : (isNicknameAvailable ?? this.isNicknameAvailable),
+  );
 }
 
 final class SignUpSuccess extends SignUpState {

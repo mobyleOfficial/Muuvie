@@ -1,7 +1,6 @@
 import 'package:core/core.dart';
 import 'package:injectable/injectable.dart';
 import 'package:movies/movies.dart';
-import 'package:objectbox/objectbox.dart';
 
 @module
 abstract class MoviesModule {
@@ -14,58 +13,66 @@ abstract class MoviesModule {
   MoviesLocalDataSource moviesLocalDataSource(
     Store store,
     LocalClient localClient,
-  ) =>
-      MoviesLocalDataSourceImpl(
-        store.box<LocalRecentSearch>(),
-        localClient,
-      );
+  ) => MoviesLocalDataSourceImpl(store.box<LocalRecentSearch>(), localClient);
 
   @lazySingleton
   MoviesRepository moviesRepository(
     MoviesRemoteDataSource remoteDataSource,
     MoviesLocalDataSource localDataSource,
-  ) =>
-      MoviesRepositoryImpl(remoteDataSource, localDataSource);
+  ) => MoviesRepositoryImpl(remoteDataSource, localDataSource);
+
+  @lazySingleton
+  PersonsRepository personsRepository(
+    @Named('backend') HttpClient httpClient,
+  ) => PersonsRepositoryImpl(PersonsRemoteDataSource(httpClient));
 
   @injectable
-  GetTrendingMovies getTrendingMovies(MoviesRepository repository) =>
-      GetTrendingMovies(repository);
+  GetPersonDetail getPersonDetail(PersonsRepository repository) =>
+      GetPersonDetail(repository);
+
+  @lazySingleton
+  MovieCommunityRepository movieCommunityRepository(
+    @Named('backend') HttpClient httpClient,
+  ) => MovieCommunityRepositoryImpl(MovieCommunityRemoteDataSource(httpClient));
+
+  @injectable
+  GetMovieCommunity getMovieCommunity(MovieCommunityRepository repository) =>
+      GetMovieCommunity(repository);
+
+  @injectable
+  GetMovieEvents getMovieEvents(MovieCommunityRepository repository) =>
+      GetMovieEvents(repository);
+
+  @injectable
+  GetMovieCineClubes getMovieCineClubes(MovieCommunityRepository repository) =>
+      GetMovieCineClubes(repository);
+
+  @injectable
+  GetMovieMaratonas getMovieMaratonas(MovieCommunityRepository repository) =>
+      GetMovieMaratonas(repository);
+
+  @injectable
+  GetMovieTimeline getMovieTimeline(MovieCommunityRepository repository) =>
+      GetMovieTimeline(repository);
 
   @injectable
   GetMovieDetail getMovieDetail(MoviesRepository repository) =>
       GetMovieDetail(repository);
 
   @injectable
-  GetMovieReviews getMovieReviews(MoviesRepository repository) =>
-      GetMovieReviews(repository);
-
-  @injectable
-  GetReviewDetails getReviewDetails(MoviesRepository repository) =>
-      GetReviewDetails(repository);
-
-  @injectable
-  LikeReview likeReview(MoviesRepository repository) =>
-      LikeReview(repository);
-
-  @injectable
-  UnlikeReview unlikeReview(MoviesRepository repository) =>
-      UnlikeReview(repository);
-
-  @injectable
-  GetMovieLists getMovieLists(MoviesRepository repository) =>
-      GetMovieLists(repository);
-
-  @injectable
-  GetMovieListDetail getMovieListDetail(MoviesRepository repository) =>
-      GetMovieListDetail(repository);
-
-  @injectable
   DiscoverMovies discoverMovies(MoviesRepository repository) =>
       DiscoverMovies(repository);
 
   @injectable
-  GetGenres getGenres(MoviesRepository repository) =>
-      GetGenres(repository);
+  GetTrendingOnMuuvie getTrendingOnMuuvie(MoviesRepository repository) =>
+      GetTrendingOnMuuvie(repository);
+
+  @injectable
+  GetMostLovedOnMuuvie getMostLovedOnMuuvie(MoviesRepository repository) =>
+      GetMostLovedOnMuuvie(repository);
+
+  @injectable
+  GetGenres getGenres(MoviesRepository repository) => GetGenres(repository);
 
   @injectable
   GetCountries getCountries(MoviesRepository repository) =>
@@ -84,14 +91,10 @@ abstract class MoviesModule {
       AddRecentSearch(repository);
 
   @injectable
+  RemoveRecentSearches removeRecentSearches(MoviesRepository repository) =>
+      RemoveRecentSearches(repository);
+
+  @injectable
   ObserveRecentSearches observeRecentSearches(MoviesRepository repository) =>
       ObserveRecentSearches(repository);
-
-  @injectable
-  GetUserWatchList getUserWatchList(MoviesRepository repository) =>
-      GetUserWatchList(repository);
-
-  @injectable
-  GetFeaturedLists getFeaturedLists(MoviesRepository repository) =>
-      GetFeaturedLists(repository);
 }

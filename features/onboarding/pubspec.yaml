@@ -1,0 +1,16 @@
+name: onboarding
+description: Onboarding of the new concept for Muuvie (roadmap phase 11)
+publish_to: 'none'
+
+version: 1.0.0
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  onboarding_domain:
+    path: domain
+  onboarding_data:
+    path: data

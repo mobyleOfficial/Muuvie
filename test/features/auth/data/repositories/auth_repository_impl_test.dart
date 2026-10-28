@@ -13,8 +13,7 @@ class MockOAuthRemoteDataSource implements OAuthRemoteDataSource {
   @override
   Future<Result<AuthTokenModel>> completeOAuth(
     OAuthResultModel oauthResult,
-  ) async =>
-      completeOAuthResult ?? const Failure(AppError.unknown);
+  ) async => completeOAuthResult ?? const Failure(AppError.unknown);
 }
 
 class MockAuthRemoteDataSource implements AuthRemoteDataSource {
@@ -25,10 +24,7 @@ class MockAuthRemoteDataSource implements AuthRemoteDataSource {
   String? lastPassword;
 
   @override
-  Future<Result<AuthTokenModel>> login(
-    String email,
-    String password,
-  ) async {
+  Future<Result<AuthTokenModel>> login(String email, String password) async {
     lastEmail = email;
     lastPassword = password;
     return loginResult ?? const Failure(AppError.unknown);
@@ -39,12 +35,20 @@ class MockAuthRemoteDataSource implements AuthRemoteDataSource {
     String email,
     String password,
     String nickname,
-  ) async =>
-      signUpResult ?? const Failure(AppError.unknown);
+  ) async => signUpResult ?? const Failure(AppError.unknown);
 
   @override
   Future<Result<bool>> checkNicknameAvailability(String nickname) async =>
       checkNicknameResult ?? const Failure(AppError.unknown);
+
+  Result<void>? logoutResult;
+  String? lastLogoutRefreshToken;
+
+  @override
+  Future<Result<void>> logout(String? refreshToken) async {
+    lastLogoutRefreshToken = refreshToken;
+    return logoutResult ?? const Success(null);
+  }
 }
 
 class MockAuthLocalDataSource implements AuthLocalDataSource {
@@ -63,9 +67,16 @@ class MockAuthLocalDataSource implements AuthLocalDataSource {
     return saveTokenResult ?? const Failure(AppError.unknown);
   }
 
+  bool clearTokenCalled = false;
+
   @override
-  Future<Result<void>> clearToken() async =>
-      clearTokenResult ?? const Failure(AppError.unknown);
+  Future<Result<void>> clearToken() async {
+    clearTokenCalled = true;
+    return clearTokenResult ?? const Failure(AppError.unknown);
+  }
+
+  @override
+  Stream<void> observeTokenCleared() => const Stream.empty();
 }
 
 void main() {
@@ -149,8 +160,10 @@ void main() {
       );
       mockLocal.saveTokenResult = const Success(null);
 
-      final result =
-          await repository.loginWithEmail('test@example.com', 'password123');
+      final result = await repository.loginWithEmail(
+        'test@example.com',
+        'password123',
+      );
 
       expect(result, isA<Success<void>>());
       expect(mockAuthRemote.lastEmail, 'test@example.com');
@@ -161,8 +174,10 @@ void main() {
     test('returns failure when remote login fails', () async {
       mockAuthRemote.loginResult = const Failure(AppError.unauthorized);
 
-      final result =
-          await repository.loginWithEmail('test@example.com', 'wrong');
+      final result = await repository.loginWithEmail(
+        'test@example.com',
+        'wrong',
+      );
 
       expect(result, isA<Failure<void>>());
       expect((result as Failure<void>).error, AppError.unauthorized);
@@ -170,15 +185,14 @@ void main() {
 
     test('returns failure when token save fails', () async {
       mockAuthRemote.loginResult = Success(
-        AuthTokenModel(
-          accessToken: 'token',
-          expiresAt: DateTime(2026, 8, 1),
-        ),
+        AuthTokenModel(accessToken: 'token', expiresAt: DateTime(2026, 8, 1)),
       );
       mockLocal.saveTokenResult = const Failure(AppError.unknown);
 
-      final result =
-          await repository.loginWithEmail('test@example.com', 'password123');
+      final result = await repository.loginWithEmail(
+        'test@example.com',
+        'password123',
+      );
 
       expect(result, isA<Failure<void>>());
     });
@@ -220,6 +234,53 @@ void main() {
 
       expect(result, isA<Success<bool>>());
       expect((result as Success<bool>).data, false);
+    });
+
+    test(
+      'returns true when access token expired but a refresh token exists',
+      () async {
+        mockLocal.getTokenResult = Success(
+          AuthTokenModel(
+            accessToken: 'expired-token',
+            refreshToken: 'refresh',
+            expiresAt: DateTime.now().subtract(const Duration(days: 1)),
+          ),
+        );
+
+        final result = await repository.isUserAuthenticated();
+
+        expect((result as Success<bool>).data, true);
+      },
+    );
+  });
+
+  group('logout', () {
+    test('sends the refresh token and clears the local session', () async {
+      mockLocal.getTokenResult = Success(
+        AuthTokenModel(
+          accessToken: 'token',
+          refreshToken: 'refresh',
+          expiresAt: DateTime.now().add(const Duration(hours: 1)),
+        ),
+      );
+      mockLocal.clearTokenResult = const Success(null);
+
+      final result = await repository.logout();
+
+      expect(result, isA<Success<void>>());
+      expect(mockAuthRemote.lastLogoutRefreshToken, 'refresh');
+      expect(mockLocal.clearTokenCalled, true);
+    });
+
+    test('clears the local session even when the server call fails', () async {
+      mockLocal.getTokenResult = const Success(null);
+      mockLocal.clearTokenResult = const Success(null);
+      mockAuthRemote.logoutResult = const Failure(AppError.unknown);
+
+      final result = await repository.logout();
+
+      expect(result, isA<Success<void>>());
+      expect(mockLocal.clearTokenCalled, true);
     });
   });
 }

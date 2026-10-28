@@ -5,4 +5,5 @@ abstract interface class AuthLocalDataSource {
   Future<Result<AuthTokenModel?>> getToken();
   Future<Result<void>> saveToken(AuthTokenModel token);
   Future<Result<void>> clearToken();
+  Stream<void> observeTokenCleared();
 }

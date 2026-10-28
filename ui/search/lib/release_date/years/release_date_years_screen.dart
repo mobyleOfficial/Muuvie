@@ -20,35 +20,35 @@ class ReleaseDateYearsScreen extends StatelessWidget {
     return ColoredBox(
       color: Theme.of(context).colorScheme.surface,
       child: ListView.builder(
-      itemCount: years.length + 1,
-      itemBuilder: (context, index) {
-        if (index == 0) {
+        itemCount: years.length + 1,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return ListTile(
+              leading: Icon(Icons.select_all, color: colorScheme.primary),
+              title: const Text('Any'),
+              trailing: Icon(
+                Icons.chevron_right,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              onTap: onAnyTap,
+            );
+          }
+
+          final year = years[index - 1];
+
           return ListTile(
-            leading: Icon(Icons.select_all, color: colorScheme.primary),
-            title: const Text('Any'),
+            leading: Icon(
+              Icons.calendar_today_outlined,
+              color: colorScheme.onSurface,
+            ),
+            title: Text('$year'),
             trailing: Icon(
               Icons.chevron_right,
               color: colorScheme.onSurfaceVariant,
             ),
-            onTap: onAnyTap,
+            onTap: () => onYearTap(year),
           );
-        }
-
-        final year = years[index - 1];
-
-        return ListTile(
-          leading: Icon(
-            Icons.calendar_today_outlined,
-            color: colorScheme.onSurface,
-          ),
-          title: Text('$year'),
-          trailing: Icon(
-            Icons.chevron_right,
-            color: colorScheme.onSurfaceVariant,
-          ),
-          onTap: () => onYearTap(year),
-        );
-      },
+        },
       ),
     );
   }

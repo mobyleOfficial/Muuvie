@@ -28,9 +28,9 @@ class _MostPopularPageState extends State<MostPopularPage> {
 
   @override
   Widget build(BuildContext context) => MostPopularScreen(
-        cubit: _cubit,
-        onMovieTap: (movieId, movieTitle) => context.router.push(
-          MovieDetailRoute(movieId: movieId, movieTitle: movieTitle),
-        ),
-      );
+    cubit: _cubit,
+    onMovieTap: (movieId, movieTitle) => context.router.push(
+      MovieDetailRoute(movieId: movieId, movieTitle: movieTitle),
+    ),
+  );
 }

@@ -1,0 +1,14 @@
+name: onboarding_domain
+description: Domain layer for the onboarding feature
+publish_to: 'none'
+
+version: 1.0.0
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  core:
+    path: ../../../core

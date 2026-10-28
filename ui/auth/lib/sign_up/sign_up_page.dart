@@ -30,14 +30,14 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) => BlocProvider<SignUpCubit>.value(
-        value: _cubit,
-        child: BlocConsumer<SignUpCubit, SignUpState>(
-          listener: (context, state) {
-            if (state is SignUpSuccess) {
-              Navigator.of(context, rootNavigator: true).pop(true);
-            }
-          },
-          builder: (context, state) => SignUpScreen(state: state),
-        ),
-      );
+    value: _cubit,
+    child: BlocConsumer<SignUpCubit, SignUpState>(
+      listener: (context, state) {
+        if (state is SignUpSuccess) {
+          Navigator.of(context, rootNavigator: true).pop(true);
+        }
+      },
+      builder: (context, state) => SignUpScreen(state: state),
+    ),
+  );
 }

@@ -4,6 +4,8 @@ import 'package:get_it/get_it.dart';
 import 'package:movies/movies.dart';
 import 'package:movies_ui/movie_detail/movie_detail_bloc.dart';
 import 'package:movies_ui/movie_detail/movie_detail_screen.dart';
+import 'package:common/common.dart';
+import 'package:shelves_ui/shelves_router.dart';
 
 @RoutePage()
 class MovieDetailPage extends StatefulWidget {
@@ -33,5 +35,19 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   }
 
   @override
-  Widget build(BuildContext context) => MovieDetailScreen(cubit: _cubit);
+  Widget build(BuildContext context) => MovieDetailScreen(
+    cubit: _cubit,
+    onAddToShelves: (movieId, movieTitle) async {
+      final messenger = ScaffoldMessenger.of(context);
+      final l10n = AppLocalizations.of(context);
+      final count = await context.router.root.push<int>(
+        AddToShelvesRoute(movieId: movieId, movieTitle: movieTitle),
+      );
+      if (count != null) {
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n?.addToShelvesSaved(count) ?? '')),
+        );
+      }
+    },
+  );
 }

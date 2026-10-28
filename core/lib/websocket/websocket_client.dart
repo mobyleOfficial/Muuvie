@@ -17,11 +17,9 @@ class WebSocketClient {
 
   Stream<WsMessage> get messages => _controller.stream;
 
-  WebSocketClient({
-    required String baseUrl,
-    required Dio dio,
-  })  : _baseUrl = baseUrl,
-        _dio = dio;
+  WebSocketClient({required String baseUrl, required Dio dio})
+    : _baseUrl = baseUrl,
+      _dio = dio;
 
   Future<void> connect() async {
     if (_disposed) return;
@@ -39,7 +37,7 @@ class WebSocketClient {
         scheme: wsScheme,
         host: httpUri.host,
         port: httpUri.port,
-        path: '/ws',
+        path: '/api/v1/ws',
       );
 
       dev.log('[ProfileWS] Connecting to $wsUri');
@@ -77,7 +75,9 @@ class WebSocketClient {
 
   Future<String?> _exchangeTokenForNonce() async {
     try {
-      final response = await _dio.post<Map<String, dynamic>>('/ws/token');
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/api/v1/ws/token',
+      );
       return response.data?['token'] as String?;
     } catch (e) {
       dev.log('[ProfileWS] Token exchange failed: $e');

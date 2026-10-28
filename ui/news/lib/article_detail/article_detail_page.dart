@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:news/news.dart';
 import 'package:news_ui/article_detail/article_detail_bloc.dart';
 import 'package:news_ui/article_detail/article_detail_screen.dart';
+import 'package:shelves/shelves.dart' show AddMovieToWatchlist;
 
 @RoutePage()
 class ArticleDetailPage extends StatefulWidget {
@@ -21,8 +22,12 @@ class ArticleDetailPage extends StatefulWidget {
 }
 
 class _ArticleDetailPageState extends State<ArticleDetailPage> {
-  late final ArticleDetailCubit _cubit =
-      ArticleDetailCubit(GetIt.I<GetArticleDetail>(), widget.articleId);
+  late final ArticleDetailCubit _cubit = ArticleDetailCubit(
+    GetIt.I<GetArticleDetail>(),
+    widget.articleId,
+    addMovieToWatchlist: GetIt.I<AddMovieToWatchlist>(),
+    markArticleRead: GetIt.I<MarkArticleRead>(),
+  );
 
   @override
   void dispose() {

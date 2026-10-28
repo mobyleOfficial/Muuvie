@@ -7,7 +7,5 @@ part 'article_detail_router.gr.dart';
 @AutoRouterConfig(generateForDir: ['lib/article_detail'])
 class ArticleDetailRouter extends RootStackRouter {
   @override
-  List<AutoRoute> get routes => [
-        AutoRoute(page: ArticleDetailRoute.page),
-      ];
+  List<AutoRoute> get routes => [AutoRoute(page: ArticleDetailRoute.page)];
 }

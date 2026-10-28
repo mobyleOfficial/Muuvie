@@ -41,14 +41,14 @@ final class LoginFormState extends LoginState {
     bool clearEmailError = false,
     bool clearPasswordError = false,
     bool clearLoginError = false,
-  }) =>
-      LoginFormState(
-        emailError: clearEmailError ? null : (emailError ?? this.emailError),
-        passwordError:
-            clearPasswordError ? null : (passwordError ?? this.passwordError),
-        isSubmitting: isSubmitting ?? this.isSubmitting,
-        loginError: clearLoginError ? null : (loginError ?? this.loginError),
-      );
+  }) => LoginFormState(
+    emailError: clearEmailError ? null : (emailError ?? this.emailError),
+    passwordError: clearPasswordError
+        ? null
+        : (passwordError ?? this.passwordError),
+    isSubmitting: isSubmitting ?? this.isSubmitting,
+    loginError: clearLoginError ? null : (loginError ?? this.loginError),
+  );
 
   bool get isValid => emailError == null && passwordError == null;
 }

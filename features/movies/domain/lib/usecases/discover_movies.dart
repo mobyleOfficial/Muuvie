@@ -34,9 +34,7 @@ class DiscoverMovies
   DiscoverMovies(this._moviesRepository);
 
   @override
-  Future<Result<MovieListing>> call([
-    DiscoverMoviesParams? params,
-  ]) async =>
+  Future<Result<MovieListing>> call([DiscoverMoviesParams? params]) async =>
       _moviesRepository.discoverMovies(
         page: params?.page ?? 1,
         primaryReleaseYear: params?.primaryReleaseYear,

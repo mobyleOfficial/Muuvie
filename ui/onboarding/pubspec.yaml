@@ -1,0 +1,34 @@
+name: onboarding_ui
+description: Introduction of the new concept (roadmap phase 11, F11.1)
+publish_to: none
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_bloc: ^9.1.1
+  bloc: ^9.2.0
+  auto_route: ^11.1.0
+  get_it: ^8.0.3
+  common:
+    path: ../common
+  core:
+    path: ../../core
+  onboarding:
+    path: ../../features/onboarding
+  maratonas:
+    path: ../../features/maratonas
+  imports_ui:
+    path: ../imports
+  maratonas_ui:
+    path: ../maratonas
+  cineclubes_ui:
+    path: ../cineclubes
+  cineclubes:
+    path: ../../features/cineclubes
+
+dev_dependencies:
+  auto_route_generator: ^10.5.0
+  build_runner: ^2.13.1

@@ -10,43 +10,27 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
   @override
   Future<Result<UserProfile>> getUserProfile() async {
-    final result = await _httpClient.get<Map<String, dynamic>>('/profile');
+    final result = await _httpClient.get<Map<String, dynamic>>(
+      '/api/v1/profile',
+    );
 
     return switch (result) {
-      Success<Map<String, dynamic>>(:final data) =>
-        Success(UserProfileResponseModel.fromJson(data).toDomain()),
+      Success<Map<String, dynamic>>(:final data) => Success(
+        UserProfileResponseModel.fromJson(data).toDomain(),
+      ),
       Failure<Map<String, dynamic>>(:final error) => Failure(error),
     };
   }
 
   @override
-  Future<Result<void>> updateUserProfile({
-    required UserProfile profile,
-  }) async {
+  Future<Result<void>> updateUserProfile({required UserProfile profile}) async {
     final result = await _httpClient.put<dynamic>(
-      '/profile',
+      '/api/v1/profile',
       body: {
         'photoUrl': profile.photoUrl,
         'username': profile.username,
         'bio': profile.bio,
       },
-    );
-
-    return switch (result) {
-      Success() => const Success(null),
-      Failure(:final error) => Failure(error),
-    };
-  }
-
-  @override
-  Future<Result<void>> startScrape({
-    required String source,
-    required String username,
-    required String cookies,
-  }) async {
-    final result = await _httpClient.post<dynamic>(
-      '/$source/scrape',
-      body: {'username': username, 'cookies': cookies},
     );
 
     return switch (result) {
