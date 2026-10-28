@@ -1,0 +1,16 @@
+name: gamification
+description: Bichinho, missions, Caderninho, watch parties and the poster game for Muuvie (roadmap phase 10)
+publish_to: 'none'
+
+version: 1.0.0
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  gamification_domain:
+    path: domain
+  gamification_data:
+    path: data

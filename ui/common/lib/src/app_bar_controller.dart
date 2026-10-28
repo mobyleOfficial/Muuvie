@@ -38,11 +38,7 @@ class TabIndexScope extends StatelessWidget {
   final int tabIndex;
   final Widget child;
 
-  const TabIndexScope({
-    super.key,
-    required this.tabIndex,
-    required this.child,
-  });
+  const TabIndexScope({super.key, required this.tabIndex, required this.child});
 
   static int? find(BuildContext context) =>
       context.findAncestorWidgetOfExactType<TabIndexScope>()?.tabIndex;

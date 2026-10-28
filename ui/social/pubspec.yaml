@@ -15,12 +15,26 @@ dependencies:
     path: ../common
   public_profile:
     path: ../public_profile
-  user_activities:
-    path: ../../features/user_activities
   core:
     path: ../../core
   get_it: ^8.0.3
-  infinite_scroll_pagination: ^5.0.0
+  cached_network_image: any
+  social_network:
+    path: ../../features/social_network
+  gamification:
+    path: ../../features/gamification
+  gamification_ui:
+    path: ../gamification
+  cineclubes_ui:
+    path: ../cineclubes
+  maratonas_ui:
+    path: ../maratonas
+  movies_ui:
+    path: ../movies_ui
+  profile_ui:
+    path: ../profile
+  locadoras_ui:
+    path: ../locadoras
 
 dev_dependencies:
   auto_route_generator: ^10.5.0

@@ -1,9 +1,12 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:movies_ui/movie_detail/movie_detail_router.dart';
 import 'package:news_domain/models/article.dart';
+import 'package:shelves_ui/shelves_router.dart';
 import 'package:news_ui/article_detail/article_detail_bloc.dart';
 import 'package:news_ui/article_detail/article_detail_state.dart';
 import 'package:share_plus/share_plus.dart';
@@ -22,16 +25,18 @@ class ArticleDetailScreen extends StatelessWidget {
       child: BlocBuilder<ArticleDetailCubit, ArticleDetailState>(
         builder: (context, state) => switch (state) {
           ArticleDetailLoading() => const Center(
-              child: CircularProgressIndicator(),
-            ),
+            child: CircularProgressIndicator(),
+          ),
           ArticleDetailError(:final message) => MuuvieEmptyState(
-              title: l10n?.emptyStateErrorTitle ?? '',
-              message: message,
-              action: cubit.reload,
-              actionLabel: l10n?.emptyStateRetry ?? '',
-            ),
-          ArticleDetailSuccess(:final article) =>
-            _ArticleDetailBody(article: article),
+            title: l10n?.emptyStateErrorTitle ?? '',
+            message: message,
+            action: cubit.reload,
+            actionLabel: l10n?.emptyStateRetry ?? '',
+          ),
+          ArticleDetailSuccess(:final article) => _ArticleDetailBody(
+            article: article,
+            cubit: cubit,
+          ),
         },
       ),
     );
@@ -40,8 +45,9 @@ class ArticleDetailScreen extends StatelessWidget {
 
 class _ArticleDetailBody extends StatelessWidget {
   final Article article;
+  final ArticleDetailCubit cubit;
 
-  const _ArticleDetailBody({required this.article});
+  const _ArticleDetailBody({required this.article, required this.cubit});
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +59,8 @@ class _ArticleDetailBody extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _ArticleInfoSection(article: article),
+              if (article.movies.isNotEmpty)
+                _MoviesSection(movies: article.movies, cubit: cubit),
               _ArticleContentSection(content: article.content),
               _ShareSection(article: article),
               const SizedBox(height: 32),
@@ -87,22 +95,17 @@ class _HeroAppBar extends StatelessWidget {
                   CachedNetworkImage(
                     imageUrl: article.imageUrl!,
                     fit: BoxFit.cover,
-                    placeholder: (_, _) => Container(
-                      color: colorScheme.surfaceContainerHighest,
-                    ),
-                    errorWidget: (_, _, _) => Container(
-                      color: colorScheme.surfaceContainerHighest,
-                    ),
+                    placeholder: (_, _) =>
+                        Container(color: colorScheme.surfaceContainerHighest),
+                    errorWidget: (_, _, _) =>
+                        Container(color: colorScheme.surfaceContainerHighest),
                   ),
                   const DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black87,
-                        ],
+                        colors: [Colors.transparent, Colors.black87],
                       ),
                     ),
                   ),
@@ -244,14 +247,182 @@ class _Dot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6),
-        child: Container(
-          width: 4,
-          height: 4,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
+    padding: const EdgeInsets.symmetric(horizontal: 6),
+    child: Container(
+      width: 4,
+      height: 4,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    ),
+  );
+}
+
+/// The movies the article quotes (F5.8): open the movie, "Quero ver" in one
+/// tap, or pick shelves. The article leads back to the movies.
+class _MoviesSection extends StatelessWidget {
+  final List<ArticleMovie> movies;
+  final ArticleDetailCubit cubit;
+
+  const _MoviesSection({required this.movies, required this.cubit});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Semantics(
+              header: true,
+              child: Text(
+                l10n?.newsMoviesTitle ?? '',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
           ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 128,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: movies.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 12),
+              itemBuilder: (context, index) =>
+                  _MovieCard(movie: movies[index], cubit: cubit),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MovieCard extends StatelessWidget {
+  final ArticleMovie movie;
+  final ArticleDetailCubit cubit;
+
+  const _MovieCard({required this.movie, required this.cubit});
+
+  Future<void> _addToWatchlist(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final added = await cubit.addToWatchlist(movie);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          (added
+                  ? l10n?.newsAddedToWatchlist(movie.title)
+                  : l10n?.newsWantToWatchError) ??
+              '',
         ),
-      );
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final poster = movie.posterPath;
+    final year = movie.year;
+
+    return SizedBox(
+      width: 280,
+      child: Card(
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
+        child: Row(
+          children: [
+            InkWell(
+              onTap: () => context.router.push(
+                MovieDetailRoute(
+                  movieId: movie.movieId,
+                  movieTitle: movie.title,
+                ),
+              ),
+              child: SizedBox(
+                width: 84,
+                height: 128,
+                child: poster == null
+                    ? ColoredBox(
+                        color: colorScheme.surfaceContainerHighest,
+                        child: const Icon(Icons.movie),
+                      )
+                    : CachedNetworkImage(
+                        imageUrl: TmdbImageUrl.buildPosterSmall(poster),
+                        fit: BoxFit.cover,
+                      ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 8, 4, 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      year == null ? movie.title : '${movie.title} ($year)',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (movie.watched)
+                      Text(
+                        l10n?.newsWatched ?? '',
+                        style: textTheme.labelMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      )
+                    else
+                      FilledButton.tonalIcon(
+                        style: FilledButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                        ),
+                        onPressed: movie.inQueroVer
+                            ? null
+                            : () => _addToWatchlist(context),
+                        icon: Icon(
+                          movie.inQueroVer ? Icons.check : Icons.bookmark_add,
+                          size: 18,
+                        ),
+                        label: Text(
+                          (movie.inQueroVer
+                                  ? l10n?.newsInWantToWatch
+                                  : l10n?.newsWantToWatch) ??
+                              '',
+                        ),
+                      ),
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                      ),
+                      onPressed: () => context.router.root.push(
+                        AddToShelvesRoute(
+                          movieId: movie.movieId,
+                          movieTitle: movie.title,
+                        ),
+                      ),
+                      icon: const Icon(Icons.playlist_add, size: 18),
+                      label: Text(l10n?.newsAddToShelf ?? ''),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

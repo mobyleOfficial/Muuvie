@@ -14,10 +14,10 @@ class LoginCubit extends Cubit<LoginState> {
     required Login loginUseCase,
     required LoginWithEmail loginWithEmailUseCase,
     required IsUserAuthenticated isUserAuthenticatedUseCase,
-  })  : _loginUseCase = loginUseCase,
-        _loginWithEmailUseCase = loginWithEmailUseCase,
-        _isUserAuthenticatedUseCase = isUserAuthenticatedUseCase,
-        super(const LoginFormState());
+  }) : _loginUseCase = loginUseCase,
+       _loginWithEmailUseCase = loginWithEmailUseCase,
+       _isUserAuthenticatedUseCase = isUserAuthenticatedUseCase,
+       super(const LoginFormState());
 
   Future<void> checkAuthStatus() async {
     emit(const LoginLoading());
@@ -26,9 +26,7 @@ class LoginCubit extends Cubit<LoginState> {
 
     switch (result) {
       case Success(:final data):
-        data
-            ? emit(const LoginAuthenticated())
-            : emit(const LoginFormState());
+        data ? emit(const LoginAuthenticated()) : emit(const LoginFormState());
       case Failure():
         emit(const LoginFormState());
     }
@@ -50,22 +48,26 @@ class LoginCubit extends Cubit<LoginState> {
     final current = state;
     if (current is! LoginFormState) return;
     final emailError = validateEmail(email);
-    emit(current.copyWith(
-      emailError: emailError,
-      clearEmailError: emailError == null,
-      clearLoginError: true,
-    ));
+    emit(
+      current.copyWith(
+        emailError: emailError,
+        clearEmailError: emailError == null,
+        clearLoginError: true,
+      ),
+    );
   }
 
   void onPasswordChanged(String password) {
     final current = state;
     if (current is! LoginFormState) return;
     final passwordError = validatePassword(password);
-    emit(current.copyWith(
-      passwordError: passwordError,
-      clearPasswordError: passwordError == null,
-      clearLoginError: true,
-    ));
+    emit(
+      current.copyWith(
+        passwordError: passwordError,
+        clearPasswordError: passwordError == null,
+        clearLoginError: true,
+      ),
+    );
   }
 
   Future<void> loginWithEmail(String email, String password) async {
@@ -73,10 +75,9 @@ class LoginCubit extends Cubit<LoginState> {
     final passwordError = validatePassword(password);
 
     if (emailError != null || passwordError != null) {
-      emit(LoginFormState(
-        emailError: emailError,
-        passwordError: passwordError,
-      ));
+      emit(
+        LoginFormState(emailError: emailError, passwordError: passwordError),
+      );
       return;
     }
 
@@ -90,8 +91,9 @@ class LoginCubit extends Cubit<LoginState> {
       case Success():
         emit(const LoginAuthenticated());
       case Failure(:final error):
-        final errorKey =
-            error == AppError.unauthorized ? 'invalid_credentials' : 'generic';
+        final errorKey = error == AppError.unauthorized
+            ? 'invalid_credentials'
+            : 'generic';
         emit(LoginFormState(loginError: errorKey));
     }
   }
@@ -111,8 +113,9 @@ class LoginCubit extends Cubit<LoginState> {
       case Success():
         emit(const LoginAuthenticated());
       case Failure(:final error):
-        final errorKey =
-            error == AppError.unauthorized ? 'invalid_credentials' : 'generic';
+        final errorKey = error == AppError.unauthorized
+            ? 'invalid_credentials'
+            : 'generic';
         emit(LoginFormState(loginError: errorKey));
     }
   }

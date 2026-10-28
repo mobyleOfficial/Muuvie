@@ -30,13 +30,15 @@ class MuuvieHtmlPreview extends StatelessWidget {
 
     final matches = tagRegex.allMatches(html);
     if (matches.isEmpty) {
-      widgets.add(Text(
-        _stripInlineTags(html),
-        style: textTheme.bodyMedium?.copyWith(
-          color: colorScheme.onSurface,
-          height: 1.6,
+      widgets.add(
+        Text(
+          _stripInlineTags(html),
+          style: textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurface,
+            height: 1.6,
+          ),
         ),
-      ));
+      );
       return widgets;
     }
 
@@ -46,72 +48,77 @@ class MuuvieHtmlPreview extends StatelessWidget {
 
       switch (tag) {
         case 'h1':
-          widgets.add(Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Text.rich(
-              _buildInlineSpans(content, colorScheme),
-              style: textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
-              ),
-            ),
-          ));
-        case 'h2':
-          widgets.add(Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Text.rich(
-              _buildInlineSpans(content, colorScheme),
-              style: textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface,
-              ),
-            ),
-          ));
-        case 'p':
-          widgets.add(Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Text.rich(
-              _buildInlineSpans(content, colorScheme),
-              style: textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface,
-                height: 1.6,
-              ),
-            ),
-          ));
-        case 'li':
-          widgets.add(Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 4),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '\u2022 ',
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface,
-                  ),
+          widgets.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text.rich(
+                _buildInlineSpans(content, colorScheme),
+                style: textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
                 ),
-                Expanded(
-                  child: Text.rich(
-                    _buildInlineSpans(content, colorScheme),
+              ),
+            ),
+          );
+        case 'h2':
+          widgets.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text.rich(
+                _buildInlineSpans(content, colorScheme),
+                style: textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ),
+          );
+        case 'p':
+          widgets.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text.rich(
+                _buildInlineSpans(content, colorScheme),
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                  height: 1.6,
+                ),
+              ),
+            ),
+          );
+        case 'li':
+          widgets.add(
+            Padding(
+              padding: const EdgeInsets.only(left: 16, bottom: 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '\u2022 ',
                     style: textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurface,
-                      height: 1.6,
                     ),
                   ),
-                ),
-              ],
+                  Expanded(
+                    child: Text.rich(
+                      _buildInlineSpans(content, colorScheme),
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurface,
+                        height: 1.6,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ));
+          );
       }
     }
 
     return widgets;
   }
 
-  static TextSpan _buildInlineSpans(
-    String content,
-    ColorScheme colorScheme,
-  ) {
+  static TextSpan _buildInlineSpans(String content, ColorScheme colorScheme) {
     final spans = <InlineSpan>[];
     final inlineRegex = RegExp(
       r'<(b|i|s)>(.*?)</\1>|<span class="spoiler">(.*?)</span>',
@@ -129,28 +136,35 @@ class MuuvieHtmlPreview extends StatelessWidget {
 
       switch (tag) {
         case 'b':
-          spans.add(TextSpan(
-            text: text,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ));
-        case 'i':
-          spans.add(TextSpan(
-            text: text,
-            style: const TextStyle(fontStyle: FontStyle.italic),
-          ));
-        case 's':
-          spans.add(TextSpan(
-            text: text,
-            style: const TextStyle(decoration: TextDecoration.lineThrough),
-          ));
-        default:
-          spans.add(TextSpan(
-            text: text,
-            style: TextStyle(
-              backgroundColor:
-                  colorScheme.onSurface.withValues(alpha: 0.15),
+          spans.add(
+            TextSpan(
+              text: text,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-          ));
+          );
+        case 'i':
+          spans.add(
+            TextSpan(
+              text: text,
+              style: const TextStyle(fontStyle: FontStyle.italic),
+            ),
+          );
+        case 's':
+          spans.add(
+            TextSpan(
+              text: text,
+              style: const TextStyle(decoration: TextDecoration.lineThrough),
+            ),
+          );
+        default:
+          spans.add(
+            TextSpan(
+              text: text,
+              style: TextStyle(
+                backgroundColor: colorScheme.onSurface.withValues(alpha: 0.15),
+              ),
+            ),
+          );
       }
 
       lastEnd = match.end;

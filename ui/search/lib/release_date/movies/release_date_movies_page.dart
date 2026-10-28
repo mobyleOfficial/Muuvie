@@ -54,9 +54,9 @@ class _ReleaseDateMoviesPageState extends State<ReleaseDateMoviesPage> {
 
   @override
   Widget build(BuildContext context) => ReleaseDateMoviesScreen(
-        cubit: _cubit,
-        onMovieTap: (movieId, movieTitle) => context.router.push(
-          MovieDetailRoute(movieId: movieId, movieTitle: movieTitle),
-        ),
-      );
+    cubit: _cubit,
+    onMovieTap: (movieId, movieTitle) => context.router.push(
+      MovieDetailRoute(movieId: movieId, movieTitle: movieTitle),
+    ),
+  );
 }

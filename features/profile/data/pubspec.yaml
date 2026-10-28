@@ -22,3 +22,7 @@ dependencies:
     path: ../../movies/domain
   profile_domain:
     path: ../domain
+  shelves_data:
+    path: ../../shelves/data
+  shelves_domain:
+    path: ../../shelves/domain

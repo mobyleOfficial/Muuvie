@@ -28,7 +28,8 @@ class MuuvieAnimatedAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveBg = backgroundColor ?? Theme.of(context).colorScheme.surface;
+    final effectiveBg =
+        backgroundColor ?? Theme.of(context).colorScheme.surface;
     final effectiveFg =
         foregroundColor ?? Theme.of(context).colorScheme.onSurface;
     final hasLeading = leading != null;
@@ -69,13 +70,16 @@ class MuuvieAnimatedAppBar extends StatelessWidget {
                         child: AnimatedSwitcher(
                           duration: animationDuration,
                           transitionBuilder: (child, animation) {
-                            final slide = Tween<Offset>(
-                              begin: const Offset(0, 0.3),
-                              end: Offset.zero,
-                            ).animate(CurvedAnimation(
-                              parent: animation,
-                              curve: Curves.easeOut,
-                            ));
+                            final slide =
+                                Tween<Offset>(
+                                  begin: const Offset(0, 0.3),
+                                  end: Offset.zero,
+                                ).animate(
+                                  CurvedAnimation(
+                                    parent: animation,
+                                    curve: Curves.easeOut,
+                                  ),
+                                );
                             return FadeTransition(
                               opacity: animation,
                               child: SlideTransition(
@@ -87,9 +91,7 @@ class MuuvieAnimatedAppBar extends StatelessWidget {
                           child: Text(
                             title ?? '',
                             key: ValueKey<String>(title ?? ''),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
+                            style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(color: effectiveFg),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

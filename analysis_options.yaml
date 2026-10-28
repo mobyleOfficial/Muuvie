@@ -6,6 +6,10 @@ analyzer:
     - "**/*.gr.dart"
     - "**/*.config.dart"
     - "**/*.freezed.dart"
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
   errors:
     missing_return: error
     dead_code: warning

@@ -1,0 +1,16 @@
+name: social_network
+description: Feed, follows and Sussurros for Muuvie (roadmap phase 6)
+publish_to: 'none'
+
+version: 1.0.0
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  social_network_domain:
+    path: domain
+  social_network_data:
+    path: data

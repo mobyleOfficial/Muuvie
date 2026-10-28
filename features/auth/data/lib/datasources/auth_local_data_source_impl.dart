@@ -42,4 +42,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       return const Failure(AppError.unknown);
     }
   }
+
+  @override
+  Stream<void> observeTokenCleared() => _secureStorage.onCleared;
 }

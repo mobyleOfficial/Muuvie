@@ -1,0 +1,16 @@
+name: imports
+description: Filmow import with preview and match queue for Muuvie (roadmap phase 3)
+publish_to: 'none'
+
+version: 1.0.0
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  imports_domain:
+    path: domain
+  imports_data:
+    path: data

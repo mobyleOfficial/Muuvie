@@ -13,8 +13,8 @@ class AppInitializer {
   AppInitializer({
     required WebSocketClient webSocketClient,
     required ObserveUserProfile getUserProfile,
-  })  : _webSocketClient = webSocketClient,
-        _getUserProfile = getUserProfile;
+  }) : _webSocketClient = webSocketClient,
+       _getUserProfile = getUserProfile;
 
   Future<void> initialize() async {
     _profileSubscription = _getUserProfile().listen(
@@ -22,9 +22,11 @@ class AppInitializer {
       onError: (Object e) => dev.log('[ProfileWS] Profile stream error: $e'),
     );
 
-    unawaited(_webSocketClient.connect().catchError(
-      (Object e) => dev.log('[ProfileWS] WebSocket connect failed: $e'),
-    ));
+    unawaited(
+      _webSocketClient.connect().catchError(
+        (Object e) => dev.log('[ProfileWS] WebSocket connect failed: $e'),
+      ),
+    );
   }
 
   Future<void> dispose() async {

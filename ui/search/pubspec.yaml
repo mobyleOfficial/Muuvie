@@ -24,8 +24,24 @@ dependencies:
     path: ../../features/movies
   movies_ui:
     path: ../movies_ui
-  reviews:
-    path: ../reviews
+  profile:
+    path: ../../features/profile
+  profile_ui:
+    path: ../profile
+  shelves:
+    path: ../../features/shelves
+  locadoras_ui:
+    path: ../locadoras
+  public_profile:
+    path: ../public_profile
+  cineclubes:
+    path: ../../features/cineclubes
+  cineclubes_ui:
+    path: ../cineclubes
+  maratonas:
+    path: ../../features/maratonas
+  maratonas_ui:
+    path: ../maratonas
 
 dev_dependencies:
   auto_route_generator: ^10.5.0

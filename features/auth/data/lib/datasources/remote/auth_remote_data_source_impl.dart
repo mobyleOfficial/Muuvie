@@ -10,21 +10,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl(this._httpClient);
 
   @override
-  Future<Result<AuthTokenModel>> login(
-    String email,
-    String password,
-  ) async {
+  Future<Result<AuthTokenModel>> login(String email, String password) async {
     final result = await _httpClient.post<Map<String, dynamic>>(
-      '/auth/login',
-      body: {
-        'email': email,
-        'password': password,
-      },
+      '/api/v1/auth/login',
+      body: {'email': email, 'password': password},
     );
 
     return switch (result) {
-      Success<Map<String, dynamic>>(:final data) =>
-        Success(LoginResponseModel.fromJson(data).toAuthTokenModel()),
+      Success<Map<String, dynamic>>(:final data) => Success(
+        LoginResponseModel.fromJson(data).toAuthTokenModel(),
+      ),
       Failure<Map<String, dynamic>>(:final error) => Failure(error),
     };
   }
@@ -36,17 +31,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String nickname,
   ) async {
     final result = await _httpClient.post<Map<String, dynamic>>(
-      '/auth/signup',
-      body: {
-        'email': email,
-        'password': password,
-        'nickname': nickname,
-      },
+      '/api/v1/auth/signup',
+      body: {'email': email, 'password': password, 'nickname': nickname},
     );
 
     return switch (result) {
-      Success<Map<String, dynamic>>(:final data) =>
-        Success(LoginResponseModel.fromJson(data).toAuthTokenModel()),
+      Success<Map<String, dynamic>>(:final data) => Success(
+        LoginResponseModel.fromJson(data).toAuthTokenModel(),
+      ),
       Failure<Map<String, dynamic>>(:final error) => Failure(error),
     };
   }
@@ -54,14 +46,28 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<Result<bool>> checkNicknameAvailability(String nickname) async {
     final result = await _httpClient.get<Map<String, dynamic>>(
-      '/auth/check-nickname',
+      '/api/v1/auth/check-nickname',
       queryParams: {'nickname': nickname},
     );
 
     return switch (result) {
-      Success<Map<String, dynamic>>(:final data) =>
-        Success(NicknameAvailabilityModel.fromJson(data).available),
+      Success<Map<String, dynamic>>(:final data) => Success(
+        NicknameAvailabilityModel.fromJson(data).available,
+      ),
       Failure<Map<String, dynamic>>(:final error) => Failure(error),
+    };
+  }
+
+  @override
+  Future<Result<void>> logout(String? refreshToken) async {
+    final result = await _httpClient.post<dynamic>(
+      '/api/v1/auth/logout',
+      body: refreshToken == null ? null : {'refreshToken': refreshToken},
+    );
+
+    return switch (result) {
+      Success() => const Success(null),
+      Failure(:final error) => Failure(error),
     };
   }
 }

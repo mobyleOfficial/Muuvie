@@ -29,10 +29,7 @@ class MuuvieScaffold extends StatelessWidget {
             ? CupertinoNavigationBar(
                 middle: title != null ? Text(title!) : null,
                 trailing: actions != null
-                    ? Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: actions!,
-                      )
+                    ? Row(mainAxisSize: MainAxisSize.min, children: actions!)
                     : null,
               )
             : null,
@@ -49,10 +46,7 @@ class MuuvieScaffold extends StatelessWidget {
 
     return Scaffold(
       appBar: hasNavigationBar
-          ? AppBar(
-              title: title != null ? Text(title!) : null,
-              actions: actions,
-            )
+          ? AppBar(title: title != null ? Text(title!) : null, actions: actions)
           : null,
       body: body,
       bottomNavigationBar: bottomNavigationBar,

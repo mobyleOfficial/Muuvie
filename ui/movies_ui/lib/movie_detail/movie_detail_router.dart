@@ -7,7 +7,5 @@ part 'movie_detail_router.gr.dart';
 @AutoRouterConfig(generateForDir: ['lib/movie_detail'])
 class MovieDetailRouter extends RootStackRouter {
   @override
-  List<AutoRoute> get routes => [
-        AutoRoute(page: MovieDetailRoute.page),
-      ];
+  List<AutoRoute> get routes => [AutoRoute(page: MovieDetailRoute.page)];
 }

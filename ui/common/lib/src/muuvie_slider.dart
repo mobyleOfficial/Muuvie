@@ -28,11 +28,6 @@ class MuuvieSlider extends StatelessWidget {
       );
     }
 
-    return Slider(
-      value: value,
-      min: min,
-      max: max,
-      onChanged: onChanged,
-    );
+    return Slider(value: value, min: min, max: max, onChanged: onChanged);
   }
 }

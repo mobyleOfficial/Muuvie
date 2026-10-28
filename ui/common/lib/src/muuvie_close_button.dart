@@ -6,7 +6,14 @@ import 'package:common/src/platform_helper.dart';
 class MuuvieCloseButton extends StatelessWidget {
   final VoidCallback? onPressed;
 
-  const MuuvieCloseButton({super.key, this.onPressed});
+  /// Icon color; white by default, for the dark modals and stories.
+  final Color color;
+
+  const MuuvieCloseButton({
+    super.key,
+    this.onPressed,
+    this.color = Colors.white,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,14 +27,14 @@ class MuuvieCloseButton extends StatelessWidget {
         child: CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: onTap,
-          child: const Icon(CupertinoIcons.xmark, color: CupertinoColors.white),
+          child: Icon(CupertinoIcons.xmark, color: color),
         ),
       );
     }
 
     return IconButton(
       tooltip: closeLabel,
-      icon: const Icon(Icons.close, color: Colors.white),
+      icon: Icon(Icons.close, color: color),
       onPressed: onTap,
     );
   }

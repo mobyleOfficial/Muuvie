@@ -83,8 +83,9 @@ class _AuthFlowPageState extends State<AuthFlowPage> {
                             ? IconButton(
                                 icon: const Icon(Icons.arrow_back),
                                 onPressed: () => _innerRouter?.maybePop(),
-                                tooltip: MaterialLocalizations.of(context)
-                                    .backButtonTooltip,
+                                tooltip: MaterialLocalizations.of(
+                                  context,
+                                ).backButtonTooltip,
                               )
                             : null,
                         actions: [
@@ -94,8 +95,9 @@ class _AuthFlowPageState extends State<AuthFlowPage> {
                               context,
                               rootNavigator: true,
                             ).pop(false),
-                            tooltip: MaterialLocalizations.of(context)
-                                .closeButtonTooltip,
+                            tooltip: MaterialLocalizations.of(
+                              context,
+                            ).closeButtonTooltip,
                           ),
                         ],
                       );

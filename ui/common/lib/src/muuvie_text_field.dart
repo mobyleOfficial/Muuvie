@@ -46,10 +46,7 @@ class MuuvieTextField extends StatelessWidget {
       onChanged: onChanged,
       onSubmitted: onSubmitted,
       maxLines: maxLines,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: placeholder,
-      ),
+      decoration: InputDecoration(labelText: label, hintText: placeholder),
     );
   }
 }

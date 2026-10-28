@@ -19,9 +19,9 @@ class SignUpCubit extends Cubit<SignUpState> {
   SignUpCubit({
     required SignUp signUp,
     required CheckNicknameAvailability checkNicknameAvailability,
-  })  : _signUp = signUp,
-        _checkNicknameAvailability = checkNicknameAvailability,
-        super(const SignUpFormState());
+  }) : _signUp = signUp,
+       _checkNicknameAvailability = checkNicknameAvailability,
+       super(const SignUpFormState());
 
   String? validateEmail(String email) {
     if (email.isEmpty) return 'required';
@@ -47,11 +47,13 @@ class SignUpCubit extends Cubit<SignUpState> {
     if (current is! SignUpFormState) return;
 
     final error = validateEmail(email);
-    emit(current.copyWith(
-      emailError: error,
-      clearEmailError: error == null,
-      clearSignUpError: true,
-    ));
+    emit(
+      current.copyWith(
+        emailError: error,
+        clearEmailError: error == null,
+        clearSignUpError: true,
+      ),
+    );
   }
 
   void onPasswordChanged(String password) {
@@ -59,11 +61,13 @@ class SignUpCubit extends Cubit<SignUpState> {
     if (current is! SignUpFormState) return;
 
     final error = validatePassword(password);
-    emit(current.copyWith(
-      passwordError: error,
-      clearPasswordError: error == null,
-      clearSignUpError: true,
-    ));
+    emit(
+      current.copyWith(
+        passwordError: error,
+        clearPasswordError: error == null,
+        clearSignUpError: true,
+      ),
+    );
   }
 
   void onNicknameChanged(String nickname) {
@@ -73,13 +77,15 @@ class SignUpCubit extends Cubit<SignUpState> {
     _nicknameDebounce?.cancel();
 
     final error = validateNickname(nickname);
-    emit(current.copyWith(
-      nicknameError: error,
-      clearNicknameError: error == null,
-      clearSignUpError: true,
-      isCheckingNickname: false,
-      clearNicknameAvailability: true,
-    ));
+    emit(
+      current.copyWith(
+        nicknameError: error,
+        clearNicknameError: error == null,
+        clearSignUpError: true,
+        isCheckingNickname: false,
+        clearNicknameAvailability: true,
+      ),
+    );
 
     if (error != null || nickname.isEmpty) return;
 
@@ -99,12 +105,14 @@ class SignUpCubit extends Cubit<SignUpState> {
 
     switch (result) {
       case Success(:final data):
-        emit(current.copyWith(
-          isCheckingNickname: false,
-          isNicknameAvailable: data,
-          nicknameError: data ? null : 'taken',
-          clearNicknameError: data,
-        ));
+        emit(
+          current.copyWith(
+            isCheckingNickname: false,
+            isNicknameAvailable: data,
+            nicknameError: data ? null : 'taken',
+            clearNicknameError: data,
+          ),
+        );
       case Failure():
         emit(current.copyWith(isCheckingNickname: false));
     }
@@ -120,21 +128,21 @@ class SignUpCubit extends Cubit<SignUpState> {
     final nicknameError = validateNickname(nickname);
 
     if (emailError != null || passwordError != null || nicknameError != null) {
-      emit(SignUpFormState(
-        emailError: emailError,
-        passwordError: passwordError,
-        nicknameError: nicknameError,
-      ));
+      emit(
+        SignUpFormState(
+          emailError: emailError,
+          passwordError: passwordError,
+          nicknameError: nicknameError,
+        ),
+      );
       return;
     }
 
     emit(const SignUpFormState(isSubmitting: true));
 
-    final result = await _signUp(SignUpParams(
-      email: email,
-      password: password,
-      nickname: nickname,
-    ));
+    final result = await _signUp(
+      SignUpParams(email: email, password: password, nickname: nickname),
+    );
 
     if (isClosed) return;
 

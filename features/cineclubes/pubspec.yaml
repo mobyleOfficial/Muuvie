@@ -1,0 +1,16 @@
+name: cineclubes
+description: CineClubes (group watch with a debate day) for Muuvie (roadmap phase 8)
+publish_to: 'none'
+
+version: 1.0.0
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cineclubes_domain:
+    path: domain
+  cineclubes_data:
+    path: data

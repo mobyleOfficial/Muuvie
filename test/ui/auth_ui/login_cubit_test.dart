@@ -49,12 +49,17 @@ class _FakeAuthRepository implements AuthRepository {
       const Failure(AppError.unknown);
 
   @override
+  Future<Result<void>> logout() async => const Success(null);
+
+  @override
+  Stream<void> observeSessionEnded() => const Stream.empty();
+
+  @override
   Future<Result<void>> signUp(
     String email,
     String password,
     String nickname,
-  ) async =>
-      const Failure(AppError.unknown);
+  ) async => const Failure(AppError.unknown);
 
   @override
   Future<Result<bool>> checkNicknameAvailability(String nickname) async =>
@@ -73,10 +78,10 @@ void main() {
   });
 
   LoginCubit buildCubit() => LoginCubit(
-        loginUseCase: mockLogin,
-        loginWithEmailUseCase: mockLoginWithEmail,
-        isUserAuthenticatedUseCase: mockIsUserAuthenticated,
-      );
+    loginUseCase: mockLogin,
+    loginWithEmailUseCase: mockLoginWithEmail,
+    isUserAuthenticatedUseCase: mockIsUserAuthenticated,
+  );
 
   group('checkAuthStatus', () {
     blocTest<LoginCubit, LoginState>(
@@ -86,10 +91,7 @@ void main() {
         return buildCubit();
       },
       act: (cubit) => cubit.checkAuthStatus(),
-      expect: () => [
-        isA<LoginLoading>(),
-        isA<LoginAuthenticated>(),
-      ],
+      expect: () => [isA<LoginLoading>(), isA<LoginAuthenticated>()],
     );
 
     blocTest<LoginCubit, LoginState>(
@@ -99,24 +101,17 @@ void main() {
         return buildCubit();
       },
       act: (cubit) => cubit.checkAuthStatus(),
-      expect: () => [
-        isA<LoginLoading>(),
-        isA<LoginFormState>(),
-      ],
+      expect: () => [isA<LoginLoading>(), isA<LoginFormState>()],
     );
 
     blocTest<LoginCubit, LoginState>(
       'emits [LoginLoading, LoginFormState] on failure',
       build: () {
-        mockIsUserAuthenticated.mockResult =
-            const Failure(AppError.unknown);
+        mockIsUserAuthenticated.mockResult = const Failure(AppError.unknown);
         return buildCubit();
       },
       act: (cubit) => cubit.checkAuthStatus(),
-      expect: () => [
-        isA<LoginLoading>(),
-        isA<LoginFormState>(),
-      ],
+      expect: () => [isA<LoginLoading>(), isA<LoginFormState>()],
     );
   });
 
@@ -144,8 +139,7 @@ void main() {
         mockLoginWithEmail.mockResult = const Failure(AppError.unauthorized);
         return buildCubit();
       },
-      act: (cubit) =>
-          cubit.loginWithEmail('test@example.com', 'wrongpassword'),
+      act: (cubit) => cubit.loginWithEmail('test@example.com', 'wrongpassword'),
       expect: () => [
         isA<LoginFormState>().having(
           (s) => s.isSubmitting,

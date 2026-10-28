@@ -30,24 +30,21 @@ class _BrowseCategoriesPageState extends State<BrowseCategoriesPage> {
 
   @override
   Widget build(BuildContext context) => BrowseCategoriesScreen(
-        cubit: _cubit,
-        onGenreTap: (genre) => context.router.push(
-          ReleaseDateMoviesRoute(
-            title: genre.name,
-            withGenres: '${genre.id}',
-          ),
-        ),
-        onCountryTap: (country) => context.router.push(
-          ReleaseDateMoviesRoute(
-            title: country.englishName,
-            withOriginCountry: country.iso,
-          ),
-        ),
-        onLanguageTap: (language) => context.router.push(
-          ReleaseDateMoviesRoute(
-            title: language.englishName,
-            withOriginalLanguage: language.iso,
-          ),
-        ),
-      );
+    cubit: _cubit,
+    onGenreTap: (genre) => context.router.push(
+      ReleaseDateMoviesRoute(title: genre.name, withGenres: '${genre.id}'),
+    ),
+    onCountryTap: (country) => context.router.push(
+      ReleaseDateMoviesRoute(
+        title: country.name,
+        withOriginCountry: country.iso,
+      ),
+    ),
+    onLanguageTap: (language) => context.router.push(
+      ReleaseDateMoviesRoute(
+        title: language.name,
+        withOriginalLanguage: language.iso,
+      ),
+    ),
+  );
 }

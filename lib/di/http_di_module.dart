@@ -21,7 +21,9 @@ abstract class HttpDiModule {
       ),
     );
     if (AppConfig.instance.flavor == AppFlavor.dev) {
-      dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
+      dio.interceptors.add(
+        LogInterceptor(requestBody: true, responseBody: true),
+      );
     }
     return dio;
   }
@@ -32,13 +34,14 @@ abstract class HttpDiModule {
     final dio = Dio(
       BaseOptions(
         baseUrl: '${AppConfig.instance.backendUrl}/',
-        headers: {
-          'accept': 'application/json',
-        },
+        headers: {'accept': 'application/json'},
       ),
-    )..interceptors.add(AuthInterceptor(tokenStorage));
+    );
+    dio.interceptors.add(AuthInterceptor(tokenStorage, dio));
     if (AppConfig.instance.flavor == AppFlavor.dev) {
-      dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
+      dio.interceptors.add(
+        LogInterceptor(requestBody: true, responseBody: true),
+      );
     }
     return dio;
   }
@@ -56,8 +59,5 @@ abstract class HttpDiModule {
 
   @singleton
   WebSocketClient webSocketClient(@Named('backend') Dio dio) =>
-      WebSocketClient(
-        baseUrl: AppConfig.instance.backendUrl,
-        dio: dio,
-      );
+      WebSocketClient(baseUrl: AppConfig.instance.backendUrl, dio: dio);
 }

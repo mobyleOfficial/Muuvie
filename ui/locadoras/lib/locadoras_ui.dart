@@ -1,0 +1,14 @@
+export 'locadora_detail/locadora_detail_bloc.dart';
+export 'locadora_detail/locadora_detail_page.dart';
+export 'locadora_detail/locadora_detail_screen.dart';
+export 'locadora_detail/locadora_detail_state.dart';
+export 'locadora_form/locadora_form_bottom_sheet.dart';
+export 'locadoras_list/locadoras_list_bloc.dart';
+export 'locadoras_list/locadoras_list_page.dart';
+export 'locadoras_list/locadoras_list_screen.dart';
+export 'locadoras_list/locadoras_list_state.dart';
+export 'locadoras_router.dart';
+export 'pick_shelves/pick_shelves_bloc.dart';
+export 'pick_shelves/pick_shelves_page.dart';
+export 'pick_shelves/pick_shelves_screen.dart';
+export 'pick_shelves/pick_shelves_state.dart';

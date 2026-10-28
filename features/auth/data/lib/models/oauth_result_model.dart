@@ -2,10 +2,7 @@ class OAuthResultModel {
   final String provider;
   final String providerToken;
 
-  const OAuthResultModel({
-    required this.provider,
-    required this.providerToken,
-  });
+  const OAuthResultModel({required this.provider, required this.providerToken});
 
   factory OAuthResultModel.fromJson(Map<String, dynamic> json) =>
       OAuthResultModel(
@@ -14,7 +11,7 @@ class OAuthResultModel {
       );
 
   Map<String, dynamic> toJson() => {
-        'provider': provider,
-        'provider_token': providerToken,
-      };
+    'provider': provider,
+    'provider_token': providerToken,
+  };
 }

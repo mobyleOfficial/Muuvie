@@ -17,9 +17,6 @@ class LocalRecentSearch {
     required this.searchedAt,
   });
 
-  RecentSearch toDomain() => RecentSearch(
-        id: id,
-        query: query,
-        searchedAt: searchedAt,
-      );
+  RecentSearch toDomain() =>
+      RecentSearch(id: id, query: query, searchedAt: searchedAt);
 }

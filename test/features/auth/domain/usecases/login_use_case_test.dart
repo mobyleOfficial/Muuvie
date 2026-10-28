@@ -21,12 +21,17 @@ class MockAuthRepository implements AuthRepository {
       const Failure(AppError.unknown);
 
   @override
+  Future<Result<void>> logout() async => const Success(null);
+
+  @override
+  Stream<void> observeSessionEnded() => const Stream.empty();
+
+  @override
   Future<Result<void>> signUp(
     String email,
     String password,
     String nickname,
-  ) async =>
-      const Failure(AppError.unknown);
+  ) async => const Failure(AppError.unknown);
 
   @override
   Future<Result<bool>> checkNicknameAvailability(String nickname) async =>

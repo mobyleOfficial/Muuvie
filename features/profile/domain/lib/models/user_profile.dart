@@ -33,16 +33,15 @@ class UserProfile {
     int? followersCount,
     List<Movie>? recentMovies,
     bool? isScraping,
-  }) =>
-      UserProfile(
-        id: id ?? this.id,
-        photoUrl: photoUrl ?? this.photoUrl,
-        username: username ?? this.username,
-        bio: bio ?? this.bio,
-        moviesWatchedCount: moviesWatchedCount ?? this.moviesWatchedCount,
-        followingCount: followingCount ?? this.followingCount,
-        followersCount: followersCount ?? this.followersCount,
-        recentMovies: recentMovies ?? this.recentMovies,
-        isScraping: isScraping ?? this.isScraping,
-      );
+  }) => UserProfile(
+    id: id ?? this.id,
+    photoUrl: photoUrl ?? this.photoUrl,
+    username: username ?? this.username,
+    bio: bio ?? this.bio,
+    moviesWatchedCount: moviesWatchedCount ?? this.moviesWatchedCount,
+    followingCount: followingCount ?? this.followingCount,
+    followersCount: followersCount ?? this.followersCount,
+    recentMovies: recentMovies ?? this.recentMovies,
+    isScraping: isScraping ?? this.isScraping,
+  );
 }

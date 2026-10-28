@@ -40,19 +40,20 @@ class MuuvieBottomNavigationBar extends StatelessWidget {
         destinations: items
             .map(
               (item) => NavigationDestination(
-            icon: Icon(item.icon),
-            selectedIcon: Icon(item.activeIcon ?? item.icon),
-            label: item.label,
-          ),
-        )
+                icon: Icon(item.icon),
+                selectedIcon: Icon(item.activeIcon ?? item.icon),
+                label: item.label,
+              ),
+            )
             .toList(),
       );
     }
 
     final colorScheme = Theme.of(context).colorScheme;
     final centerIndex = items.length ~/ 2;
-    final mappedIndex =
-    currentIndex >= centerIndex ? currentIndex + 1 : currentIndex;
+    final mappedIndex = currentIndex >= centerIndex
+        ? currentIndex + 1
+        : currentIndex;
 
     final destinations = <NavigationDestination>[];
     for (var i = 0; i < items.length; i++) {

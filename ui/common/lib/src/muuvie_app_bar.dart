@@ -8,12 +8,7 @@ class MuuvieAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
   final Widget? leading;
 
-  const MuuvieAppBar({
-    super.key,
-    this.title,
-    this.actions,
-    this.leading,
-  });
+  const MuuvieAppBar({super.key, this.title, this.actions, this.leading});
 
   @override
   Size get preferredSize => isIOS
@@ -27,10 +22,7 @@ class MuuvieAppBar extends StatelessWidget implements PreferredSizeWidget {
         middle: title != null ? Text(title!) : null,
         leading: leading,
         trailing: actions != null
-            ? Row(
-                mainAxisSize: MainAxisSize.min,
-                children: actions!,
-              )
+            ? Row(mainAxisSize: MainAxisSize.min, children: actions!)
             : null,
       );
     }

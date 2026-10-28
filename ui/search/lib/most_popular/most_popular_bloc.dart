@@ -19,15 +19,11 @@ class MostPopularCubit extends Cubit<MostPopularState> {
     fetchPage: _fetchPage,
   );
 
-  MostPopularCubit(this._discoverMovies)
-      : super(const MostPopularSuccess());
+  MostPopularCubit(this._discoverMovies) : super(const MostPopularSuccess());
 
   Future<List<Movie>> _fetchPage(int page) async {
     final result = await _discoverMovies(
-      DiscoverMoviesParams(
-        page: page,
-        sortBy: 'popularity.desc',
-      ),
+      DiscoverMoviesParams(page: page, sortBy: 'popularity.desc'),
     );
 
     switch (result) {

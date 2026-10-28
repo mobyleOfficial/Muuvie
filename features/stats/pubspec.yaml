@@ -1,0 +1,16 @@
+name: stats
+description: Charts, retrospective and yearly goals for Muuvie (roadmap phase 9)
+publish_to: 'none'
+
+version: 1.0.0
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  stats_domain:
+    path: domain
+  stats_data:
+    path: data

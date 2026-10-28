@@ -34,11 +34,7 @@ class MuuvieSubmissionBanner extends StatelessWidget {
           child: Row(
             children: [
               if (isError)
-                Icon(
-                  Icons.error_outline,
-                  size: 20,
-                  color: colorScheme.error,
-                )
+                Icon(Icons.error_outline, size: 20, color: colorScheme.error)
               else
                 SizedBox(
                   width: 20,

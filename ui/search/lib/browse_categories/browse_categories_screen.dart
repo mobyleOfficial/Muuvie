@@ -31,20 +31,20 @@ class BrowseCategoriesScreen extends StatelessWidget {
         child: BlocBuilder<BrowseCategoriesCubit, BrowseCategoriesState>(
           builder: (context, state) => switch (state) {
             BrowseCategoriesLoading() => const Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: CircularProgressIndicator(),
+            ),
             BrowseCategoriesError(:final message) => MuuvieEmptyState(
-                title: l10n?.emptyStateErrorTitle ?? '',
-                message: message,
-                action: cubit.reload,
-                actionLabel: l10n?.emptyStateRetry ?? '',
-              ),
+              title: l10n?.emptyStateErrorTitle ?? '',
+              message: message,
+              action: cubit.reload,
+              actionLabel: l10n?.emptyStateRetry ?? '',
+            ),
             BrowseCategoriesSuccess() => _Content(
-                state: state,
-                onGenreTap: onGenreTap,
-                onCountryTap: onCountryTap,
-                onLanguageTap: onLanguageTap,
-              ),
+              state: state,
+              onGenreTap: onGenreTap,
+              onCountryTap: onCountryTap,
+              onLanguageTap: onLanguageTap,
+            ),
           },
         ),
       ),
@@ -78,11 +78,13 @@ class _ContentState extends State<_Content> {
       length: 3,
       child: Column(
         children: [
-          MuuvieTabBar(tabs: [
-            l10n?.searchBrowseGenre ?? '',
-            l10n?.searchBrowseCountry ?? '',
-            l10n?.searchBrowseLanguage ?? '',
-          ]),
+          MuuvieTabBar(
+            tabs: [
+              l10n?.searchBrowseGenre ?? '',
+              l10n?.searchBrowseCountry ?? '',
+              l10n?.searchBrowseLanguage ?? '',
+            ],
+          ),
           Expanded(
             child: TabBarView(
               children: [
@@ -96,14 +98,14 @@ class _ContentState extends State<_Content> {
                 MuuvieKeepAliveTab(
                   child: _CategoryList<Country>(
                     items: widget.state.countries,
-                    labelBuilder: (country) => country.englishName,
+                    labelBuilder: (country) => country.name,
                     onTap: widget.onCountryTap,
                   ),
                 ),
                 MuuvieKeepAliveTab(
                   child: _CategoryList<Language>(
                     items: widget.state.languages,
-                    labelBuilder: (language) => language.englishName,
+                    labelBuilder: (language) => language.name,
                     onTap: widget.onLanguageTap,
                   ),
                 ),

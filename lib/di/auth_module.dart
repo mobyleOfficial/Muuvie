@@ -8,19 +8,15 @@ abstract class AuthModule {
   SecureTokenStorage secureTokenStorage() => SecureTokenStorage();
 
   @lazySingleton
-  OAuthRemoteDataSource oauthRemoteDataSource() =>
-      OAuthRemoteDataSourceImpl();
+  OAuthRemoteDataSource oauthRemoteDataSource() => OAuthRemoteDataSourceImpl();
 
   @lazySingleton
   AuthRemoteDataSource authRemoteDataSource(
     @Named('backend') HttpClient httpClient,
-  ) =>
-      AuthRemoteDataSourceImpl(httpClient);
+  ) => AuthRemoteDataSourceImpl(httpClient);
 
   @lazySingleton
-  AuthLocalDataSource authLocalDataSource(
-    SecureTokenStorage secureStorage,
-  ) =>
+  AuthLocalDataSource authLocalDataSource(SecureTokenStorage secureStorage) =>
       AuthLocalDataSourceImpl(secureStorage);
 
   @lazySingleton
@@ -28,40 +24,35 @@ abstract class AuthModule {
     OAuthRemoteDataSource oauthRemoteDataSource,
     AuthRemoteDataSource authRemoteDataSource,
     AuthLocalDataSource localDataSource,
-  ) =>
-      AuthRepositoryImpl(
-        oauthRemoteDataSource,
-        authRemoteDataSource,
-        localDataSource,
-      );
+  ) => AuthRepositoryImpl(
+    oauthRemoteDataSource,
+    authRemoteDataSource,
+    localDataSource,
+  );
 
   @injectable
-  Login loginUseCase(
-    AuthRepository repository,
-  ) =>
-      Login(repository);
+  Login loginUseCase(AuthRepository repository) => Login(repository);
 
   @injectable
-  LoginWithEmail loginWithEmailUseCase(
-    AuthRepository repository,
-  ) =>
+  LoginWithEmail loginWithEmailUseCase(AuthRepository repository) =>
       LoginWithEmail(repository);
 
   @injectable
-  IsUserAuthenticated isUserAuthenticatedUseCase(
-    AuthRepository repository,
-  ) =>
+  IsUserAuthenticated isUserAuthenticatedUseCase(AuthRepository repository) =>
       IsUserAuthenticated(repository);
 
   @injectable
-  SignUp signUpUseCase(
-    AuthRepository repository,
-  ) =>
-      SignUp(repository);
+  Logout logoutUseCase(AuthRepository repository) => Logout(repository);
+
+  @injectable
+  ObserveSessionEnded observeSessionEndedUseCase(AuthRepository repository) =>
+      ObserveSessionEnded(repository);
+
+  @injectable
+  SignUp signUpUseCase(AuthRepository repository) => SignUp(repository);
 
   @injectable
   CheckNicknameAvailability checkNicknameAvailabilityUseCase(
     AuthRepository repository,
-  ) =>
-      CheckNicknameAvailability(repository);
+  ) => CheckNicknameAvailability(repository);
 }

@@ -51,7 +51,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       isNicknameAvailable = formState.isNicknameAvailable;
     }
 
-    final isFormValid = cubit.validateEmail(_emailController.text) == null &&
+    final isFormValid =
+        cubit.validateEmail(_emailController.text) == null &&
         cubit.validatePassword(_passwordController.text) == null &&
         cubit.validateNickname(_nicknameController.text) == null &&
         nicknameError == null &&
@@ -70,17 +71,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .errorContainer,
+                      color: Theme.of(context).colorScheme.errorContainer,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       _resolveSignUpError(signUpError, l10n),
                       style: TextStyle(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onErrorContainer,
+                        color: Theme.of(context).colorScheme.onErrorContainer,
                       ),
                     ),
                   ),
@@ -171,10 +168,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: FilledButton(
               onPressed: isFormValid && !isSubmitting
                   ? () => cubit.createAccount(
-                        _emailController.text,
-                        _passwordController.text,
-                        _nicknameController.text,
-                      )
+                      _emailController.text,
+                      _passwordController.text,
+                      _nicknameController.text,
+                    )
                   : null,
               style: FilledButton.styleFrom(
                 shape: RoundedRectangleBorder(
@@ -194,7 +191,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ],
     );
   }
-
 
   String? _resolveEmailError(String? error, AppLocalizations l10n) =>
       switch (error) {

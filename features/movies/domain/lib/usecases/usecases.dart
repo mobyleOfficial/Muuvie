@@ -2,19 +2,14 @@
 library;
 
 export 'add_recent_search.dart';
-export 'get_movie_lists.dart';
-export 'get_movie_list_detail.dart';
 export 'get_movie_detail.dart';
-export 'get_movie_reviews.dart';
-export 'get_review_details.dart';
-export 'like_review.dart';
-export 'unlike_review.dart';
-export 'get_trending_movies.dart';
 export 'search_movies.dart';
 export 'observe_recent_searches.dart';
+export 'remove_recent_searches.dart';
 export 'discover_movies.dart';
 export 'get_genres.dart';
 export 'get_countries.dart';
 export 'get_languages.dart';
-export 'get_user_watch_list.dart';
-export 'get_featured_lists.dart';
+export 'get_person_detail.dart';
+export 'get_movie_community.dart';
+export 'muuvie_rankings.dart';

@@ -11,7 +11,6 @@ class MostPopularScreen extends StatelessWidget {
   final MostPopularCubit cubit;
   final void Function(int movieId, String movieTitle) onMovieTap;
 
-
   const MostPopularScreen({
     super.key,
     required this.cubit,
@@ -29,46 +28,48 @@ class MostPopularScreen extends StatelessWidget {
         child: BlocBuilder<MostPopularCubit, MostPopularState>(
           builder: (context, state) => switch (state) {
             MostPopularLoading() => const Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: CircularProgressIndicator(),
+            ),
             MostPopularError(:final message) => MuuvieEmptyState(
-                title: l10n?.emptyStateErrorTitle ?? '',
-                message: message,
-              ),
+              title: l10n?.emptyStateErrorTitle ?? '',
+              message: message,
+            ),
             MostPopularSuccess() => PagingListener(
-                controller: cubit.pagingController,
-                builder: (context, pagingState, fetchNextPage) =>
-                    PagedGridView<int, Movie>(
-                  state: pagingState,
-                  fetchNextPage: fetchNextPage,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: muuvieGridPadding,
-                    vertical: muuvieGridPadding,
+              controller: cubit.pagingController,
+              builder: (context, pagingState, fetchNextPage) =>
+                  PagedGridView<int, Movie>(
+                    state: pagingState,
+                    fetchNextPage: fetchNextPage,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: muuvieGridPadding,
+                      vertical: muuvieGridPadding,
+                    ),
+                    gridDelegate: muuvieGridDelegate,
+                    builderDelegate: PagedChildBuilderDelegate<Movie>(
+                      itemBuilder: (context, movie, index) =>
+                          MuuvieMoviePosterCard(
+                            imageUrl: movie.posterPath.isNotEmpty
+                                ? TmdbImageUrl.buildPosterLarge(
+                                    movie.posterPath,
+                                  )
+                                : null,
+                            onTap: () => onMovieTap(movie.id, movie.title),
+                          ),
+                      firstPageProgressIndicatorBuilder: (_) =>
+                          const Center(child: CircularProgressIndicator()),
+                      firstPageErrorIndicatorBuilder: (_) => MuuvieEmptyState(
+                        title: l10n?.emptyStateErrorTitle ?? '',
+                        message: l10n?.emptyStateErrorMessage ?? '',
+                        action: fetchNextPage,
+                        actionLabel: l10n?.emptyStateRetry ?? '',
+                      ),
+                      noItemsFoundIndicatorBuilder: (_) => MuuvieEmptyState(
+                        title: l10n?.emptyStateNoItemsTitle ?? '',
+                        message: l10n?.emptyStateNoItemsMessage ?? '',
+                      ),
+                    ),
                   ),
-                  gridDelegate: muuvieGridDelegate,
-                  builderDelegate: PagedChildBuilderDelegate<Movie>(
-                    itemBuilder: (context, movie, index) =>
-                        MuuvieMoviePosterCard(
-                      imageUrl: movie.posterPath.isNotEmpty
-                          ? TmdbImageUrl.buildPosterLarge(movie.posterPath)
-                          : null,
-                      onTap: () => onMovieTap(movie.id, movie.title),
-                    ),
-                    firstPageProgressIndicatorBuilder: (_) =>
-                        const Center(child: CircularProgressIndicator()),
-                    firstPageErrorIndicatorBuilder: (_) => MuuvieEmptyState(
-                      title: l10n?.emptyStateErrorTitle ?? '',
-                      message: l10n?.emptyStateErrorMessage ?? '',
-                      action: fetchNextPage,
-                      actionLabel: l10n?.emptyStateRetry ?? '',
-                    ),
-                    noItemsFoundIndicatorBuilder: (_) => MuuvieEmptyState(
-                      title: l10n?.emptyStateNoItemsTitle ?? '',
-                      message: l10n?.emptyStateNoItemsMessage ?? '',
-                    ),
-                  ),
-                ),
-              ),
+            ),
           },
         ),
       ),

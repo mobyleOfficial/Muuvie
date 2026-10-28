@@ -18,10 +18,7 @@ class MuuvieButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isIOS) {
-      return CupertinoButton.filled(
-        onPressed: onPressed,
-        child: child,
-      );
+      return CupertinoButton.filled(onPressed: onPressed, child: child);
     }
 
     return ElevatedButton(
@@ -47,15 +44,9 @@ class MuuvieTextButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isIOS) {
-      return CupertinoButton(
-        onPressed: onPressed,
-        child: child,
-      );
+      return CupertinoButton(onPressed: onPressed, child: child);
     }
 
-    return TextButton(
-      onPressed: onPressed,
-      child: child,
-    );
+    return TextButton(onPressed: onPressed, child: child);
   }
 }

@@ -1,15 +1,21 @@
+import 'dart:async';
+
+import 'package:auth/auth.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:common/common.dart';
+import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:muuvie/routes/app_router.dart';
+import 'package:imports/imports.dart';
+import 'package:imports_ui/imports_router.dart';
 import 'package:muuvie/routes/main_bloc.dart';
+import 'package:onboarding/onboarding.dart';
+import 'package:onboarding_ui/onboarding_router.dart';
+import 'package:muuvie/routes/main_navigation.dart';
 import 'package:muuvie/routes/main_state.dart';
 import 'package:muuvie/routes/route_title_resolver.dart';
-import 'package:reviews/review_creation/review_creation_router.dart';
-import 'package:user_activity/new_user_activity/new_user_activity_router.dart';
 
 @RoutePage()
 class MainScreen extends StatefulWidget {
@@ -21,21 +27,61 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   final _appBarController = AppBarController();
-  late final MainCubit _mainCubit = MainCubit(
-    GetIt.I(),
-    GetIt.I(),
-    GetIt.I(),
-  );
+  late final MainCubit _mainCubit = MainCubit(GetIt.I());
   TabsRouter? _tabsRouter;
   RoutingController? _activeTabRouter;
   bool _resolveScheduled = false;
+  bool _initialTabApplied = false;
+  StreamSubscription<void>? _sessionEndedSubscription;
+  StreamSubscription<ImportProgress>? _importFinishedSubscription;
 
-  static const _tabRouteNames = [
-    HomeTab.name,
-    SearchTab.name,
-    SocialTab.name,
-    ProfileTab.name,
-  ];
+  final MainNavigation _navigation = MainNavigation();
+
+  List<String> get _tabRouteNames =>
+      _navigation.tabs.map((tab) => tab.routeName).toList();
+
+  @override
+  void initState() {
+    super.initState();
+    // Logout or a rejected refresh token: leave the tabs that need an account.
+    _sessionEndedSubscription = GetIt.I<ObserveSessionEnded>()().listen((_) {
+      final tabsRouter = _tabsRouter;
+      if (tabsRouter != null &&
+          _navigation.tabs[tabsRouter.activeIndex].requiresLogin) {
+        tabsRouter.setActiveIndex(_navigation.publicFallbackIndex);
+      }
+    });
+    // An import ends in the background (F3.5): tell the user wherever they are.
+    _importFinishedSubscription = GetIt.I<WatchImportProgress>()()
+        .where((progress) => progress.status == ImportStatus.done)
+        .listen(_showImportFinished);
+    // The introduction of the new concept (F11.1), once per install.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _showOnboarding());
+  }
+
+  Future<void> _showOnboarding() async {
+    if (!GetIt.I.isRegistered<ShouldShowOnboarding>()) return;
+    final result = await GetIt.I<ShouldShowOnboarding>()();
+    if (!mounted) return;
+    if (result case Success(data: true)) {
+      context.router.root.push(const OnboardingRoute());
+    }
+  }
+
+  void _showImportFinished(ImportProgress progress) {
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n?.importFinishedSnack ?? ''),
+        action: SnackBarAction(
+          label: l10n?.importSeeReport ?? '',
+          onPressed: () =>
+              context.router.root.push(ImportJobRoute(jobId: progress.jobId)),
+        ),
+      ),
+    );
+  }
 
   void _attachToTabsRouter(TabsRouter tabsRouter) {
     if (_tabsRouter == tabsRouter) return;
@@ -44,6 +90,20 @@ class _MainScreenState extends State<MainScreen> {
     tabsRouter.addListener(_scheduleResolve);
     tabsRouter.root.navigationHistory.addListener(_scheduleResolve);
     _syncActiveTabRouter();
+    _applyInitialTab(tabsRouter);
+  }
+
+  /// Logged in opens Perfil; logged out opens a public tab.
+  Future<void> _applyInitialTab(TabsRouter tabsRouter) async {
+    if (_initialTabApplied) return;
+    _initialTabApplied = true;
+
+    final result = await GetIt.I<IsUserAuthenticated>()();
+    final isLoggedIn = result is Success<bool> && result.data;
+    final index = _navigation.initialIndex(isLoggedIn: isLoggedIn);
+    if (mounted && index != tabsRouter.activeIndex) {
+      tabsRouter.setActiveIndex(index);
+    }
   }
 
   void _detachListeners() {
@@ -68,8 +128,7 @@ class _MainScreenState extends State<MainScreen> {
     if (tabsRouter == null) return;
 
     final activeTabName = _tabRouteNames[tabsRouter.activeIndex];
-    final newRouter =
-    tabsRouter.innerRouterOf<StackRouter>(activeTabName);
+    final newRouter = tabsRouter.innerRouterOf<StackRouter>(activeTabName);
 
     if (_activeTabRouter != newRouter) {
       _activeTabRouter?.removeListener(_scheduleResolve);
@@ -86,19 +145,20 @@ class _MainScreenState extends State<MainScreen> {
       return;
     }
     final activeTabName = _tabRouteNames[tabsRouter.activeIndex];
-    final innerRouter =
-    tabsRouter.innerRouterOf<StackRouter>(activeTabName);
+    final innerRouter = tabsRouter.innerRouterOf<StackRouter>(activeTabName);
     if (innerRouter == null) {
       _appBarController.update(title: null);
       return;
     }
     final topRoute = innerRouter.topRoute;
-    final title = resolveRouteTitle(topRoute);
+    final title = resolveRouteTitle(topRoute, AppLocalizations.of(context));
     _appBarController.update(title: title);
   }
 
   @override
   void dispose() {
+    _sessionEndedSubscription?.cancel();
+    _importFinishedSubscription?.cancel();
     _detachListeners();
     _appBarController.dispose();
     _mainCubit.close();
@@ -110,7 +170,7 @@ class _MainScreenState extends State<MainScreen> {
     final l10n = AppLocalizations.of(context);
 
     return AutoTabsRouter(
-      routes: const [HomeTab(), SearchTab(), SocialTab(), ProfileTab()],
+      routes: _navigation.tabs.map((tab) => tab.route).toList(),
       builder: (context, child) {
         final tabsRouter = AutoTabsRouter.of(context);
 
@@ -119,21 +179,17 @@ class _MainScreenState extends State<MainScreen> {
         });
 
         final activeIndex = tabsRouter.activeIndex;
-        final isHomeTab = activeIndex == 0;
-        final tabTitles = [
-          l10n?.appTitle ?? '',
-          l10n?.search ?? '',
-          l10n?.socialTab ?? '',
-          l10n?.profile ?? '',
-        ];
+        final activeTab = _navigation.tabs[activeIndex];
         final brightness = Theme.of(context).brightness;
 
         return AnnotatedRegion<SystemUiOverlayStyle>(
           value: brightness == Brightness.dark
-              ? SystemUiOverlayStyle.light
-              .copyWith(statusBarColor: Colors.transparent)
-              : SystemUiOverlayStyle.dark
-              .copyWith(statusBarColor: Colors.transparent),
+              ? SystemUiOverlayStyle.light.copyWith(
+                  statusBarColor: Colors.transparent,
+                )
+              : SystemUiOverlayStyle.dark.copyWith(
+                  statusBarColor: Colors.transparent,
+                ),
           child: Scaffold(
             body: SafeArea(
               child: Column(
@@ -143,28 +199,29 @@ class _MainScreenState extends State<MainScreen> {
                     builder: (context, _) {
                       final titleOverride = _appBarController.currentTitle;
                       final hasOverride = titleOverride != null;
-                      final hideAppBar =
-                          (activeIndex == 1 || activeIndex == 2) &&
-                              !hasOverride;
+                      final hideAppBar = !activeTab.showAppBar && !hasOverride;
 
                       return MuuvieAnimatedAppBar(
-                        title: titleOverride ?? tabTitles[activeIndex],
+                        title: titleOverride ?? activeTab.title(l10n),
                         visible: !hideAppBar,
-                        centerTitle: !hasOverride && isHomeTab,
-                        actions: _appBarController.currentActions,
+                        centerTitle: !hasOverride && activeTab.centerTitle,
+                        actions: hasOverride
+                            ? _appBarController.currentActions
+                            : activeTab.actions?.call(context) ??
+                                  _appBarController.currentActions,
                         leading: hasOverride
                             ? IconButton(
                                 icon: const Icon(Icons.arrow_back),
-                                tooltip: MaterialLocalizations.of(context)
-                                    .backButtonTooltip,
+                                tooltip: MaterialLocalizations.of(
+                                  context,
+                                ).backButtonTooltip,
                                 onPressed: () {
                                   final tabsRouter = _tabsRouter;
                                   if (tabsRouter == null) return;
                                   final activeTabName =
                                       _tabRouteNames[tabsRouter.activeIndex];
                                   tabsRouter
-                                      .innerRouterOf<StackRouter>(
-                                          activeTabName)
+                                      .innerRouterOf<StackRouter>(activeTabName)
                                       ?.maybePop();
                                 },
                               )
@@ -179,64 +236,17 @@ class _MainScreenState extends State<MainScreen> {
                         curr is! MainSuccess ||
                         prev.isScraping != curr.isScraping,
                     builder: (context, state) {
-                      final show =
-                          state is MainSuccess && state.isScraping;
+                      final show = state is MainSuccess && state.isScraping;
                       return AnimatedSize(
                         duration: const Duration(milliseconds: 300),
                         curve: Curves.easeInOut,
                         child: AnimatedSwitcher(
                           duration: const Duration(milliseconds: 300),
                           child: show
-                              ? const _ScrapingBanner(
-                                  key: ValueKey('scraping'),
-                                )
-                              : const SizedBox.shrink(
-                                  key: ValueKey('empty'),
-                                ),
+                              ? const _ScrapingBanner(key: ValueKey('scraping'))
+                              : const SizedBox.shrink(key: ValueKey('empty')),
                         ),
                       );
-                    },
-                  ),
-                  BlocBuilder<MainCubit, MainState>(
-                    bloc: _mainCubit,
-                    builder: (context, mainState) =>
-                        switch (mainState) {
-                      MainSuccess(
-                        :final hasSubmissions,
-                        :final hasError,
-                      ) =>
-                        () {
-                          if (!hasSubmissions) {
-                            return const SizedBox.shrink();
-                          }
-                          final draft = hasError
-                              ? mainState.firstError
-                              : mainState.firstSubmitting;
-                          if (draft == null) {
-                            return const SizedBox.shrink();
-                          }
-                          return MuuvieSubmissionBanner(
-                            reviewTitle: draft.reviewTitle.isNotEmpty
-                                ? draft.reviewTitle
-                                : draft.movieTitle,
-                            isError: hasError,
-                            onTap: hasError
-                                ? () => context.router.root.push(
-                                      ReviewCreationRoute(
-                                        movieId: draft.movieId,
-                                        movieTitle: draft.movieTitle,
-                                        posterPath: draft.posterPath,
-                                        initialDraft: draft,
-                                      ),
-                                    )
-                                : null,
-                            onDismiss: hasError
-                                ? () => _mainCubit
-                                    .dismissError(draft.movieId)
-                                : null,
-                          );
-                        }(),
-                      _ => const SizedBox.shrink(),
                     },
                   ),
                   TabIndexScope(
@@ -254,44 +264,21 @@ class _MainScreenState extends State<MainScreen> {
             bottomNavigationBar: MuuvieBottomNavigationBar(
               currentIndex: activeIndex,
               onTap: (index) async {
-                if (index == 2 || index == 3) {
+                if (_navigation.tabs[index].requiresLogin) {
                   final allowed = await AuthGate.check(context);
                   if (!allowed) return;
                 }
                 tabsRouter.setActiveIndex(index);
               },
-              centerItem: MuuvieBottomNavigationBarItem(
-                icon: Icons.add,
-                label: l10n?.newUserActivityTab ?? '',
-              ),
-              onCenterTap: () async {
-                final allowed = await AuthGate.check(context);
-                if (!allowed) return;
-                if (context.mounted) {
-                  context.router.root.push(const NewUserActivityRoute());
-                }
-              },
-              items: [
-                MuuvieBottomNavigationBarItem(
-                  icon: Icons.home_outlined,
-                  activeIcon: Icons.home,
-                  label: l10n?.home ?? '',
-                ),
-                MuuvieBottomNavigationBarItem(
-                  icon: Icons.search,
-                  label: l10n?.search ?? '',
-                ),
-                MuuvieBottomNavigationBarItem(
-                  icon: Icons.directions_run_outlined,
-                  activeIcon: Icons.directions_run,
-                  label: l10n?.socialTab ?? '',
-                ),
-                MuuvieBottomNavigationBarItem(
-                  icon: Icons.person_outline,
-                  activeIcon: Icons.person,
-                  label: l10n?.profile ?? '',
-                ),
-              ],
+              items: _navigation.tabs
+                  .map(
+                    (tab) => MuuvieBottomNavigationBarItem(
+                      icon: tab.icon,
+                      activeIcon: tab.activeIcon,
+                      label: tab.label(l10n),
+                    ),
+                  )
+                  .toList(),
             ),
           ),
         );

@@ -1,0 +1,26 @@
+name: whispers
+description: Sussurros (direct messages between mutuals) UI module for Muuvie
+publish_to: none
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_bloc: ^9.1.1
+  bloc: ^9.2.0
+  auto_route: ^11.1.0
+  get_it: ^8.0.3
+  common:
+    path: ../common
+  core:
+    path: ../../core
+  social_network:
+    path: ../../features/social_network
+  public_profile:
+    path: ../public_profile
+
+dev_dependencies:
+  auto_route_generator: ^10.5.0
+  build_runner: ^2.13.1

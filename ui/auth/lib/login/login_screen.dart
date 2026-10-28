@@ -8,11 +8,7 @@ class LoginScreen extends StatefulWidget {
   final LoginState state;
   final VoidCallback? onSignUpTap;
 
-  const LoginScreen({
-    super.key,
-    required this.state,
-    this.onSignUpTap,
-  });
+  const LoginScreen({super.key, required this.state, this.onSignUpTap});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -55,7 +51,8 @@ class _LoginScreenState extends State<LoginScreen> {
     final l10n = AppLocalizations.of(context)!;
     final cubit = context.read<LoginCubit>();
     final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
-    final isFormValid = cubit.validateEmail(_emailController.text) == null &&
+    final isFormValid =
+        cubit.validateEmail(_emailController.text) == null &&
         cubit.validatePassword(_passwordController.text) == null;
 
     return Column(
@@ -77,17 +74,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 Text(
                   l10n.appTitle,
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   l10n.loginSubtitle,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
@@ -135,8 +132,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined,
                       ),
-                      onPressed: () => setState(
-                          () => _obscurePassword = !_obscurePassword),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
                     ),
                   ),
                   onChanged: (value) => cubit.onPasswordChanged(value),
@@ -148,9 +145,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ? l10n.loginError
                         : l10n.loginGenericError,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.error,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      color: Theme.of(context).colorScheme.error,
+                      fontWeight: FontWeight.bold,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -168,9 +165,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: FilledButton(
                   onPressed: isFormValid && !isSubmitting
                       ? () => cubit.loginWithEmail(
-                            _emailController.text,
-                            _passwordController.text,
-                          )
+                          _emailController.text,
+                          _passwordController.text,
+                        )
                       : null,
                   style: FilledButton.styleFrom(
                     shape: RoundedRectangleBorder(
@@ -181,8 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ? const SizedBox(
                           height: 20,
                           width: 20,
-                          child:
-                              CircularProgressIndicator(strokeWidth: 2),
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : Text(l10n.loginButton),
                 ),
@@ -197,8 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: SizedBox(
                           height: 48,
                           child: OutlinedButton(
-                            onPressed:
-                                isSubmitting ? null : widget.onSignUpTap,
+                            onPressed: isSubmitting ? null : widget.onSignUpTap,
                             style: OutlinedButton.styleFrom(
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),

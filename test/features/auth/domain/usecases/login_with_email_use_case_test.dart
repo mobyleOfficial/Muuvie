@@ -23,12 +23,17 @@ class MockAuthRepository implements AuthRepository {
       const Failure(AppError.unknown);
 
   @override
+  Future<Result<void>> logout() async => const Success(null);
+
+  @override
+  Stream<void> observeSessionEnded() => const Stream.empty();
+
+  @override
   Future<Result<void>> signUp(
     String email,
     String password,
     String nickname,
-  ) async =>
-      const Failure(AppError.unknown);
+  ) async => const Failure(AppError.unknown);
 
   @override
   Future<Result<bool>> checkNicknameAvailability(String nickname) async =>
@@ -63,10 +68,7 @@ void main() {
     mockRepository.loginWithEmailResult = const Failure(AppError.unauthorized);
 
     final result = await useCase(
-      const LoginWithEmailParams(
-        email: 'test@example.com',
-        password: 'wrong',
-      ),
+      const LoginWithEmailParams(email: 'test@example.com', password: 'wrong'),
     );
 
     expect(result, isA<Failure<void>>());

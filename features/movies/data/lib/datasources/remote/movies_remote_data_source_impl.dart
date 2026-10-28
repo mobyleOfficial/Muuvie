@@ -2,11 +2,7 @@ import 'package:core/core.dart';
 import 'package:injectable/injectable.dart';
 
 import 'package:movies_data/datasources/remote/movies_remote_data_source.dart';
-import 'package:movies_data/models/remote/remote_movie_list_detail.dart';
-import 'package:movies_data/models/remote/remote_movie_list_listing.dart';
 import 'package:movies_data/models/remote/remote_movie_detail.dart';
-import 'package:movies_data/models/remote/remote_movie_review.dart';
-import 'package:movies_data/models/remote/remote_movie_review_listing.dart';
 import 'package:movies_data/models/remote/remote_country.dart';
 import 'package:movies_data/models/remote/remote_genre.dart';
 import 'package:movies_data/models/remote/remote_language.dart';
@@ -14,148 +10,27 @@ import 'package:movies_data/models/remote/remote_movie_listing.dart';
 
 @injectable
 class MoviesRemoteDataSourceImpl implements MoviesRemoteDataSource {
+  static const _base = '/api/v1/movies';
+  static const _discover = '/api/v1/discover/movies';
+  static const _pageSize = 20;
+
   final HttpClient _httpClient;
 
   MoviesRemoteDataSourceImpl(@Named('backend') this._httpClient);
-
-  @override
-  Future<Result<RemoteMovieListing>> getTrendingMovieList({
-    required int page,
-  }) async {
-    final result = await _httpClient.get<Map<String, dynamic>>(
-      '/movies/trending',
-      queryParams: {'page': page},
-    );
-
-    return switch (result) {
-      Success<Map<String, dynamic>>(:final data) =>
-        Success(RemoteMovieListing.fromJson(data)),
-      Failure<Map<String, dynamic>>(:final error) => Failure(error),
-    };
-  }
 
   @override
   Future<Result<RemoteMovieDetail>> getMovieDetail({
     required int movieId,
   }) async {
     final result = await _httpClient.get<Map<String, dynamic>>(
-      '/movies',
+      _base,
       queryParams: {'id': movieId},
     );
 
     return switch (result) {
-      Success<Map<String, dynamic>>(:final data) =>
-        Success(RemoteMovieDetail.fromJson(data)),
-      Failure<Map<String, dynamic>>(:final error) => Failure(error),
-    };
-  }
-
-  @override
-  Future<Result<RemoteMovieReviewListing>> getMovieReviews({
-    required int page,
-    String? userId,
-    int? movieId,
-  }) async {
-    if (movieId != null) {
-      final result = await _httpClient.get<Map<String, dynamic>>(
-        '/movies/$movieId/reviews',
-        queryParams: {'page': page},
-      );
-
-      return switch (result) {
-        Success<Map<String, dynamic>>(:final data) =>
-          Success(RemoteMovieReviewListing.fromJson(data)),
-        Failure<Map<String, dynamic>>(:final error) => Failure(error),
-      };
-    }
-
-    final queryParams = <String, dynamic>{'page': page};
-    if (userId != null) queryParams['userId'] = userId;
-
-    final result = await _httpClient.get<Map<String, dynamic>>(
-      '/movies/reviews',
-      queryParams: queryParams,
-    );
-
-    return switch (result) {
-      Success<Map<String, dynamic>>(:final data) =>
-        Success(RemoteMovieReviewListing.fromJson(data)),
-      Failure<Map<String, dynamic>>(:final error) => Failure(error),
-    };
-  }
-
-  @override
-  Future<Result<RemoteMovieReview>> getReviewDetails({
-    required String reviewId,
-  }) async {
-    final result = await _httpClient.get<Map<String, dynamic>>(
-      '/reviews/$reviewId',
-    );
-
-    return switch (result) {
-      Success<Map<String, dynamic>>(:final data) =>
-        Success(RemoteMovieReview.fromJson(data)),
-      Failure<Map<String, dynamic>>(:final error) => Failure(error),
-    };
-  }
-
-  @override
-  Future<Result<void>> likeReview({required String reviewId}) async {
-    final result = await _httpClient.post<Map<String, dynamic>>(
-      '/reviews/$reviewId/like',
-    );
-
-    return switch (result) {
-      Success<Map<String, dynamic>>() => const Success(null),
-      Failure<Map<String, dynamic>>(:final error) => Failure(error),
-    };
-  }
-
-  @override
-  Future<Result<void>> unlikeReview({required String reviewId}) async {
-    final result = await _httpClient.post<Map<String, dynamic>>(
-      '/reviews/$reviewId/unlike',
-    );
-
-    return switch (result) {
-      Success<Map<String, dynamic>>() => const Success(null),
-      Failure<Map<String, dynamic>>(:final error) => Failure(error),
-    };
-  }
-
-  @override
-  Future<Result<RemoteMovieListListing>> getMovieLists({
-    required int page,
-    String? userId,
-  }) async {
-    final queryParams = <String, dynamic>{'page': page};
-    if (userId != null) queryParams['userId'] = userId;
-
-    final result = await _httpClient.get<Map<String, dynamic>>(
-      '/movies/lists',
-      queryParams: queryParams,
-    );
-
-    return switch (result) {
-      Success<Map<String, dynamic>>(:final data) =>
-        Success(RemoteMovieListListing.fromJson(data)),
-      Failure<Map<String, dynamic>>(:final error) => Failure(error),
-    };
-  }
-
-  @override
-  Future<Result<RemoteMovieListDetail>> getMovieListDetail({
-    required int listId,
-    required int page,
-  }) async {
-    final result = await _httpClient.get<Map<String, dynamic>>(
-      '/movies/lists/$listId',
-      queryParams: {'page': page},
-    );
-
-    return switch (result) {
-      Success<Map<String, dynamic>>(:final data) =>
-        Success(RemoteMovieListDetail.fromJson(data)),
+      Success<Map<String, dynamic>>(:final data) => Success(
+        RemoteMovieDetail.fromJson(data),
+      ),
       Failure<Map<String, dynamic>>(:final error) => Failure(error),
     };
   }
@@ -166,13 +41,14 @@ class MoviesRemoteDataSourceImpl implements MoviesRemoteDataSource {
     required int page,
   }) async {
     final result = await _httpClient.get<Map<String, dynamic>>(
-      '/movies/search',
+      '$_base/search',
       queryParams: {'query': query, 'page': page},
     );
 
     return switch (result) {
-      Success<Map<String, dynamic>>(:final data) =>
-        Success(RemoteMovieListing.fromJson(data)),
+      Success<Map<String, dynamic>>(:final data) => Success(
+        RemoteMovieListing.fromJson(data),
+      ),
       Failure<Map<String, dynamic>>(:final error) => Failure(error),
     };
   }
@@ -191,8 +67,12 @@ class MoviesRemoteDataSourceImpl implements MoviesRemoteDataSource {
   }) async {
     final queryParams = <String, dynamic>{'page': page};
     if (primaryReleaseYear != null) queryParams['year'] = primaryReleaseYear;
-    if (releaseDateGte != null) queryParams['release_date_gte'] = releaseDateGte;
-    if (releaseDateLte != null) queryParams['release_date_lte'] = releaseDateLte;
+    if (releaseDateGte != null) {
+      queryParams['release_date_gte'] = releaseDateGte;
+    }
+    if (releaseDateLte != null) {
+      queryParams['release_date_lte'] = releaseDateLte;
+    }
     if (sortBy != null) queryParams['sort_by'] = sortBy;
     if (withGenres != null) queryParams['with_genres'] = withGenres;
     if (withOriginalLanguage != null) {
@@ -206,117 +86,109 @@ class MoviesRemoteDataSourceImpl implements MoviesRemoteDataSource {
     }
 
     final result = await _httpClient.get<Map<String, dynamic>>(
-      '/movies/discover',
+      '$_base/discover',
       queryParams: queryParams,
     );
 
     return switch (result) {
-      Success<Map<String, dynamic>>(:final data) =>
-        Success(RemoteMovieListing.fromJson(data)),
+      Success<Map<String, dynamic>>(:final data) => Success(
+        RemoteMovieListing.fromJson(data),
+      ),
       Failure<Map<String, dynamic>>(:final error) => Failure(error),
     };
   }
 
   @override
   Future<Result<List<RemoteGenre>>> getGenres() async {
-    final result = await _httpClient.get<List<dynamic>>(
-      '/movies/genres',
-    );
+    final result = await _httpClient.get<List<dynamic>>('$_base/genres');
 
     return switch (result) {
       Success<List<dynamic>>(:final data) => Success(
-          data
-              .map((genre) =>
-                  RemoteGenre.fromJson(genre as Map<String, dynamic>))
-              .toList(),
-        ),
+        data
+            .map((genre) => RemoteGenre.fromJson(genre as Map<String, dynamic>))
+            .toList(),
+      ),
       Failure<List<dynamic>>(:final error) => Failure(error),
     };
   }
 
   @override
   Future<Result<List<RemoteCountry>>> getCountries() async {
-    final result = await _httpClient.get<List<dynamic>>(
-      '/movies/countries',
-    );
+    final result = await _httpClient.get<List<dynamic>>('$_base/countries');
 
     return switch (result) {
       Success<List<dynamic>>(:final data) => Success(
-          data
-              .map((country) =>
-                  RemoteCountry.fromJson(country as Map<String, dynamic>))
-              .toList()
-            ..sort((first, second) =>
-                first.englishName.compareTo(second.englishName)),
-        ),
+        data
+            .map(
+              (country) =>
+                  RemoteCountry.fromJson(country as Map<String, dynamic>),
+            )
+            .toList()
+          ..sort(
+            (first, second) => _sortKey(
+              first.name ?? first.englishName,
+            ).compareTo(_sortKey(second.name ?? second.englishName)),
+          ),
+      ),
       Failure<List<dynamic>>(:final error) => Failure(error),
     };
   }
 
   @override
   Future<Result<List<RemoteLanguage>>> getLanguages() async {
-    final result = await _httpClient.get<List<dynamic>>(
-      '/movies/languages',
-    );
+    final result = await _httpClient.get<List<dynamic>>('$_base/languages');
 
     return switch (result) {
       Success<List<dynamic>>(:final data) => Success(
-          data
-              .map((language) =>
-                  RemoteLanguage.fromJson(language as Map<String, dynamic>))
-              .toList(),
-        ),
+        data
+            .map(
+              (language) =>
+                  RemoteLanguage.fromJson(language as Map<String, dynamic>),
+            )
+            .toList()
+          ..sort(
+            (first, second) => _sortKey(
+              first.name ?? first.englishName,
+            ).compareTo(_sortKey(second.name ?? second.englishName)),
+          ),
+      ),
       Failure<List<dynamic>>(:final error) => Failure(error),
     };
   }
 
   @override
-  Future<Result<RemoteMovieListing>> getUserFavoriteMovies({
-    required String userId,
+  Future<Result<RemoteMovieListing>> getTrendingOnMuuvie({required int page}) =>
+      _getPage('$_discover/trending', page);
+
+  @override
+  Future<Result<RemoteMovieListing>> getMostLovedOnMuuvie({
     required int page,
-  }) async {
+  }) => _getPage('$_discover/loved', page);
+
+  Future<Result<RemoteMovieListing>> _getPage(String path, int page) async {
     final result = await _httpClient.get<Map<String, dynamic>>(
-      '/movies/favorites/$userId',
-      queryParams: {'page': page},
+      path,
+      queryParams: {'page': page, 'limit': _pageSize},
     );
 
     return switch (result) {
-      Success<Map<String, dynamic>>(:final data) =>
-        Success(RemoteMovieListing.fromJson(data)),
+      Success<Map<String, dynamic>>(:final data) => Success(
+        RemoteMovieListing.fromJson(data),
+      ),
       Failure<Map<String, dynamic>>(:final error) => Failure(error),
     };
   }
 
-  @override
-  Future<Result<RemoteMovieListing>> getUserWatchList({
-    required String userId,
-    required int page,
-  }) async {
-    final result = await _httpClient.get<Map<String, dynamic>>(
-      '/movies/watchlist/$userId',
-      queryParams: {'page': page},
-    );
-
-    return switch (result) {
-      Success<Map<String, dynamic>>(:final data) =>
-        Success(RemoteMovieListing.fromJson(data)),
-      Failure<Map<String, dynamic>>(:final error) => Failure(error),
-    };
-  }
-
-  @override
-  Future<Result<RemoteMovieListListing>> getFeaturedLists({
-    required int page,
-  }) async {
-    final result = await _httpClient.get<Map<String, dynamic>>(
-      '/movies/lists/featured',
-      queryParams: {'page': page},
-    );
-
-    return switch (result) {
-      Success<Map<String, dynamic>>(:final data) =>
-        Success(RemoteMovieListListing.fromJson(data)),
-      Failure<Map<String, dynamic>>(:final error) => Failure(error),
-    };
+  /// Sorts "Áustria" next to "Austrália", not after "Zâmbia".
+  static String _sortKey(String name) {
+    const from = 'áàâãäéèêëíìîïóòôõöúùûüçñ';
+    const to = 'aaaaaeeeeiiiiooooouuuucn';
+    final lower = name.toLowerCase();
+    final buffer = StringBuffer();
+    for (final char in lower.split('')) {
+      final index = from.indexOf(char);
+      buffer.write(index < 0 ? char : to[index]);
+    }
+    return buffer.toString();
   }
 }

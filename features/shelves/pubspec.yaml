@@ -1,0 +1,16 @@
+name: shelves
+description: Shelves module for Muuvie (roadmap phase 1)
+publish_to: 'none'
+
+version: 1.0.0
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shelves_domain:
+    path: domain
+  shelves_data:
+    path: data

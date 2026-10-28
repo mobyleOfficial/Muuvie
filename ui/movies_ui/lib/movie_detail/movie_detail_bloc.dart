@@ -3,12 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies/movies.dart';
 import 'package:movies_ui/movie_detail/movie_detail_state.dart';
 
+/// The movie itself. The user's state for it (rating, sessions)
+/// lives in the watch panel of `watch_logs_ui` (phase 2).
 class MovieDetailCubit extends Cubit<MovieDetailState> {
   final GetMovieDetail _getMovieDetail;
   final int _movieId;
 
   MovieDetailCubit(this._getMovieDetail, this._movieId)
-      : super(const MovieDetailLoading()) {
+    : super(const MovieDetailLoading()) {
     _fetchMovieDetail();
   }
 
@@ -20,10 +22,11 @@ class MovieDetailCubit extends Cubit<MovieDetailState> {
   void toggleWatchProviders() {
     final current = state;
     if (current is MovieDetailSuccess) {
-      emit(MovieDetailSuccess(
-        current.detail,
-        watchProvidersExpanded: !current.watchProvidersExpanded,
-      ));
+      emit(
+        current.copyWith(
+          watchProvidersExpanded: !current.watchProvidersExpanded,
+        ),
+      );
     }
   }
 

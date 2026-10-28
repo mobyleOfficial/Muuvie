@@ -29,9 +29,13 @@ class SearchCubit extends Cubit<SearchState> {
     if (query.length < _minimumQueryLength) {
       _isSearching = false;
       emit(const SearchIdle());
+      // Lets the same query run again after going below the minimum.
+      _queryController.add(query);
       return;
     }
 
+    // Leaves "type 3 letters" at once, without waiting for the debounce.
+    if (state is SearchIdle) emit(const SearchSearching());
     _queryController.add(query);
   }
 

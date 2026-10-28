@@ -28,9 +28,9 @@ class _MostAnticipatedPageState extends State<MostAnticipatedPage> {
 
   @override
   Widget build(BuildContext context) => MostAnticipatedScreen(
-        cubit: _cubit,
-        onMovieTap: (movieId, movieTitle) => context.router.push(
-          MovieDetailRoute(movieId: movieId, movieTitle: movieTitle),
-        ),
-      );
+    cubit: _cubit,
+    onMovieTap: (movieId, movieTitle) => context.router.push(
+      MovieDetailRoute(movieId: movieId, movieTitle: movieTitle),
+    ),
+  );
 }
