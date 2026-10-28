@@ -100,6 +100,7 @@ class _ThreadCommentsSheetState extends State<ThreadCommentsSheet> {
                     child: CircularProgressIndicator(),
                   ),
                   ThreadCommentsError(:final message) => MuuvieEmptyState(
+                    illustration: null,
                     title: l10n?.emptyStateErrorTitle ?? '',
                     message: message,
                     action: _cubit.load,

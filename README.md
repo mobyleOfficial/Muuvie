@@ -84,13 +84,25 @@ PROD_BACKEND_URL=https://api.example.com
 
 ### App Flavors
 
-| Flavor | Entry point | App name |
-|--------|-------------|----------|
-| `prod` | `lib/main.dart` | Moovie |
-| `staging` | `lib/main_staging.dart` | Moovie[Stg] |
-| `dev` | `lib/main_dev.dart` | Moovie[Dev] |
+| Flavor | Entry point | App name | Launcher icon & splash |
+|--------|-------------|----------|------------------------|
+| `prod` | `lib/main.dart` | Moovie | White cow on black |
+| `staging` | `lib/main_staging.dart` | Moovie[Stg] | White cow on pink |
+| `dev` | `lib/main_dev.dart` | Moovie[Dev] | Black cow on white |
 
 Flavor-specific configuration lives in `lib/config/app_config.dart`.
+
+Launcher icons are generated per flavor from `assets/launcher/` using the `flutter_launcher_icons-<flavor>.yaml` configs. After changing a source image, run `dart run flutter_launcher_icons`. The tool rewrites the wrong iOS build setting, so restore `ios/Runner.xcodeproj/project.pbxproj` afterwards. Each build configuration already points `ASSETCATALOG_COMPILER_APPICON_NAME` at its `AppIcon-<flavor>` set.
+
+Splash screens are also per flavor, including Android 12+. They are generated from `assets/launcher/splash_<flavor>*.png` with the `flutter_native_splash-<flavor>.yaml` configs. To regenerate, run `dart run flutter_native_splash:create --flavors dev,staging,prod`. The tool reformats `ios/Runner/Info.plist` and points it back to a single storyboard, so restore that file afterwards. On iOS, `UILaunchStoryboardName` reads `$(LAUNCH_SCREEN_STORYBOARD)`. That build setting is set per configuration to `LaunchScreen<Flavor>`, and the three storyboards are registered in the Runner target.
+
+### Empty-state illustrations
+
+`MuuvieEmptyState` shows a mascot illustration (`MuuvieIllustration`) above its copy. Pass `illustration: null` in tight spaces such as bottom sheets. The SVGs live in `ui/common/assets/illustrations/` and use fixed design-system colors as roles: `primary` for ink, `neutral` for paper and `onSecondaryContainer` for details drawn over pink. Lines drawn straight on the page (tail, hooves, "zzz", handles) use `#1A1C1F`, the same black as a separate role. `MuuvieIllustrationView` swaps those role colors at runtime: in light mode they follow the theme, and in dark mode the cow stays white with black spots, like the app icon, while only the lines on the page turn light. The same file works in both modes.
+
+### Vaquinhas
+
+Each vaquinha of the Vaquinha da Bombonière is the cow in a costume. Their round avatars live in `ui/gamification/assets/pets/<slug>.svg`, named by the slug the backend sends. `PetAvatar` draws them with `MuuvieMascotArt` in their original colors on the pastel circle of their rarity, in both themes. An unknown slug falls back to `pipoca-doce`.
 
 ---
 
@@ -132,7 +144,7 @@ moovie/
 │   ├── maratonas/              # Maratonas on /api/v1: list and filters, detail, join/leave, challenges and their links, suggestions per challenge, ranking, editor form and templates
 │   ├── cineclubes/             # CineClubes on /api/v1: list and filters, detail with sessions and watch providers, join/leave, progress (spoiler gate from the server), participants, editor form
 │   ├── stats/                  # Charts of a year, calendar, retrospective and yearly goals on /api/v1
-│   ├── gamification/           # Bichinho shelter, weekly missions, Caderninho, watch parties (rooms refreshed by the watch_party WebSocket event) and the poster game on /api/v1
+│   ├── gamification/           # Vaquinha shelter, weekly missions, Caderninho, watch parties (rooms refreshed by the watch_party WebSocket event) and the poster game on /api/v1
 │   ├── onboarding/             # Whether the introduction of the new concept was seen, kept on the device
 │   └── profile/                # Profile on /api/v1: @handle, counters, highlights, discovery of profiles
 │       ├── domain/             # Package: profile_domain
@@ -153,7 +165,7 @@ moovie/
     ├── programacao/            # Programação tab: Maratonas | CineClubes, each with search, filters, "Participando" and create
     ├── maratonas/              # Maratona detail (Sobre · Desafios · Minha Fila · Descoberta · Ranking), join sheet, marking a challenge with a movie, editor with criteria builder and templates (package: maratonas_ui)
     ├── cineclubes/             # CineClube detail (Sobre · Progresso · Participantes, the movies of a cycle), editor with movie search and sessions (package: cineclubes_ui)
-    ├── gamification/           # Bichinho da Bombonière, missions, Caderninho, watch party and poster game screens, the bichinho row of the profile (package: gamification_ui)
+    ├── gamification/           # Vaquinha da Bombonière, missions, Caderninho, watch party and poster game screens, the vaquinha row of the profile (package: gamification_ui)
     ├── onboarding/             # Introduction shown once per install: panels, Filmow import, open maratonas and CineClubes (package: onboarding_ui)
     └── news/                   # Notícias tab (featured article, source filter, read marks) + article detail with quoted movies (package: news_ui)
 ```

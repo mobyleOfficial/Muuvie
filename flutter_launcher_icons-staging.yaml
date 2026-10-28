@@ -1,0 +1,9 @@
+# Launcher icon for the staging flavor. Regenerate with:
+#   dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/launcher/icon_staging.png"
+  adaptive_icon_background: "#FFD1DC"
+  adaptive_icon_foreground: "assets/launcher/icon_staging_foreground.png"

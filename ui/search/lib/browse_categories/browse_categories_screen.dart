@@ -34,6 +34,7 @@ class BrowseCategoriesScreen extends StatelessWidget {
               child: CircularProgressIndicator(),
             ),
             BrowseCategoriesError(:final message) => MuuvieEmptyState(
+              illustration: MuuvieIllustration.error,
               title: l10n?.emptyStateErrorTitle ?? '',
               message: message,
               action: cubit.reload,

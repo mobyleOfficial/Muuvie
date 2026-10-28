@@ -33,6 +33,14 @@ class _ImportStartPageState extends State<ImportStartPage> {
   }
 
   Future<void> _startFilmow() async {
+    final l10n = AppLocalizations.of(context);
+    await MuuvieDialog.show<void>(
+      context: context,
+      title: l10n?.importFilmowWaitTitle ?? '',
+      content: l10n?.importFilmowWaitMessage ?? '',
+      confirmText: l10n?.importFilmowWaitConfirm ?? 'OK',
+    );
+    if (!mounted) return;
     final login = await Navigator.of(context).push<FilmowLoginResult>(
       MaterialPageRoute(builder: (_) => const FilmowLoginWebview()),
     );

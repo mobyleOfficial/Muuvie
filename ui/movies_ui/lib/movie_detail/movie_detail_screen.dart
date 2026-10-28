@@ -113,6 +113,7 @@ class MovieDetailScreen extends StatelessWidget {
           ),
           MovieDetailError(:final message) => Scaffold(
             body: MuuvieEmptyState(
+              illustration: MuuvieIllustration.error,
               title: l10n?.emptyStateErrorTitle ?? '',
               message: message,
               action: cubit.reload,
@@ -336,6 +337,7 @@ class _AboutTabState extends State<_AboutTab>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (info?.isUnmatched ?? false) const _UnmatchedNotice(),
               if (info != null && info.overview.trim().isNotEmpty)
                 _SynopsisSection(overview: info.overview.trim()),
               if (info?.watchProviders.isNotEmpty ?? false)
@@ -349,6 +351,52 @@ class _AboutTabState extends State<_AboutTab>
           ),
         ),
       ],
+    );
+  }
+}
+
+/// An imported movie the catalog could not link to TMDB: only the source's
+/// data is shown.
+class _UnmatchedNotice extends StatelessWidget {
+  const _UnmatchedNotice();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Semantics(
+        container: true,
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: colorScheme.secondaryContainer,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ExcludeSemantics(
+                child: Icon(
+                  Icons.info_outline,
+                  color: colorScheme.onSecondaryContainer,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)?.movieDetailUnmatched ?? '',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSecondaryContainer,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

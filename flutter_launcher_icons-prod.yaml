@@ -1,0 +1,14 @@
+# Launcher icon for the prod flavor. Regenerate with:
+#   dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/launcher/icon_prod.png"
+  adaptive_icon_background: "#1A1C1E"
+  adaptive_icon_foreground: "assets/launcher/icon_prod_foreground.png"
+  web:
+    generate: true
+    image_path: "assets/launcher/icon_prod.png"
+    background_color: "#1A1C1E"
+    theme_color: "#1A1C1E"

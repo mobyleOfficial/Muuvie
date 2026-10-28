@@ -20,6 +20,9 @@ class RemoteMovieDetail {
   final List<RemoteWatchProvider>? watchProviders;
   final List<RemoteMovie>? similarMovies;
 
+  /// `matched`, `pending` or `unmatched`; absent on older backends.
+  final String? matchStatus;
+
   const RemoteMovieDetail({
     required this.id,
     required this.title,
@@ -38,6 +41,7 @@ class RemoteMovieDetail {
     this.trailerKey,
     this.watchProviders,
     this.similarMovies,
+    this.matchStatus,
   });
 
   factory RemoteMovieDetail.fromJson(Map<String, dynamic> json) {
@@ -86,6 +90,7 @@ class RemoteMovieDetail {
           ?.cast<Map<String, dynamic>>()
           .map(RemoteWatchProvider.fromJson)
           .toList(),
+      matchStatus: json['matchStatus'] as String?,
       similarMovies: (json['similarMovies'] as List<dynamic>?)
           ?.cast<Map<String, dynamic>>()
           .map(RemoteMovie.fromJson)
@@ -157,6 +162,7 @@ class RemoteMovieDetail {
           const [],
       similarMovies:
           similarMovies?.map((movie) => movie.toDomain()).toList() ?? const [],
+      isUnmatched: matchStatus == 'unmatched',
     ),
   );
 }

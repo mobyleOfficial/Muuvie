@@ -38,6 +38,7 @@ class LocadorasListScreen extends StatelessWidget {
             child: CircularProgressIndicator(),
           ),
           LocadorasListError(:final message) => MuuvieEmptyState(
+            illustration: MuuvieIllustration.error,
             title: l10n?.emptyStateErrorTitle ?? '',
             message: message,
             action: cubit.load,
@@ -55,6 +56,7 @@ class LocadorasListScreen extends StatelessWidget {
                     ),
               body: locadoras.isEmpty
                   ? MuuvieEmptyState(
+                      illustration: MuuvieIllustration.movies,
                       title: l10n?.locadoraEmptyTitle ?? '',
                       message:
                           (cubit.isOwnList

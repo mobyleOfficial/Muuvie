@@ -39,6 +39,7 @@ class ChartsScreen extends StatelessWidget {
         builder: (context, state) => switch (state) {
           ChartsLoading() => const Center(child: MuuvieActivityIndicator()),
           ChartsError() => MuuvieEmptyState(
+            illustration: MuuvieIllustration.error,
             title: l10n?.emptyStateErrorTitle ?? '',
             message: l10n?.emptyStateErrorMessage ?? '',
             action: cubit.load,
@@ -135,6 +136,7 @@ class _Charts extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 24),
             child: MuuvieEmptyState(
+              illustration: MuuvieIllustration.ranking,
               title: l10n?.chartsEmptyTitle ?? '',
               message: l10n?.chartsEmptyMessage ?? '',
             ),

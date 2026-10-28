@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:common/common.dart';
 import 'package:auth_ui/login/login_cubit.dart';
 import 'package:auth_ui/login/login_state.dart';
+import 'package:auth_ui/widgets/auth_error_banner.dart';
+import 'package:auth_ui/widgets/auth_footer_link.dart';
+import 'package:auth_ui/widgets/auth_form_layout.dart';
+import 'package:auth_ui/widgets/auth_header.dart';
+import 'package:auth_ui/widgets/auth_submit_button.dart';
+import 'package:auth_ui/widgets/auth_text_field.dart';
 
 class LoginScreen extends StatefulWidget {
   final LoginState state;
@@ -17,13 +24,44 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _emailFocus = FocusNode();
+  final _passwordFocus = FocusNode();
   bool _obscurePassword = true;
+
+  // Field errors only show once the user left the field or tried to submit,
+  // so nobody is told their e-mail is invalid while still typing it.
+  bool _emailTouched = false;
+  bool _passwordTouched = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailFocus.addListener(_onFocusChanged);
+    _passwordFocus.addListener(_onFocusChanged);
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _emailFocus.dispose();
+    _passwordFocus.dispose();
     super.dispose();
+  }
+
+  void _onFocusChanged() => setState(() {
+    _emailTouched |= !_emailFocus.hasFocus && _emailController.text.isNotEmpty;
+    _passwordTouched |=
+        !_passwordFocus.hasFocus && _passwordController.text.isNotEmpty;
+  });
+
+  void _submit() {
+    setState(() => _emailTouched = _passwordTouched = true);
+    TextInput.finishAutofillContext();
+    context.read<LoginCubit>().loginWithEmail(
+      _emailController.text.trim(),
+      _passwordController.text,
+    );
   }
 
   @override
@@ -31,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final state = widget.state;
 
     if (state is LoginLoading || state is LoginAuthenticated) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: MuuvieActivityIndicator());
     }
 
     String? emailError;
@@ -50,162 +88,76 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final l10n = AppLocalizations.of(context)!;
     final cubit = context.read<LoginCubit>();
-    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
-    final isFormValid =
-        cubit.validateEmail(_emailController.text) == null &&
-        cubit.validatePassword(_passwordController.text) == null;
 
-    return Column(
+    return AuthFormLayout(
+      footer: AuthFooterLink(
+        prompt: l10n.loginNoAccount,
+        action: l10n.loginCreateAccountLink,
+        onPressed: isSubmitting ? null : widget.onSignUpTap,
+      ),
       children: [
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 48),
-                Icon(
-                  Icons.movie_outlined,
-                  size: 80,
-                  color: Theme.of(context).colorScheme.primary,
-                  semanticLabel: null,
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  l10n.appTitle,
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.loginSubtitle,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32),
-                TextField(
-                  controller: _emailController,
-                  enabled: !isSubmitting,
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
-                  decoration: InputDecoration(
-                    labelText: l10n.loginEmail,
-                    hintText: l10n.loginEmailHint,
-                    errorText: _resolveEmailError(emailError, l10n),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    prefixIcon: const Icon(Icons.email_outlined),
-                  ),
-                  onChanged: (value) => cubit.onEmailChanged(value),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _passwordController,
-                  enabled: !isSubmitting,
-                  obscureText: _obscurePassword,
-                  textInputAction: TextInputAction.done,
-                  onSubmitted: (_) {
-                    if (isFormValid && !isSubmitting) {
-                      cubit.loginWithEmail(
-                        _emailController.text,
-                        _passwordController.text,
-                      );
-                    }
-                  },
-                  decoration: InputDecoration(
-                    labelText: l10n.loginPassword,
-                    hintText: l10n.loginPasswordHint,
-                    errorText: _resolvePasswordError(passwordError, l10n),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    prefixIcon: const Icon(Icons.lock_outlined),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                      ),
-                      onPressed: () =>
-                          setState(() => _obscurePassword = !_obscurePassword),
-                    ),
-                  ),
-                  onChanged: (value) => cubit.onPasswordChanged(value),
-                ),
-                if (loginError != null) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    loginError == 'invalid_credentials'
-                        ? l10n.loginError
-                        : l10n.loginGenericError,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.error,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ],
-            ),
-          ),
+        AuthHeader(
+          illustration: MuuvieIllustration.welcome,
+          title: l10n.loginWelcomeTitle,
+          subtitle: l10n.loginSubtitle,
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(32, 16, 32, 24),
+        const SizedBox(height: 32),
+        AutofillGroup(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SizedBox(
-                height: 48,
-                child: FilledButton(
-                  onPressed: isFormValid && !isSubmitting
-                      ? () => cubit.loginWithEmail(
-                          _emailController.text,
-                          _passwordController.text,
-                        )
-                      : null,
-                  style: FilledButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: isSubmitting
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(l10n.loginButton),
-                ),
+              AuthTextField(
+                label: l10n.loginEmail,
+                hint: l10n.loginEmailHint,
+                icon: Icons.alternate_email,
+                controller: _emailController,
+                focusNode: _emailFocus,
+                enabled: !isSubmitting,
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.email],
+                errorText: _emailTouched
+                    ? _resolveEmailError(emailError, l10n)
+                    : null,
+                onChanged: (value) => cubit.onEmailChanged(value.trim()),
               ),
-              AnimatedSize(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeInOut,
-                child: isKeyboardOpen
-                    ? const SizedBox.shrink()
-                    : Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: SizedBox(
-                          height: 48,
-                          child: OutlinedButton(
-                            onPressed: isSubmitting ? null : widget.onSignUpTap,
-                            style: OutlinedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: Text(l10n.signUpButton),
-                          ),
-                        ),
-                      ),
+              const SizedBox(height: 16),
+              AuthTextField(
+                label: l10n.loginPassword,
+                hint: l10n.loginPasswordHint,
+                icon: Icons.lock_outline,
+                controller: _passwordController,
+                focusNode: _passwordFocus,
+                enabled: !isSubmitting,
+                obscureText: _obscurePassword,
+                textInputAction: TextInputAction.done,
+                autofillHints: const [AutofillHints.password],
+                errorText: _passwordTouched
+                    ? _resolvePasswordError(passwordError, l10n)
+                    : null,
+                suffix: PasswordVisibilityButton(
+                  obscured: _obscurePassword,
+                  onPressed: () =>
+                      setState(() => _obscurePassword = !_obscurePassword),
+                ),
+                onChanged: cubit.onPasswordChanged,
+                onSubmitted: (_) => _submit(),
               ),
             ],
           ),
+        ),
+        AuthErrorBanner(
+          message: switch (loginError) {
+            null => null,
+            'invalid_credentials' => l10n.loginError,
+            _ => l10n.loginGenericError,
+          },
+        ),
+        const SizedBox(height: 24),
+        AuthSubmitButton(
+          label: l10n.loginButton,
+          isLoading: isSubmitting,
+          onPressed: _submit,
         ),
       ],
     );

@@ -1,30 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:common/common.dart';
 import 'package:auth_ui/sign_up/sign_up_cubit.dart';
 import 'package:auth_ui/sign_up/sign_up_state.dart';
+import 'package:auth_ui/widgets/auth_error_banner.dart';
+import 'package:auth_ui/widgets/auth_footer_link.dart';
+import 'package:auth_ui/widgets/auth_form_layout.dart';
+import 'package:auth_ui/widgets/auth_header.dart';
+import 'package:auth_ui/widgets/auth_submit_button.dart';
+import 'package:auth_ui/widgets/auth_text_field.dart';
 
 class SignUpScreen extends StatefulWidget {
-  final SignUpState state;
+  static const int nicknameMaxLength = 30;
 
-  const SignUpScreen({super.key, required this.state});
+  final SignUpState state;
+  final VoidCallback? onLoginTap;
+
+  const SignUpScreen({super.key, required this.state, this.onLoginTap});
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  final _nicknameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _nicknameController = TextEditingController();
+  final _nicknameFocus = FocusNode();
+  final _emailFocus = FocusNode();
+  final _passwordFocus = FocusNode();
   bool _obscurePassword = true;
+
+  // Field errors only show once the user left the field or tried to submit.
+  bool _nicknameTouched = false;
+  bool _emailTouched = false;
+  bool _passwordTouched = false;
+
+  @override
+  void initState() {
+    super.initState();
+    for (final node in [_nicknameFocus, _emailFocus, _passwordFocus]) {
+      node.addListener(_onFocusChanged);
+    }
+  }
 
   @override
   void dispose() {
+    _nicknameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _nicknameController.dispose();
+    _nicknameFocus.dispose();
+    _emailFocus.dispose();
+    _passwordFocus.dispose();
     super.dispose();
+  }
+
+  void _onFocusChanged() => setState(() {
+    _nicknameTouched |=
+        !_nicknameFocus.hasFocus && _nicknameController.text.isNotEmpty;
+    _emailTouched |= !_emailFocus.hasFocus && _emailController.text.isNotEmpty;
+    _passwordTouched |=
+        !_passwordFocus.hasFocus && _passwordController.text.isNotEmpty;
+  });
+
+  void _submit() {
+    setState(() => _nicknameTouched = _emailTouched = _passwordTouched = true);
+    TextInput.finishAutofillContext();
+    context.read<SignUpCubit>().createAccount(
+      _emailController.text.trim(),
+      _passwordController.text,
+      _nicknameController.text.trim(),
+    );
   }
 
   @override
@@ -51,142 +98,104 @@ class _SignUpScreenState extends State<SignUpScreen> {
       isNicknameAvailable = formState.isNicknameAvailable;
     }
 
-    final isFormValid =
-        cubit.validateEmail(_emailController.text) == null &&
-        cubit.validatePassword(_passwordController.text) == null &&
-        cubit.validateNickname(_nicknameController.text) == null &&
-        nicknameError == null &&
-        !isSubmitting;
+    // A taken nickname comes from the server: show it right away.
+    final showNicknameError = _nicknameTouched || nicknameError == 'taken';
 
-    return Column(
+    return AuthFormLayout(
+      footer: AuthFooterLink(
+        prompt: l10n.signUpHaveAccount,
+        action: l10n.loginButton,
+        onPressed: isSubmitting ? null : widget.onLoginTap,
+      ),
       children: [
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 32),
-                if (signUpError != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.errorContainer,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      _resolveSignUpError(signUpError, l10n),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onErrorContainer,
-                      ),
-                    ),
+        AuthHeader(
+          illustration: MuuvieIllustration.signup,
+          title: l10n.signUpHeadline,
+          subtitle: l10n.signUpSubtitle,
+        ),
+        const SizedBox(height: 32),
+        AutofillGroup(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AuthTextField(
+                label: l10n.signUpNickname,
+                hint: l10n.signUpNicknameHint,
+                icon: Icons.person_outline,
+                controller: _nicknameController,
+                focusNode: _nicknameFocus,
+                enabled: !isSubmitting,
+                textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.newUsername],
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(
+                    SignUpScreen.nicknameMaxLength,
                   ),
-                  const SizedBox(height: 16),
                 ],
-                TextField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
-                  enabled: !isSubmitting,
-                  decoration: InputDecoration(
-                    labelText: l10n.loginEmail,
-                    hintText: l10n.loginEmailHint,
-                    errorText: _resolveEmailError(emailError, l10n),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    prefixIcon: const Icon(Icons.email_outlined),
-                  ),
-                  onChanged: (value) {
-                    cubit.onEmailChanged(value);
-                    setState(() {});
-                  },
+                errorText: showNicknameError
+                    ? _resolveNicknameError(nicknameError, l10n)
+                    : null,
+                helper: _NicknameStatus(
+                  isChecking: isCheckingNickname,
+                  isAvailable: isNicknameAvailable == true,
                 ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  textInputAction: TextInputAction.next,
-                  enabled: !isSubmitting,
-                  decoration: InputDecoration(
-                    labelText: l10n.loginPassword,
-                    hintText: l10n.loginPasswordHint,
-                    errorText: _resolvePasswordError(passwordError, l10n),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    prefixIcon: const Icon(Icons.lock_outlined),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                      ),
-                      onPressed: () =>
-                          setState(() => _obscurePassword = !_obscurePassword),
-                    ),
-                  ),
-                  onChanged: (value) {
-                    cubit.onPasswordChanged(value);
-                    setState(() {});
-                  },
+                onChanged: (value) => cubit.onNicknameChanged(value.trim()),
+              ),
+              const SizedBox(height: 16),
+              AuthTextField(
+                label: l10n.loginEmail,
+                hint: l10n.loginEmailHint,
+                icon: Icons.alternate_email,
+                controller: _emailController,
+                focusNode: _emailFocus,
+                enabled: !isSubmitting,
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.email],
+                errorText: _emailTouched
+                    ? _resolveEmailError(emailError, l10n)
+                    : null,
+                onChanged: (value) => cubit.onEmailChanged(value.trim()),
+              ),
+              const SizedBox(height: 16),
+              AuthTextField(
+                label: l10n.loginPassword,
+                hint: l10n.loginPasswordHint,
+                icon: Icons.lock_outline,
+                controller: _passwordController,
+                focusNode: _passwordFocus,
+                enabled: !isSubmitting,
+                obscureText: _obscurePassword,
+                textInputAction: TextInputAction.done,
+                autofillHints: const [AutofillHints.newPassword],
+                errorText: _passwordTouched
+                    ? _resolvePasswordError(passwordError, l10n)
+                    : null,
+                helper: _PasswordRequirement(
+                  isMet:
+                      cubit.validatePassword(_passwordController.text) == null,
                 ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _nicknameController,
-                  textInputAction: TextInputAction.done,
-                  enabled: !isSubmitting,
-                  maxLength: 30,
-                  decoration: InputDecoration(
-                    labelText: l10n.signUpNickname,
-                    hintText: l10n.signUpNicknameHint,
-                    errorText: _resolveNicknameError(nicknameError, l10n),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    prefixIcon: const Icon(Icons.person_outlined),
-                    suffixIcon: NicknameSuffixIcon(
-                      isChecking: isCheckingNickname,
-                      isAvailable: isNicknameAvailable,
-                      error: nicknameError,
-                    ),
-                  ),
-                  onChanged: (value) {
-                    cubit.onNicknameChanged(value);
-                    setState(() {});
-                  },
+                suffix: PasswordVisibilityButton(
+                  obscured: _obscurePassword,
+                  onPressed: () =>
+                      setState(() => _obscurePassword = !_obscurePassword),
                 ),
-              ],
-            ),
+                onChanged: cubit.onPasswordChanged,
+                onSubmitted: (_) => _submit(),
+              ),
+            ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(32, 16, 32, 24),
-          child: SizedBox(
-            height: 48,
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: isFormValid && !isSubmitting
-                  ? () => cubit.createAccount(
-                      _emailController.text,
-                      _passwordController.text,
-                      _nicknameController.text,
-                    )
-                  : null,
-              style: FilledButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: isSubmitting
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(l10n.createAccountButton),
-            ),
-          ),
+        AuthErrorBanner(
+          message: signUpError == null
+              ? null
+              : _resolveSignUpError(signUpError, l10n),
+        ),
+        const SizedBox(height: 24),
+        AuthSubmitButton(
+          label: l10n.createAccountButton,
+          isLoading: isSubmitting,
+          onPressed: _submit,
         ),
       ],
     );
@@ -225,34 +234,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
       };
 }
 
-class NicknameSuffixIcon extends StatelessWidget {
+/// Availability of the nickname while it is checked against the server.
+class _NicknameStatus extends StatelessWidget {
   final bool isChecking;
-  final bool? isAvailable;
-  final String? error;
+  final bool isAvailable;
 
-  const NicknameSuffixIcon({
-    super.key,
-    required this.isChecking,
-    this.isAvailable,
-    this.error,
-  });
+  const _NicknameStatus({required this.isChecking, required this.isAvailable});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (isChecking) {
-      return const Padding(
-        padding: EdgeInsets.all(12),
-        child: SizedBox(
-          height: 20,
-          width: 20,
-          child: CircularProgressIndicator(strokeWidth: 2),
+      return AuthFieldHint(
+        leading: const SizedBox.square(
+          dimension: 12,
+          child: CircularProgressIndicator(strokeWidth: 1.5),
         ),
+        text: l10n.signUpNicknameChecking,
       );
     }
-    if (error != null) return const SizedBox.shrink();
-    if (isAvailable == true) {
-      return const Icon(Icons.check_circle_outline, color: Colors.green);
+    if (isAvailable) {
+      return AuthFieldHint(
+        leading: const Icon(Icons.check_circle),
+        text: l10n.signUpNicknameAvailable,
+        color: authSuccessColor(context),
+      );
     }
     return const SizedBox.shrink();
   }
+}
+
+/// Live "at least 8 characters" requirement under the password field.
+class _PasswordRequirement extends StatelessWidget {
+  final bool isMet;
+
+  const _PasswordRequirement({required this.isMet});
+
+  @override
+  Widget build(BuildContext context) => AuthFieldHint(
+    leading: Icon(isMet ? Icons.check_circle : Icons.radio_button_unchecked),
+    text: AppLocalizations.of(context)!.signUpPasswordHelper,
+    color: isMet ? authSuccessColor(context) : null,
+  );
 }

@@ -1,0 +1,10 @@
+# Splash screen for the prod flavor (same palette as its launcher icon).
+# Regenerate with: dart run flutter_native_splash:create --flavors dev,staging,prod
+flutter_native_splash:
+  color: "#1A1C1E"
+  image: assets/launcher/splash_prod.png
+  android_12:
+    color: "#1A1C1E"
+    image: assets/launcher/splash_prod_android12.png
+    icon_background_color: "#1A1C1E"
+  web: false

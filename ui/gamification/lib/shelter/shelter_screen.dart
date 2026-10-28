@@ -29,6 +29,7 @@ class ShelterScreen extends StatelessWidget {
       builder: (context, state) => switch (state) {
         ShelterLoading() => const Center(child: MuuvieActivityIndicator()),
         ShelterError() => MuuvieEmptyState(
+          illustration: MuuvieIllustration.error,
           title: l10n?.emptyStateErrorTitle ?? '',
           message: l10n?.emptyStateErrorMessage ?? '',
           action: cubit.load,

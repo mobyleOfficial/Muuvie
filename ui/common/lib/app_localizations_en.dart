@@ -415,6 +415,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get movieDetailSynopsis => 'Synopsis';
 
   @override
+  String get movieDetailUnmatched =>
+      'We couldn\'t find this movie in our catalog. The details come from Filmow and may be incomplete.';
+
+  @override
   String get movieDetailCast => 'Cast';
 
   @override
@@ -564,12 +568,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginButton => 'Log In';
 
   @override
-  String get signUpButton => 'Sign Up';
-
-  @override
-  String get signUpTitle => 'Create Account';
-
-  @override
   String get signUpNickname => 'Nickname';
 
   @override
@@ -616,6 +614,39 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get loginGenericError =>
       'Something went wrong, please try again later.';
+
+  @override
+  String get loginWelcomeTitle => 'Good to see you!';
+
+  @override
+  String get loginNoAccount => 'New to Muuvie?';
+
+  @override
+  String get loginCreateAccountLink => 'Create an account';
+
+  @override
+  String get signUpHeadline => 'Get your ticket';
+
+  @override
+  String get signUpSubtitle => 'Create your account in less than a minute.';
+
+  @override
+  String get signUpHaveAccount => 'Already have an account?';
+
+  @override
+  String get signUpNicknameChecking => 'Checking availability…';
+
+  @override
+  String get signUpNicknameAvailable => 'Nickname available';
+
+  @override
+  String get signUpPasswordHelper => 'At least 8 characters';
+
+  @override
+  String get passwordShow => 'Show password';
+
+  @override
+  String get passwordHide => 'Hide password';
 
   @override
   String get movieDetailWriteReview => 'Write a Review';
@@ -1409,6 +1440,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importStartFilmow => 'Sign in to Filmow and import';
+
+  @override
+  String get importFilmowWaitTitle => 'Wait after signing in';
+
+  @override
+  String get importFilmowWaitMessage =>
+      'After you sign in to Filmow, you MUST wait for the screen to close on its own. Don\'t close it yourself, or the import won\'t start.';
+
+  @override
+  String get importFilmowWaitConfirm => 'Got it';
 
   @override
   String get importHistoryTitle => 'Previous imports';
@@ -2952,20 +2993,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get retrospectiveOutro => 'See you at the next session';
 
   @override
-  String get activityVerbUnlockedBichinho => 'unlocked the bichinho';
+  String get activityVerbUnlockedBichinho => 'unlocked the vaquinha';
 
   @override
-  String get petShelterTitle => 'Bichinho da Bombonière';
+  String get petShelterTitle => 'Vaquinha da Bombonière';
 
   @override
-  String get petAdopt => 'Adopt a bichinho';
+  String get petAdopt => 'Adopt a vaquinha';
 
   @override
   String get petStarterTitle => 'Pick your popcorn bucket';
 
   @override
   String get petStarterMessage =>
-      'Your bichinho grows with the minutes you watch and the sessions you log. The first choice is for good.';
+      'Your vaquinha grows with the minutes you watch and the sessions you log. The first choice is for good.';
 
   @override
   String petStarterConfirmTitle(String name) {
@@ -2974,7 +3015,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get petStarterConfirmMessage =>
-      'The first bichinho cannot be changed later. Others unlock as you watch.';
+      'The first vaquinha cannot be changed later. Others unlock as you watch.';
 
   @override
   String get petStarterConfirm => 'Adopt';
@@ -2998,8 +3039,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count bichinhos',
-      one: '1 bichinho',
+      other: '$count vaquinhas',
+      one: '1 vaquinha',
     );
     return '$_temp0';
   }
@@ -3144,7 +3185,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get missionsHelp =>
-      'Three new missions every Monday. Their XP goes to your pinned bichinho.';
+      'Three new missions every Monday. Their XP goes to your pinned vaquinha.';
 
   @override
   String missionXp(int xp) {
@@ -3464,11 +3505,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Join maratonas with challenges that complete themselves, and film clubs with a discussion day and no spoilers.';
 
   @override
-  String get onboardingSocialTitle => 'Friends and a bichinho';
+  String get onboardingSocialTitle => 'Friends and a vaquinha';
 
   @override
   String get onboardingSocialText =>
-      'Follow people, send Sussurros and raise a bichinho that grows with every movie.';
+      'Follow people, send Sussurros and raise a vaquinha that grows with every movie.';
 
   @override
   String get onboardingImportTitle => 'Bring your history';

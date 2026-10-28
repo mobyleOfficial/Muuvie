@@ -88,12 +88,14 @@ class _List extends StatelessWidget {
     return switch (state) {
       FollowListLoading() => const Center(child: CircularProgressIndicator()),
       FollowListError() => MuuvieEmptyState(
+        illustration: MuuvieIllustration.error,
         title: l10n?.emptyStateErrorTitle ?? '',
         message: l10n?.emptyStateErrorMessage ?? '',
         action: () => cubit.refresh(list),
         actionLabel: l10n?.emptyStateRetry ?? '',
       ),
       FollowListSuccess(:final cards) when cards.isEmpty => MuuvieEmptyState(
+        illustration: MuuvieIllustration.sleeping,
         title: l10n?.emptyStateNoItemsTitle ?? '',
         message: list == FollowList.followers
             ? l10n?.followsEmptyFollowers ?? ''

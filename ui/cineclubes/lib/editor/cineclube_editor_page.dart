@@ -76,6 +76,7 @@ class _CineClubeEditorPageState extends State<CineClubeEditorPage> {
           child: MuuvieActivityIndicator(),
         ),
         CineClubeEditorError() => MuuvieEmptyState(
+          illustration: MuuvieIllustration.error,
           title: l10n?.emptyStateErrorTitle ?? '',
           message: l10n?.emptyStateErrorMessage ?? '',
           action: _cubit.load,

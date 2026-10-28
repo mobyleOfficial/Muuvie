@@ -34,6 +34,7 @@ class DiaryScreen extends StatelessWidget {
       builder: (context, state) => switch (state) {
         DiaryLoading() => const Center(child: MuuvieActivityIndicator()),
         DiaryError() => MuuvieEmptyState(
+          illustration: MuuvieIllustration.error,
           title: l10n?.emptyStateErrorTitle ?? '',
           message: l10n?.emptyStateErrorMessage ?? '',
           action: cubit.load,

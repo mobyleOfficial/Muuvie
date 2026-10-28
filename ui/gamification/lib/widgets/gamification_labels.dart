@@ -2,24 +2,24 @@ import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:gamification/gamification.dart';
 
-/// How each bichinho looks: an emoji on its color. The art can come later;
-/// the slug stays the same.
+/// How each vaquinha looks: the cow in its costume, on its color. The slug
+/// names the art in `assets/pets/`.
 abstract final class PetArt {
-  static const _emoji = {
-    'pipoca-doce': '🍿',
-    'pipoca-salgada': '🍿',
-    'pipoca-caramelo': '🍿',
-    'claquete': '🎬',
-    'ingresso': '🎟️',
-    'fantasminha': '👻',
-    'robozinho': '🤖',
-    'lanterninha': '🔦',
-    'rolo-de-filme': '🎞️',
-    'dinossauro': '🦖',
-    'coruja': '🦉',
-    'trofeu': '🏆',
-    'projetor': '📽️',
-    'estatueta': '🏅',
+  static const _slugs = {
+    'pipoca-doce',
+    'pipoca-salgada',
+    'pipoca-caramelo',
+    'claquete',
+    'ingresso',
+    'fantasminha',
+    'robozinho',
+    'lanterninha',
+    'rolo-de-filme',
+    'dinossauro',
+    'coruja',
+    'trofeu',
+    'projetor',
+    'estatueta',
   };
 
   static const _color = {
@@ -28,7 +28,9 @@ abstract final class PetArt {
     'pipoca-caramelo': Color(0xFFFFCC80),
   };
 
-  static String emoji(String slug) => _emoji[slug] ?? '🍿';
+  /// Unknown slugs (a vaquinha newer than the app) fall back to a starter.
+  static String asset(String slug) =>
+      'assets/pets/${_slugs.contains(slug) ? slug : 'pipoca-doce'}.svg';
 
   static Color color(String slug, PetRarity rarity) =>
       _color[slug] ??
@@ -40,8 +42,11 @@ abstract final class PetArt {
       };
 }
 
-/// The bichinho drawn on its round tag. Locked ones are dimmed.
+/// The vaquinha drawn on its round tag. Locked ones are dimmed and, when
+/// there is room, carry a lock.
 class PetAvatar extends StatelessWidget {
+  static const double _lockMinSize = 40;
+
   final Pet pet;
   final double size;
 
@@ -50,34 +55,58 @@ class PetAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final color = PetArt.color(pet.slug, pet.rarity);
+    final colorScheme = Theme.of(context).colorScheme;
+    final locked = !pet.unlocked && pet.rarity != PetRarity.starter;
+    final lockSize = size * 0.36;
 
     return Semantics(
       label: petName(l10n, pet.slug),
       image: true,
       child: ExcludeSemantics(
-        child: Opacity(
-          opacity: pet.unlocked || pet.rarity == PetRarity.starter ? 1 : 0.35,
-          child: Container(
-            width: size,
-            height: size,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-              border: pet.pinned
-                  ? Border.all(
-                      color: Theme.of(context).colorScheme.primary,
-                      width: 3,
-                    )
-                  : null,
-            ),
-            child: Text(
-              pet.unlocked || pet.rarity == PetRarity.starter
-                  ? PetArt.emoji(pet.slug)
-                  : '🔒',
-              style: TextStyle(fontSize: size * 0.5),
-            ),
+        child: SizedBox.square(
+          dimension: size,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Opacity(
+                opacity: locked ? 0.35 : 1,
+                child: Container(
+                  width: size,
+                  height: size,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    color: PetArt.color(pet.slug, pet.rarity),
+                    shape: BoxShape.circle,
+                    border: pet.pinned
+                        ? Border.all(color: colorScheme.primary, width: 3)
+                        : null,
+                  ),
+                  child: MuuvieMascotArt(
+                    assetPath: PetArt.asset(pet.slug),
+                    package: 'gamification_ui',
+                    size: size,
+                  ),
+                ),
+              ),
+              if (locked && size >= _lockMinSize)
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: lockSize,
+                    height: lockSize,
+                    decoration: BoxDecoration(
+                      color: colorScheme.inverseSurface,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.lock,
+                      size: lockSize * 0.6,
+                      color: colorScheme.onInverseSurface,
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ),

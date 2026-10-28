@@ -24,6 +24,10 @@ class MovieInfo {
   final List<WatchProvider> watchProviders;
   final List<Movie> similarMovies;
 
+  /// True when the backend found no TMDB movie for an imported one: the data
+  /// shown is only what the source (e.g. Filmow) had.
+  final bool isUnmatched;
+
   const MovieInfo({
     required this.overview,
     required this.backdropPath,
@@ -38,5 +42,6 @@ class MovieInfo {
     this.trailerKey,
     this.watchProviders = const [],
     this.similarMovies = const [],
+    this.isUnmatched = false,
   });
 }

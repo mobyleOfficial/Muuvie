@@ -128,6 +128,7 @@ class _CineClubeParticipantsTabState extends State<CineClubeParticipantsTab>
     }
     if (_failed) {
       return MuuvieEmptyState(
+        illustration: MuuvieIllustration.error,
         title: l10n?.emptyStateErrorTitle ?? '',
         message: l10n?.emptyStateErrorMessage ?? '',
         action: _load,
@@ -136,6 +137,7 @@ class _CineClubeParticipantsTabState extends State<CineClubeParticipantsTab>
     }
     if (_participants.isEmpty) {
       return MuuvieEmptyState(
+        illustration: MuuvieIllustration.cineclube,
         title: l10n?.cineclubeParticipantsEmpty ?? '',
         message: '',
       );

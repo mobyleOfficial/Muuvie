@@ -40,6 +40,7 @@ class ShelvesScreen extends StatelessWidget {
         builder: (context, state) => switch (state) {
           ShelvesLoading() => const Center(child: CircularProgressIndicator()),
           ShelvesError(:final message) => MuuvieEmptyState(
+            illustration: MuuvieIllustration.error,
             title: l10n?.emptyStateErrorTitle ?? '',
             message: message,
             action: cubit.load,

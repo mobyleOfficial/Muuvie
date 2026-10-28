@@ -80,6 +80,7 @@ class _CineClubeProgressTabState extends State<CineClubeProgressTab>
     }
     if (_failed) {
       return MuuvieEmptyState(
+        illustration: MuuvieIllustration.error,
         title: l10n?.emptyStateErrorTitle ?? '',
         message: l10n?.emptyStateErrorMessage ?? '',
         action: _load,
@@ -88,6 +89,7 @@ class _CineClubeProgressTabState extends State<CineClubeProgressTab>
     }
     if (_logs.isEmpty) {
       return MuuvieEmptyState(
+        illustration: MuuvieIllustration.cineclube,
         title: l10n?.cineclubeProgressEmptyTitle ?? '',
         message: l10n?.cineclubeProgressEmptyMessage ?? '',
       );

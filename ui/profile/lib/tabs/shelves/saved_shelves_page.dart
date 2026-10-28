@@ -86,12 +86,14 @@ class _SavedShelvesPageState extends State<SavedShelvesPage> {
       if (_loading) return const Center(child: MuuvieActivityIndicator());
       return _error != null
           ? MuuvieEmptyState(
+              illustration: MuuvieIllustration.error,
               title: l10n?.emptyStateErrorTitle ?? '',
               message: l10n?.emptyStateErrorMessage ?? '',
               action: _reload,
               actionLabel: l10n?.emptyStateRetry ?? '',
             )
           : MuuvieEmptyState(
+              illustration: MuuvieIllustration.movies,
               title: l10n?.savedShelvesTitle ?? '',
               message: l10n?.savedShelvesEmpty ?? '',
             );

@@ -47,6 +47,7 @@ class LocadoraDetailScreen extends StatelessWidget {
             child: CircularProgressIndicator(),
           ),
           LocadoraDetailError(:final message) => MuuvieEmptyState(
+            illustration: MuuvieIllustration.error,
             title: l10n?.emptyStateErrorTitle ?? '',
             message: message,
             action: cubit.load,

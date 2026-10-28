@@ -35,6 +35,7 @@ class ImportJobScreen extends StatelessWidget {
             child: CircularProgressIndicator(),
           ),
           ImportJobError(:final message) => MuuvieEmptyState(
+            illustration: MuuvieIllustration.error,
             title: l10n?.emptyStateErrorTitle ?? '',
             message: message,
             action: cubit.load,
@@ -60,12 +61,14 @@ class ImportJobScreen extends StatelessWidget {
               onImportAgain: onImportAgain,
             ),
             ImportStatus.failed => MuuvieEmptyState(
+              illustration: MuuvieIllustration.error,
               title: l10n?.importFailedTitle ?? '',
               message: job.error ?? '',
               action: onImportAgain,
               actionLabel: l10n?.importAgain ?? '',
             ),
             ImportStatus.cancelled => MuuvieEmptyState(
+              illustration: MuuvieIllustration.sleeping,
               title: l10n?.importCancelledTitle ?? '',
               message: l10n?.importCancelledMessage ?? '',
               action: onImportAgain,

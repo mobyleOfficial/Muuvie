@@ -62,6 +62,7 @@ class _HighlightsTabState extends State<HighlightsTab> {
       builder: (context, state) => switch (state) {
         HighlightsLoading() => const Center(child: CircularProgressIndicator()),
         HighlightsError(:final message) => MuuvieEmptyState(
+          illustration: MuuvieIllustration.error,
           title: l10n?.emptyStateErrorTitle ?? '',
           message: message,
           action: _cubit.load,
@@ -74,6 +75,7 @@ class _HighlightsTabState extends State<HighlightsTab> {
             padding: const EdgeInsets.only(top: 32),
             children: [
               MuuvieEmptyState(
+                illustration: MuuvieIllustration.movies,
                 title: canEdit
                     ? l10n?.highlightsEmptyOwnTitle ?? ''
                     : l10n?.emptyStateNoItemsTitle ?? '',

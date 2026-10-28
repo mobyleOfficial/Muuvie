@@ -116,6 +116,7 @@ class _MaratonaRankingTabState extends State<MaratonaRankingTab> {
     }
     if (_failed) {
       return MuuvieEmptyState(
+        illustration: MuuvieIllustration.error,
         title: l10n?.emptyStateErrorTitle ?? '',
         message: l10n?.emptyStateErrorMessage ?? '',
         action: _load,
@@ -127,6 +128,7 @@ class _MaratonaRankingTabState extends State<MaratonaRankingTab> {
         : _entries.every((entry) => entry.completed == 0);
     if (nobody) {
       return MuuvieEmptyState(
+        illustration: MuuvieIllustration.ranking,
         title: l10n?.maratonaTabRanking ?? '',
         message: l10n?.maratonaRankingEmpty ?? '',
       );

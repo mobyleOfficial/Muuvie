@@ -820,6 +820,12 @@ abstract class AppLocalizations {
   /// **'Synopsis'**
   String get movieDetailSynopsis;
 
+  /// Notice on an imported movie the backend could not match with TMDB
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find this movie in our catalog. The details come from Filmow and may be incomplete.'**
+  String get movieDetailUnmatched;
+
   /// Section title for movie cast
   ///
   /// In en, this message translates to:
@@ -1066,18 +1072,6 @@ abstract class AppLocalizations {
   /// **'Log In'**
   String get loginButton;
 
-  /// Sign up navigation button label on the login screen
-  ///
-  /// In en, this message translates to:
-  /// **'Sign Up'**
-  String get signUpButton;
-
-  /// Title of the sign up screen
-  ///
-  /// In en, this message translates to:
-  /// **'Create Account'**
-  String get signUpTitle;
-
   /// Nickname field label on the sign up screen
   ///
   /// In en, this message translates to:
@@ -1167,6 +1161,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong, please try again later.'**
   String get loginGenericError;
+
+  /// Headline on the login screen
+  ///
+  /// In en, this message translates to:
+  /// **'Good to see you!'**
+  String get loginWelcomeTitle;
+
+  /// Prompt before the create account link on the login screen
+  ///
+  /// In en, this message translates to:
+  /// **'New to Muuvie?'**
+  String get loginNoAccount;
+
+  /// Link from the login screen to the sign up screen
+  ///
+  /// In en, this message translates to:
+  /// **'Create an account'**
+  String get loginCreateAccountLink;
+
+  /// Headline on the sign up screen
+  ///
+  /// In en, this message translates to:
+  /// **'Get your ticket'**
+  String get signUpHeadline;
+
+  /// Subtitle on the sign up screen
+  ///
+  /// In en, this message translates to:
+  /// **'Create your account in less than a minute.'**
+  String get signUpSubtitle;
+
+  /// Prompt before the log in link on the sign up screen
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account?'**
+  String get signUpHaveAccount;
+
+  /// Shown while the nickname availability is being checked
+  ///
+  /// In en, this message translates to:
+  /// **'Checking availability…'**
+  String get signUpNicknameChecking;
+
+  /// Shown when the nickname is available
+  ///
+  /// In en, this message translates to:
+  /// **'Nickname available'**
+  String get signUpNicknameAvailable;
+
+  /// Password requirement shown under the password field
+  ///
+  /// In en, this message translates to:
+  /// **'At least 8 characters'**
+  String get signUpPasswordHelper;
+
+  /// Tooltip of the button that reveals the password
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get passwordShow;
+
+  /// Tooltip of the button that hides the password
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get passwordHide;
 
   /// Action sheet option to write a review
   ///
@@ -2637,6 +2697,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign in to Filmow and import'**
   String get importStartFilmow;
+
+  /// Title of the alert shown before the Filmow login
+  ///
+  /// In en, this message translates to:
+  /// **'Wait after signing in'**
+  String get importFilmowWaitTitle;
+
+  /// Alert and banner telling the user to wait for the Filmow login screen to close by itself
+  ///
+  /// In en, this message translates to:
+  /// **'After you sign in to Filmow, you MUST wait for the screen to close on its own. Don\'t close it yourself, or the import won\'t start.'**
+  String get importFilmowWaitMessage;
+
+  /// Button that dismisses the Filmow login alert
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get importFilmowWaitConfirm;
 
   /// Header of the import history
   ///
@@ -5104,22 +5182,22 @@ abstract class AppLocalizations {
   /// **'See you at the next session'**
   String get retrospectiveOutro;
 
-  /// Feed verb: a new bichinho
+  /// Feed verb: a new vaquinha
   ///
   /// In en, this message translates to:
-  /// **'unlocked the bichinho'**
+  /// **'unlocked the vaquinha'**
   String get activityVerbUnlockedBichinho;
 
   /// Shelter title
   ///
   /// In en, this message translates to:
-  /// **'Bichinho da Bombonière'**
+  /// **'Vaquinha da Bombonière'**
   String get petShelterTitle;
 
   /// Profile shortcut before the starter
   ///
   /// In en, this message translates to:
-  /// **'Adopt a bichinho'**
+  /// **'Adopt a vaquinha'**
   String get petAdopt;
 
   /// Starter pack title
@@ -5131,7 +5209,7 @@ abstract class AppLocalizations {
   /// Starter pack text
   ///
   /// In en, this message translates to:
-  /// **'Your bichinho grows with the minutes you watch and the sessions you log. The first choice is for good.'**
+  /// **'Your vaquinha grows with the minutes you watch and the sessions you log. The first choice is for good.'**
   String get petStarterMessage;
 
   /// Starter confirmation
@@ -5143,7 +5221,7 @@ abstract class AppLocalizations {
   /// Starter confirmation text
   ///
   /// In en, this message translates to:
-  /// **'The first bichinho cannot be changed later. Others unlock as you watch.'**
+  /// **'The first vaquinha cannot be changed later. Others unlock as you watch.'**
   String get petStarterConfirmMessage;
 
   /// Starter confirmation button
@@ -5152,7 +5230,7 @@ abstract class AppLocalizations {
   /// **'Adopt'**
   String get petStarterConfirm;
 
-  /// Bichinho level
+  /// Vaquinha level
   ///
   /// In en, this message translates to:
   /// **'Level {level}'**
@@ -5170,19 +5248,19 @@ abstract class AppLocalizations {
   /// **'Each finished movie gives 20 XP, plus 1 for every 10 minutes. Imports do not count.'**
   String get petXpHelp;
 
-  /// Unlocked bichinhos
+  /// Unlocked vaquinhas
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 bichinho} other{{count} bichinhos}}'**
+  /// **'{count, plural, =1{1 vaquinha} other{{count} vaquinhas}}'**
   String petUnlocked(int count);
 
-  /// Locked bichinhos section
+  /// Locked vaquinhas section
   ///
   /// In en, this message translates to:
   /// **'To unlock'**
   String get petLocked;
 
-  /// Pin a bichinho
+  /// Pin a vaquinha
   ///
   /// In en, this message translates to:
   /// **'Show on my profile'**
@@ -5212,19 +5290,19 @@ abstract class AppLocalizations {
   /// **'Legendary'**
   String get petRarityLegendary;
 
-  /// Bichinho name
+  /// Vaquinha name
   ///
   /// In en, this message translates to:
   /// **'Sweet popcorn'**
   String get petPipocaDoce;
 
-  /// Bichinho name
+  /// Vaquinha name
   ///
   /// In en, this message translates to:
   /// **'Salty popcorn'**
   String get petPipocaSalgada;
 
-  /// Bichinho name
+  /// Vaquinha name
   ///
   /// In en, this message translates to:
   /// **'Caramel popcorn'**
@@ -5248,67 +5326,67 @@ abstract class AppLocalizations {
   /// **'Collects classics.'**
   String get petPipocaCarameloAbout;
 
-  /// Bichinho name
+  /// Vaquinha name
   ///
   /// In en, this message translates to:
   /// **'Clapperboard'**
   String get petClaquete;
 
-  /// Bichinho name
+  /// Vaquinha name
   ///
   /// In en, this message translates to:
   /// **'Ticket'**
   String get petIngresso;
 
-  /// Bichinho name
+  /// Vaquinha name
   ///
   /// In en, this message translates to:
   /// **'Little ghost'**
   String get petFantasminha;
 
-  /// Bichinho name
+  /// Vaquinha name
   ///
   /// In en, this message translates to:
   /// **'Little robot'**
   String get petRobozinho;
 
-  /// Bichinho name
+  /// Vaquinha name
   ///
   /// In en, this message translates to:
   /// **'Usher'**
   String get petLanterninha;
 
-  /// Bichinho name
+  /// Vaquinha name
   ///
   /// In en, this message translates to:
   /// **'Film reel'**
   String get petRoloDeFilme;
 
-  /// Bichinho name
+  /// Vaquinha name
   ///
   /// In en, this message translates to:
   /// **'Dinosaur'**
   String get petDinossauro;
 
-  /// Bichinho name
+  /// Vaquinha name
   ///
   /// In en, this message translates to:
   /// **'Owl'**
   String get petCoruja;
 
-  /// Bichinho name
+  /// Vaquinha name
   ///
   /// In en, this message translates to:
   /// **'Trophy'**
   String get petTrofeu;
 
-  /// Bichinho name
+  /// Vaquinha name
   ///
   /// In en, this message translates to:
   /// **'Projector'**
   String get petProjetor;
 
-  /// Bichinho name
+  /// Vaquinha name
   ///
   /// In en, this message translates to:
   /// **'Statuette'**
@@ -5383,7 +5461,7 @@ abstract class AppLocalizations {
   /// Missions help
   ///
   /// In en, this message translates to:
-  /// **'Three new missions every Monday. Their XP goes to your pinned bichinho.'**
+  /// **'Three new missions every Monday. Their XP goes to your pinned vaquinha.'**
   String get missionsHelp;
 
   /// Mission reward
@@ -5905,13 +5983,13 @@ abstract class AppLocalizations {
   /// Onboarding panel
   ///
   /// In en, this message translates to:
-  /// **'Friends and a bichinho'**
+  /// **'Friends and a vaquinha'**
   String get onboardingSocialTitle;
 
   /// Onboarding panel
   ///
   /// In en, this message translates to:
-  /// **'Follow people, send Sussurros and raise a bichinho that grows with every movie.'**
+  /// **'Follow people, send Sussurros and raise a vaquinha that grows with every movie.'**
   String get onboardingSocialText;
 
   /// Onboarding panel

@@ -11,6 +11,7 @@ class SignUpCubit extends Cubit<SignUpState> {
   static const _minPasswordLength = 8;
   static const _maxPasswordLength = 72;
   static const _maxNicknameLength = 30;
+  static const _nicknameDebounceDelay = Duration(milliseconds: 700);
 
   final SignUp _signUp;
   final CheckNicknameAvailability _checkNicknameAvailability;
@@ -91,7 +92,7 @@ class SignUpCubit extends Cubit<SignUpState> {
 
     emit((state as SignUpFormState).copyWith(isCheckingNickname: true));
 
-    _nicknameDebounce = Timer(const Duration(seconds: 2), () {
+    _nicknameDebounce = Timer(_nicknameDebounceDelay, () {
       _checkNickname(nickname);
     });
   }

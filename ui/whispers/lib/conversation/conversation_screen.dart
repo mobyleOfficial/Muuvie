@@ -34,6 +34,7 @@ class ConversationScreen extends StatelessWidget {
             child: CircularProgressIndicator(),
           ),
           ConversationError() => MuuvieEmptyState(
+            illustration: MuuvieIllustration.error,
             title: l10n?.emptyStateErrorTitle ?? '',
             message: l10n?.emptyStateErrorMessage ?? '',
             action: cubit.load,
@@ -44,6 +45,7 @@ class ConversationScreen extends StatelessWidget {
               Expanded(
                 child: ready.messages.isEmpty
                     ? MuuvieEmptyState(
+                        illustration: MuuvieIllustration.sleeping,
                         title: l10n?.whisperStart(otherName) ?? '',
                         message: ready.enabled
                             ? ''

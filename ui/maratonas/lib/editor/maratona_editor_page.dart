@@ -73,6 +73,7 @@ class _MaratonaEditorPageState extends State<MaratonaEditorPage> {
           child: MuuvieActivityIndicator(),
         ),
         MaratonaEditorError() => MuuvieEmptyState(
+          illustration: MuuvieIllustration.error,
           title: l10n?.emptyStateErrorTitle ?? '',
           message: l10n?.emptyStateErrorMessage ?? '',
           action: _cubit.load,
