@@ -75,4 +75,13 @@ abstract interface class SocialNetworkRepository {
   Future<Result<NotificationPrefs>> saveNotificationPrefs(
     NotificationPrefs prefs,
   );
+
+  /// Tells the backend where to send this device's push (fase 15).
+  Future<Result<void>> registerDevice(
+    String platform,
+    String token,
+    String? locale,
+  );
+
+  Future<Result<void>> removeDevice(String token);
 }

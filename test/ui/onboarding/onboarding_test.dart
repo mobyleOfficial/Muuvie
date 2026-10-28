@@ -20,6 +20,7 @@ import 'package:social_network/social_network.dart';
 import '../../helpers/fake_cineclubes_repository.dart';
 import '../../helpers/golden.dart';
 import '../../helpers/fake_maratonas_repository.dart';
+import '../../helpers/fake_push_messaging.dart';
 import '../../helpers/fake_social_network_repository.dart';
 
 class _MemoryOnboarding implements OnboardingRepository {
@@ -231,6 +232,29 @@ void main() {
     expect(social.savedPrefs.single.loves, isFalse);
     expect(auth.loggedOut, isTrue);
     expect(settings.state, isA<SettingsLoggedOut>());
+  });
+
+  test('settings warn when push is blocked and register once allowed', () async {
+    final social = FakeSocialNetworkRepository();
+    final push = FakePushMessaging();
+    final settings = SettingsCubit(
+      getPrefs: GetNotificationPrefs(social),
+      savePrefs: SaveNotificationPrefs(social),
+      resetOnboarding: ResetOnboarding(onboarding),
+      logout: Logout(_FakeAuth()),
+      push: push,
+      registerPushDevice: RegisterPushDevice(social, push),
+    );
+    addTearDown(settings.close);
+    addTearDown(push.dispose);
+
+    await settings.load();
+    expect((settings.state as SettingsReady).pushBlocked, isTrue);
+
+    await settings.allowPush();
+
+    expect((settings.state as SettingsReady).pushBlocked, isFalse);
+    expect(social.calls.single, startsWith('registerDevice:android:token-1'));
   });
 
   test('every string exists in the three languages (F11.4)', () {

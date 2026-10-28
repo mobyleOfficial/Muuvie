@@ -172,6 +172,22 @@ class FakeSocialNetworkRepository implements SocialNetworkRepository {
     return Success(value);
   }
 
+  @override
+  Future<Result<void>> registerDevice(
+    String platform,
+    String token,
+    String? locale,
+  ) async {
+    calls.add('registerDevice:$platform:$token:$locale');
+    return const Success(null);
+  }
+
+  @override
+  Future<Result<void>> removeDevice(String token) async {
+    calls.add('removeDevice:$token');
+    return const Success(null);
+  }
+
   Future<void> dispose() async {
     await incoming.close();
     await unread.close();

@@ -3578,6 +3578,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsNotifyCineclubes => 'Discussion day of my film clubs';
 
   @override
+  String get settingsPushOff => 'Notifications are off on this device';
+
+  @override
+  String get settingsPushOffHint =>
+      'Allow them to get Sussurros and alerts with the app closed. If nothing happens, turn them on in the device settings.';
+
+  @override
+  String get settingsPushAllow => 'Allow';
+
+  @override
   String get settingsAbout => 'Muuvie';
 
   @override

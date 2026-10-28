@@ -3605,6 +3605,17 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsNotifyCineclubes => 'Día de debate de mis cineclubes';
 
   @override
+  String get settingsPushOff =>
+      'Las notificaciones están desactivadas en este dispositivo';
+
+  @override
+  String get settingsPushOffHint =>
+      'Permítelas para recibir Susurros y avisos con la app cerrada. Si no pasa nada, actívalas en los ajustes del dispositivo.';
+
+  @override
+  String get settingsPushAllow => 'Permitir';
+
+  @override
   String get settingsAbout => 'Muuvie';
 
   @override

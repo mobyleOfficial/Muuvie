@@ -123,4 +123,15 @@ class SocialNetworkRepositoryImpl implements SocialNetworkRepository {
   Future<Result<NotificationPrefs>> saveNotificationPrefs(
     NotificationPrefs prefs,
   ) => _remoteDataSource.saveNotificationPrefs(prefs);
+
+  @override
+  Future<Result<void>> registerDevice(
+    String platform,
+    String token,
+    String? locale,
+  ) => _remoteDataSource.registerDevice(platform, token, locale);
+
+  @override
+  Future<Result<void>> removeDevice(String token) =>
+      _remoteDataSource.removeDevice(token);
 }

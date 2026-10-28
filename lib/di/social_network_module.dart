@@ -98,4 +98,16 @@ abstract class SocialNetworkModule {
   SaveNotificationPrefs saveNotificationPrefs(
     SocialNetworkRepository repository,
   ) => SaveNotificationPrefs(repository);
+
+  @injectable
+  RegisterPushDevice registerPushDevice(
+    SocialNetworkRepository repository,
+    PushMessaging push,
+  ) => RegisterPushDevice(repository, push);
+
+  @injectable
+  RemovePushDevice removePushDevice(
+    SocialNetworkRepository repository,
+    PushMessaging push,
+  ) => RemovePushDevice(repository, push);
 }

@@ -6112,6 +6112,24 @@ abstract class AppLocalizations {
   /// **'Discussion day of my film clubs'**
   String get settingsNotifyCineclubes;
 
+  /// Settings warning when the system blocks push
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off on this device'**
+  String get settingsPushOff;
+
+  /// Below settingsPushOff
+  ///
+  /// In en, this message translates to:
+  /// **'Allow them to get Sussurros and alerts with the app closed. If nothing happens, turn them on in the device settings.'**
+  String get settingsPushOffHint;
+
+  /// Asks the system for the push permission
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get settingsPushAllow;
+
   /// Settings section
   ///
   /// In en, this message translates to:

@@ -47,9 +47,13 @@ class CineClubeDetailCubit extends Cubit<CineClubeDetailState> {
     }
   }
 
-  Future<AppError?> join({String? password}) => _act(
-    () => _joinCineClube(JoinCineClubeParams(slug: slug, password: password)),
-  );
+  Future<AppError?> join({String? password}) async {
+    final error = await _act(
+      () => _joinCineClube(JoinCineClubeParams(slug: slug, password: password)),
+    );
+    if (error == null) Telemetry.analytics.logEvent('cineclube_joined');
+    return error;
+  }
 
   Future<AppError?> cancel() => _act(() => _cancelCineClube(slug));
 

@@ -11,6 +11,7 @@ class SettingsScreen extends StatelessWidget {
   final VoidCallback onEditProfile;
   final VoidCallback onImport;
   final ValueChanged<NotificationPrefs> onSavePrefs;
+  final VoidCallback onAllowPush;
   final VoidCallback onShowIntro;
   final VoidCallback onLogout;
 
@@ -20,6 +21,7 @@ class SettingsScreen extends StatelessWidget {
     required this.onEditProfile,
     required this.onImport,
     required this.onSavePrefs,
+    required this.onAllowPush,
     required this.onShowIntro,
     required this.onLogout,
   });
@@ -51,6 +53,19 @@ class SettingsScreen extends StatelessWidget {
             ),
             if (prefs != null) ...[
               _Section(title: l10n?.settingsNotifications ?? ''),
+              if (state.pushBlocked)
+                ListTile(
+                  leading: Icon(
+                    Icons.notifications_off_outlined,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  title: Text(l10n?.settingsPushOff ?? ''),
+                  subtitle: Text(l10n?.settingsPushOffHint ?? ''),
+                  trailing: TextButton(
+                    onPressed: onAllowPush,
+                    child: Text(l10n?.settingsPushAllow ?? ''),
+                  ),
+                ),
               _Switch(
                 title: l10n?.settingsNotifyMessages ?? '',
                 value: prefs.messages,

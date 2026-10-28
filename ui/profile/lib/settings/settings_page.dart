@@ -1,5 +1,6 @@
 import 'package:auth/auth.dart' show Logout;
 import 'package:auto_route/auto_route.dart';
+import 'package:core/core.dart';
 import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,6 +33,12 @@ class _SettingsPageState extends State<SettingsPage> {
     savePrefs: GetIt.I<SaveNotificationPrefs>(),
     resetOnboarding: GetIt.I<ResetOnboarding>(),
     logout: GetIt.I<Logout>(),
+    // Without Firebase there is no permission to warn about.
+    push: switch (GetIt.I<PushMessaging>()) {
+      NoopPushMessaging() => null,
+      final push => push,
+    },
+    registerPushDevice: GetIt.I<RegisterPushDevice>(),
   )..load();
 
   /// True when the profile changed, so the profile reloads.
@@ -98,6 +105,7 @@ class _SettingsPageState extends State<SettingsPage> {
             onEditProfile: _editProfile,
             onImport: () => context.router.push(const ImportStartRoute()),
             onSavePrefs: _savePrefs,
+            onAllowPush: _cubit.allowPush,
             onShowIntro: _showIntro,
             onLogout: _logout,
           ),
