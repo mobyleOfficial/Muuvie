@@ -4,5 +4,6 @@ library;
 export 'http/http.dart';
 export 'local/local.dart';
 export 'usecases/usecases.dart';
+export 'telemetry/telemetry.dart';
 export 'vocabulary/vocabulary.dart';
 export 'websocket/websocket.dart';

@@ -46,6 +46,9 @@ class ImportStartCubit extends Cubit<ImportStartState> {
       ),
     );
     if (isClosed) return;
+    if (result is Success) {
+      Telemetry.analytics.logEvent('import_started', {'source': 'filmow'});
+    }
     emit(switch (result) {
       Success(:final data) => ImportStartSuccess(
         history: [data, ...history],

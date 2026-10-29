@@ -49,16 +49,20 @@ class MaratonaDetailCubit extends Cubit<MaratonaDetailState> {
     });
   }
 
-  Future<AppError?> join({int? levelId, int? teamId, String? password}) => _act(
-    () => _joinMaratona(
-      JoinMaratonaParams(
-        slug: slug,
-        levelId: levelId,
-        teamId: teamId,
-        password: password,
+  Future<AppError?> join({int? levelId, int? teamId, String? password}) async {
+    final error = await _act(
+      () => _joinMaratona(
+        JoinMaratonaParams(
+          slug: slug,
+          levelId: levelId,
+          teamId: teamId,
+          password: password,
+        ),
       ),
-    ),
-  );
+    );
+    if (error == null) Telemetry.analytics.logEvent('maratona_joined');
+    return error;
+  }
 
   Future<AppError?> leave() async {
     final current = state;

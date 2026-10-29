@@ -89,6 +89,7 @@ class LoginCubit extends Cubit<LoginState> {
 
     switch (result) {
       case Success():
+        Telemetry.analytics.logEvent('login', {'method': 'email'});
         emit(const LoginAuthenticated());
       case Failure(:final error):
         final errorKey = error == AppError.unauthorized
@@ -111,6 +112,7 @@ class LoginCubit extends Cubit<LoginState> {
 
     switch (result) {
       case Success():
+        Telemetry.analytics.logEvent('login', {'method': provider.name});
         emit(const LoginAuthenticated());
       case Failure(:final error):
         final errorKey = error == AppError.unauthorized

@@ -149,6 +149,7 @@ class SignUpCubit extends Cubit<SignUpState> {
 
     switch (result) {
       case Success():
+        Telemetry.analytics.logEvent('sign_up', {'method': 'email'});
         emit(const SignUpSuccess());
       case Failure(:final error):
         final errorKey = switch (error) {

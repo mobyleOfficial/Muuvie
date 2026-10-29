@@ -62,6 +62,7 @@ class FollowsCubit extends Cubit<FollowsState> {
     _setBusy(target, false);
     switch (result) {
       case Success(:final data):
+        if (data.following) Telemetry.analytics.logEvent('follow');
         for (final list in FollowList.values) {
           final current = state.of(list);
           if (current is! FollowListSuccess) continue;

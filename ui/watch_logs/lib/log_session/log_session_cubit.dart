@@ -115,6 +115,9 @@ class LogSessionCubit extends Cubit<LogSessionState> {
               draft: draft,
             ),
           );
+    if (log == null && result is Success) {
+      Telemetry.analytics.logEvent('watch_session_logged');
+    }
     if (isClosed) return null;
     emit(state.copyWith(isSaving: false));
     return switch (result) {

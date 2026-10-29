@@ -47,6 +47,14 @@ abstract interface class SocialNetworkRemoteDataSource {
   Future<Result<NotificationPrefs>> saveNotificationPrefs(
     NotificationPrefs prefs,
   );
+
+  Future<Result<void>> registerDevice(
+    String platform,
+    String token,
+    String? locale,
+  );
+
+  Future<Result<void>> removeDevice(String token);
 }
 
 /// Social endpoints of the v1 API (`/api/v1`). See the backend README.
@@ -263,6 +271,27 @@ class SocialNetworkRemoteDataSourceImpl
       body: RemoteSocialNetwork.notificationPrefsJson(prefs),
     ),
     RemoteSocialNetwork.notificationPrefs,
+  );
+
+  @override
+  Future<Result<void>> registerDevice(
+    String platform,
+    String token,
+    String? locale,
+  ) async => _ignoreBody(
+    await _httpClient.put<dynamic>(
+      '$_base/users/me/devices',
+      body: {'platform': platform, 'token': token, 'locale': ?locale},
+    ),
+  );
+
+  // The token goes in the query: the backend accepts it there for DELETE.
+  @override
+  Future<Result<void>> removeDevice(String token) async => _ignoreBody(
+    await _httpClient.delete<dynamic>(
+      '$_base/users/me/devices',
+      queryParams: {'token': token},
+    ),
   );
 
   Result<void> _ignoreBody(Result<dynamic> result) => switch (result) {

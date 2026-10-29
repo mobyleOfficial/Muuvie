@@ -108,6 +108,7 @@ class ConversationCubit extends Cubit<ConversationState> {
     switch (result) {
       case Success(:final data):
         final sent = _asSeen(data);
+        Telemetry.analytics.logEvent('whisper_sent');
         var updated = latest.copyWith(
           messages: _withMessage(latest.messages, sent),
           isSending: false,

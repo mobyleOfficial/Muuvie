@@ -1,6 +1,8 @@
 import 'package:core/core.dart';
 import 'package:injectable/injectable.dart';
 import 'package:auth/auth.dart';
+import 'package:muuvie/push/logout_with_push.dart';
+import 'package:social_network/social_network.dart';
 
 @module
 abstract class AuthModule {
@@ -41,8 +43,12 @@ abstract class AuthModule {
   IsUserAuthenticated isUserAuthenticatedUseCase(AuthRepository repository) =>
       IsUserAuthenticated(repository);
 
+  // Stops the push to this device before the session ends (fase 15).
   @injectable
-  Logout logoutUseCase(AuthRepository repository) => Logout(repository);
+  Logout logoutUseCase(
+    AuthRepository repository,
+    RemovePushDevice removePushDevice,
+  ) => LogoutWithPush(repository, removePushDevice);
 
   @injectable
   ObserveSessionEnded observeSessionEndedUseCase(AuthRepository repository) =>

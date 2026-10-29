@@ -82,6 +82,15 @@ PROD_BACKEND_URL=https://api.example.com
 | `STG_BACKEND_URL` | Base URL for the Moovie backend service (staging flavor) |
 | `PROD_BACKEND_URL` | Base URL for the Moovie backend service (prod flavor) |
 
+### Firebase (Crashlytics, Analytics and push)
+
+The app runs without Firebase: crash reports, analytics and push simply stay off. To turn them on for Android, put the `google-services.json` of a Firebase project that has the apps `com.mobyle.muuvie.dev`, `com.mobyle.muuvie.staging` and `com.mobyle.muuvie` in `android/app/` (or one per flavor in `android/app/src/<flavor>/`). The file is gitignored; the Gradle build applies the Google services and Crashlytics plugins only when it exists. iOS and web have no Firebase config yet.
+
+- `core/lib/telemetry/` holds the interfaces (`CrashReporter`, `AnalyticsTracker`, `PushMessaging`) with no-op versions; blocs log through `Telemetry.analytics`, so no UI package depends on Firebase.
+- `lib/firebase/` has the Firebase versions, `FirebaseBootstrap` (initializes or falls back to the no-op versions) and `ScreenViewObserver` (a `screen_view` per route).
+- `lib/push/` registers the device token after sign-in (`PUT /api/v1/users/me/devices`), removes it on logout and opens the screen of a tapped notification (`pushRoute`).
+- The backend needs `FCM_SERVICE_ACCOUNT` to send the push.
+
 ### App Flavors
 
 | Flavor | Entry point | App name | Launcher icon & splash |
