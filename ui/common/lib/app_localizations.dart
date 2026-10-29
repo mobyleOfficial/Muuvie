@@ -6310,6 +6310,12 @@ abstract class AppLocalizations {
   /// **'Show less'**
   String get movieDetailReadLess;
 
+  /// Note above a synopsis shown in English because there is none in Portuguese; hidden when the app is in English
+  ///
+  /// In en, this message translates to:
+  /// **'Synopsis available only in English'**
+  String get movieDetailSynopsisInEnglish;
+
   /// No description provided for @movieStatWatched.
   ///
   /// In en, this message translates to:

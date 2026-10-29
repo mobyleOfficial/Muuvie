@@ -2149,6 +2149,8 @@
   "@movieDetailReadMore": {"description": "Expands the synopsis on the movie detail"},
   "movieDetailReadLess": "Show less",
   "@movieDetailReadLess": {"description": "Collapses the synopsis on the movie detail"},
+  "movieDetailSynopsisInEnglish": "Synopsis available only in English",
+  "@movieDetailSynopsisInEnglish": {"description": "Note above a synopsis shown in English because there is none in Portuguese; hidden when the app is in English"},
   "movieStatWatched": "Watched",
   "movieStatWantToWatch": "Want to watch",
   "movieStatShelves": "Shelves",

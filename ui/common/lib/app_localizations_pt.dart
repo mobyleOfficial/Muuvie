@@ -3757,6 +3757,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get movieDetailReadLess => 'Ler menos';
 
   @override
+  String get movieDetailSynopsisInEnglish => 'Sinopse disponível só em inglês';
+
+  @override
   String get movieStatWatched => 'Assistiram';
 
   @override

@@ -339,7 +339,10 @@ class _AboutTabState extends State<_AboutTab>
             children: [
               if (info?.isUnmatched ?? false) const _UnmatchedNotice(),
               if (info != null && info.overview.trim().isNotEmpty)
-                _SynopsisSection(overview: info.overview.trim()),
+                _SynopsisSection(
+                  overview: info.overview.trim(),
+                  language: info.overviewLanguage,
+                ),
               if (info?.watchProviders.isNotEmpty ?? false)
                 _WatchProvidersSection(providers: info!.watchProviders),
               if (info?.cast.isNotEmpty ?? false)
@@ -792,11 +795,15 @@ class _CreditLine extends StatelessWidget {
   }
 }
 
-/// The overview cut at a few lines, with "Ler mais" when it is longer.
+/// The overview cut at a few lines, with "Ler mais" when it is longer, and a
+/// note when it came in English because TMDB had none in Portuguese.
 class _SynopsisSection extends StatefulWidget {
   final String overview;
 
-  const _SynopsisSection({required this.overview});
+  /// ISO 639-1 of [overview] when it is not Portuguese.
+  final String? language;
+
+  const _SynopsisSection({required this.overview, this.language});
 
   @override
   State<_SynopsisSection> createState() => _SynopsisSectionState();
@@ -816,6 +823,11 @@ class _SynopsisSectionState extends State<_SynopsisSection> {
       color: colorScheme.onSurface,
       height: 1.55,
     );
+    final language = widget.language;
+    // Nothing to say when the app already reads in that language.
+    final showsEnglishNote =
+        language == 'en' &&
+        Localizations.localeOf(context).languageCode != language;
 
     return MovieSection(
       title: l10n?.movieDetailSynopsis ?? '',
@@ -833,11 +845,37 @@ class _SynopsisSectionState extends State<_SynopsisSection> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (showsEnglishNote)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.translate,
+                        size: 14,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          l10n?.movieDetailSynopsisInEnglish ?? '',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               AnimatedSize(
                 duration: const Duration(milliseconds: 200),
                 alignment: Alignment.topCenter,
-                child: Text(
-                  widget.overview,
+                child: Text.rich(
+                  TextSpan(
+                    text: widget.overview,
+                    // Screen readers pronounce it in its own language.
+                    locale: language == null ? null : Locale(language),
+                  ),
                   style: style,
                   maxLines: _expanded ? null : _collapsedLines,
                   overflow: _expanded

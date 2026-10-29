@@ -6,6 +6,9 @@ class RemoteMovieDetail {
   final String title;
   final String? localTitle;
   final String overview;
+
+  /// ISO 639-1 of [overview] when it is not Portuguese; absent otherwise.
+  final String? overviewLanguage;
   final String posterPath;
   final String backdropPath;
   final String releaseDate;
@@ -28,6 +31,7 @@ class RemoteMovieDetail {
     required this.title,
     this.localTitle,
     required this.overview,
+    this.overviewLanguage,
     required this.posterPath,
     required this.backdropPath,
     required this.releaseDate,
@@ -60,6 +64,7 @@ class RemoteMovieDetail {
       title: json['title'] as String,
       localTitle: (json['localTitle'] ?? json['local_title']) as String?,
       overview: json['overview'] as String,
+      overviewLanguage: json['overviewLanguage'] as String?,
       posterPath: (json['posterPath'] ?? json['poster_path']) as String? ?? '',
       backdropPath:
           (json['backdropPath'] ?? json['backdrop_path']) as String? ?? '',
@@ -147,6 +152,7 @@ class RemoteMovieDetail {
     posterPath: posterPath,
     info: MovieInfo(
       overview: overview,
+      overviewLanguage: overviewLanguage,
       backdropPath: backdropPath,
       releaseDate: releaseDate,
       tagline: tagline,

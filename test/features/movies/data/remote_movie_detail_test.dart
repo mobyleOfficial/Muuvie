@@ -18,6 +18,20 @@ void main() {
     expect(movie.info?.isUnmatched, isTrue);
   });
 
+  test('the overview language comes along; absent means Portuguese', () {
+    final english = RemoteMovieDetail.fromJson({
+      ...detail(),
+      'overview': 'Two couples',
+      'overviewLanguage': 'en',
+    }).toDomain();
+
+    expect(english.info?.overviewLanguage, 'en');
+    expect(
+      RemoteMovieDetail.fromJson(detail()).toDomain().info?.overviewLanguage,
+      isNull,
+    );
+  });
+
   test('matched, pending or absent statuses are not flagged', () {
     for (final status in ['matched', 'pending', null]) {
       final movie = RemoteMovieDetail.fromJson(

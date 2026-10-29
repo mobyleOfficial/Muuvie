@@ -3739,6 +3739,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get movieDetailReadLess => 'Leer menos';
 
   @override
+  String get movieDetailSynopsisInEnglish =>
+      'Sinopsis disponible solo en inglés';
+
+  @override
   String get movieStatWatched => 'La vieron';
 
   @override

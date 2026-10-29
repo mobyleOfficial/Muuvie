@@ -3708,6 +3708,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get movieDetailReadLess => 'Show less';
 
   @override
+  String get movieDetailSynopsisInEnglish =>
+      'Synopsis available only in English';
+
+  @override
   String get movieStatWatched => 'Watched';
 
   @override
