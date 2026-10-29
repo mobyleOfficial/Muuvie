@@ -1066,7 +1066,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get comingSoon => 'Em breve';
 
   @override
-  String get navAtts => 'Atts';
+  String get navAtts => 'Social';
 
   @override
   String get navProgramacao => 'Programação';

@@ -1070,7 +1070,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get comingSoon => 'Próximamente';
 
   @override
-  String get navAtts => 'Atts';
+  String get navAtts => 'Social';
 
   @override
   String get navProgramacao => 'Programación';

@@ -2035,7 +2035,7 @@ abstract class AppLocalizations {
   /// Bottom nav: activity feed of the people you follow
   ///
   /// In en, this message translates to:
-  /// **'Atts'**
+  /// **'Social'**
   String get navAtts;
 
   /// Bottom nav: marathons and film clubs, like a cinema schedule

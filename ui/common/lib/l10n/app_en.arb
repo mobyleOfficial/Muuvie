@@ -723,7 +723,7 @@
   "@editProfileLogoutConfirmMessage": { "description": "Logout confirmation message" },
   "comingSoon": "Coming soon",
   "@comingSoon": { "description": "Placeholder title for features arriving in later phases" },
-  "navAtts": "Atts",
+  "navAtts": "Social",
   "@navAtts": { "description": "Bottom nav: activity feed of the people you follow" },
   "navProgramacao": "Schedule",
   "@navProgramacao": { "description": "Bottom nav: marathons and film clubs, like a cinema schedule" },
