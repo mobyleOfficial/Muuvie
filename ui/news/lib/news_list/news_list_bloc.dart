@@ -6,25 +6,16 @@ import 'package:news_ui/news_list/news_list_state.dart';
 
 /// The news list (F5.8): newest first, filtered by source, with the articles
 /// already read marked. The filter and the marks are optional, so the home
-/// screen can show a plain list.
+/// screen can show a plain list. Every source keeps its own pages, so
+/// switching back shows them as they were instead of reloading.
 class NewsListCubit extends Cubit<NewsListState> {
   final GetArticles _getArticles;
   final GetArticleSources? _getSources;
   final MarkArticleRead? _markArticleRead;
 
-  int _totalPages = 1;
-
-  late final PagingController<int, Article> pagingController = PagingController(
-    getNextPageKey: (state) {
-      final nextKey = state.nextIntPageKey;
-
-      if (nextKey > _totalPages) {
-        return null;
-      }
-      return nextKey;
-    },
-    fetchPage: _fetchPage,
-  );
+  /// One paged list per source visited; the null key holds every source.
+  final Map<String?, PagingController<int, Article>> _controllers = {};
+  final Map<String?, int> _totalPages = {};
 
   NewsListCubit(
     this._getArticles, {
@@ -37,10 +28,27 @@ class NewsListCubit extends Cubit<NewsListState> {
     _loadSources();
   }
 
+  /// The paged list of the source on screen.
+  PagingController<int, Article> get pagingController =>
+      _controllers.putIfAbsent(_source, () => _controllerFor(_source));
+
   String? get _source => switch (state) {
     NewsListSuccess(:final selectedSource) => selectedSource,
     _ => null,
   };
+
+  PagingController<int, Article> _controllerFor(String? source) =>
+      PagingController(
+        getNextPageKey: (state) {
+          final nextKey = state.nextIntPageKey;
+
+          if (nextKey > (_totalPages[source] ?? 1)) {
+            return null;
+          }
+          return nextKey;
+        },
+        fetchPage: (page) => _fetchPage(page, source),
+      );
 
   Future<void> _loadSources() async {
     final getSources = _getSources;
@@ -52,28 +60,29 @@ class NewsListCubit extends Cubit<NewsListState> {
     }
   }
 
-  Future<List<Article>> _fetchPage(int page) async {
+  Future<List<Article>> _fetchPage(int page, String? source) async {
     final result = await _getArticles(
-      GetArticlesParams(page: page, source: _source),
+      GetArticlesParams(page: page, source: source),
     );
 
     switch (result) {
       case Success(:final data):
-        _totalPages = data.totalPages;
+        _totalPages[source] = data.totalPages;
         return data.articles;
       case Failure(:final error):
         throw Exception(error.message);
     }
   }
 
+  /// Shows the source as it was left; one never opened loads its first page.
   void selectSource(String? source) {
     if (source == _source) return;
     _update((current) => current.copyWith(selectedSource: () => source));
-    refresh();
   }
 
+  /// Pull to refresh: reloads the source on screen only.
   void refresh() {
-    _totalPages = 1;
+    _totalPages.remove(_source);
     pagingController.refresh();
   }
 
@@ -91,7 +100,9 @@ class NewsListCubit extends Cubit<NewsListState> {
 
   @override
   Future<void> close() {
-    pagingController.dispose();
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
     return super.close();
   }
 }

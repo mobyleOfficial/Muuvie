@@ -54,6 +54,8 @@ class NewsListScreen extends StatelessWidget {
                   controller: cubit.pagingController,
                   builder: (context, pagingState, fetchNextPage) =>
                       PagedListView<int, Article>(
+                        // One scroll position per source, kept while switching.
+                        key: PageStorageKey(filters.selectedSource),
                         state: pagingState,
                         fetchNextPage: fetchNextPage,
                         padding: const EdgeInsets.symmetric(vertical: 8),
