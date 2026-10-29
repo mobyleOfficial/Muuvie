@@ -4,11 +4,15 @@ import 'package:social/social_state.dart';
 import 'package:social_network/social_network.dart';
 
 /// The Atts feed (F6.2): one scope at a time, loaded page by page, with
-/// optimistic "amei" and hiding of my own activities.
+/// optimistic "amei" and hiding of my own activities. Every scope keeps its
+/// last state, so switching back shows it as it was instead of reloading.
 class SocialCubit extends Cubit<SocialState> {
   final GetFeed _getFeed;
   final ToggleActivityLove _toggleLove;
   final HideActivity _hideActivity;
+
+  /// The last state of every scope visited, the one on screen included.
+  final Map<FeedScope, SocialState> _scopes = {};
 
   SocialCubit({
     required GetFeed getFeed,
@@ -19,11 +23,26 @@ class SocialCubit extends Cubit<SocialState> {
        _toggleLove = toggleLove,
        _hideActivity = hideActivity,
        super(SocialLoading(scope)) {
+    _scopes[scope] = state;
     _load(scope);
   }
 
+  @override
+  void onChange(Change<SocialState> change) {
+    super.onChange(change);
+    _scopes[change.nextState.scope] = change.nextState;
+  }
+
+  /// Shows the scope as it was left; only a scope never loaded, or one that
+  /// failed, goes to the server.
   Future<void> selectScope(FeedScope scope) async {
     if (scope == state.scope && state is! SocialError) return;
+    final kept = scope == state.scope ? null : _scopes[scope];
+    if (kept != null && kept is! SocialError) {
+      // A scope still loading settles by itself once its page arrives.
+      emit(kept);
+      return;
+    }
     emit(SocialLoading(scope));
     await _load(scope);
   }
@@ -42,23 +61,17 @@ class SocialCubit extends Cubit<SocialState> {
     final result = await _getFeed(
       GetFeedParams(scope: current.scope, cursor: current.nextCursor),
     );
-    final latest = state;
-    if (isClosed || latest is! SocialSuccess || latest.scope != current.scope) {
-      return;
-    }
-    switch (result) {
-      case Success(:final data):
-        emit(
-          latest.copyWith(
-            activities: [...latest.activities, ...data.activities],
-            nextCursor: data.nextCursor,
-            clearCursor: data.nextCursor == null,
-            isLoadingMore: false,
-          ),
-        );
-      case Failure():
-        emit(latest.copyWith(isLoadingMore: false));
-    }
+    final latest = _scopes[current.scope];
+    if (isClosed || latest is! SocialSuccess) return;
+    _settle(switch (result) {
+      Success(:final data) => latest.copyWith(
+        activities: [...latest.activities, ...data.activities],
+        nextCursor: data.nextCursor,
+        clearCursor: data.nextCursor == null,
+        isLoadingMore: false,
+      ),
+      Failure() => latest.copyWith(isLoadingMore: false),
+    });
   }
 
   /// Flips the "amei" right away and settles it with the server's count.
@@ -93,26 +106,23 @@ class SocialCubit extends Cubit<SocialState> {
       HideActivityParams(activityId: activity.id, hidden: hidden),
     );
     if (isClosed || result is Failure) return false;
-    final current = state;
-    if (current is SocialSuccess && current.scope != FeedScope.me && hidden) {
-      // Outside "Só eu" a hidden activity leaves the list, as it does on the server.
-      emit(
-        current.copyWith(
-          activities: current.activities
-              .where((item) => item.id != activity.id)
-              .toList(),
-        ),
-      );
-    } else {
-      _replace(activity.id, (item) => item.copyWith(hidden: hidden));
-    }
+    _updateFeeds(
+      (feed) => [
+        for (final item in feed.activities)
+          if (item.id != activity.id)
+            item
+          // Outside "Só eu" a hidden activity leaves the list, as it does on the server.
+          else if (feed.scope == FeedScope.me || !hidden)
+            item.copyWith(hidden: hidden),
+      ],
+    );
     return true;
   }
 
   Future<void> _load(FeedScope scope) async {
     final result = await _getFeed(GetFeedParams(scope: scope));
-    if (isClosed || state.scope != scope) return;
-    emit(switch (result) {
+    if (isClosed) return;
+    _settle(switch (result) {
       Success(:final data) => SocialSuccess(
         scope,
         activities: data.activities,
@@ -122,16 +132,30 @@ class SocialCubit extends Cubit<SocialState> {
     });
   }
 
-  void _replace(int activityId, Activity Function(Activity) update) {
-    final current = state;
-    if (current is! SocialSuccess) return;
-    emit(
-      current.copyWith(
-        activities: [
-          for (final item in current.activities)
+  /// Shows [next] when its scope is on screen, otherwise keeps it for later.
+  void _settle(SocialState next) {
+    if (next.scope == state.scope) {
+      emit(next);
+    } else {
+      _scopes[next.scope] = next;
+    }
+  }
+
+  void _replace(int activityId, Activity Function(Activity) update) =>
+      _updateFeeds(
+        (feed) => [
+          for (final item in feed.activities)
             item.id == activityId ? update(item) : item,
         ],
-      ),
-    );
+      );
+
+  /// Rewrites the list of every loaded scope, so the same activity reads alike
+  /// in Todos, Seguindo and Só eu.
+  void _updateFeeds(List<Activity> Function(SocialSuccess feed) update) {
+    for (final feed in _scopes.values.toList()) {
+      if (feed is SocialSuccess) {
+        _settle(feed.copyWith(activities: update(feed)));
+      }
+    }
   }
 }
