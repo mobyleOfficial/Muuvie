@@ -342,6 +342,7 @@ class _AboutTabState extends State<_AboutTab>
                 _SynopsisSection(
                   overview: info.overview.trim(),
                   language: info.overviewLanguage,
+                  translated: info.overviewTranslated,
                 ),
               if (info?.watchProviders.isNotEmpty ?? false)
                 _WatchProvidersSection(providers: info!.watchProviders),
@@ -803,7 +804,14 @@ class _SynopsisSection extends StatefulWidget {
   /// ISO 639-1 of [overview] when it is not Portuguese.
   final String? language;
 
-  const _SynopsisSection({required this.overview, this.language});
+  /// Machine translated into Portuguese.
+  final bool translated;
+
+  const _SynopsisSection({
+    required this.overview,
+    this.language,
+    this.translated = false,
+  });
 
   @override
   State<_SynopsisSection> createState() => _SynopsisSectionState();
@@ -828,6 +836,11 @@ class _SynopsisSectionState extends State<_SynopsisSection> {
     final showsEnglishNote =
         language == 'en' &&
         Localizations.localeOf(context).languageCode != language;
+    final note = widget.translated
+        ? l10n?.movieDetailSynopsisTranslated
+        : showsEnglishNote
+        ? l10n?.movieDetailSynopsisInEnglish
+        : null;
 
     return MovieSection(
       title: l10n?.movieDetailSynopsis ?? '',
@@ -845,7 +858,7 @@ class _SynopsisSectionState extends State<_SynopsisSection> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (showsEnglishNote)
+              if (note != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 6),
                   child: Row(
@@ -858,7 +871,7 @@ class _SynopsisSectionState extends State<_SynopsisSection> {
                       const SizedBox(width: 6),
                       Flexible(
                         child: Text(
-                          l10n?.movieDetailSynopsisInEnglish ?? '',
+                          note,
                           style: textTheme.bodySmall?.copyWith(
                             color: colorScheme.onSurfaceVariant,
                           ),

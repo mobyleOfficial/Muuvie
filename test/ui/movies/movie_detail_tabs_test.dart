@@ -18,8 +18,9 @@ import '../../helpers/fake_social_network_repository.dart';
 
 class _Movies implements MoviesRepository {
   final String? overviewLanguage;
+  final bool overviewTranslated;
 
-  _Movies({this.overviewLanguage});
+  _Movies({this.overviewLanguage, this.overviewTranslated = false});
 
   @override
   Future<Result<Movie>> getMovieDetail({required int movieId}) async => Success(
@@ -30,6 +31,7 @@ class _Movies implements MoviesRepository {
       info: MovieInfo(
         overview: 'Overview',
         overviewLanguage: overviewLanguage,
+        overviewTranslated: overviewTranslated,
         backdropPath: '',
         releaseDate: '2014-11-06',
         runtime: 169,
@@ -129,13 +131,19 @@ void main() {
   Future<void> pumpDetail(
     WidgetTester tester, {
     String? overviewLanguage,
+    bool overviewTranslated = false,
     Locale locale = const Locale('pt'),
   }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(412, 860);
     addTearDown(tester.view.reset);
     final cubit = MovieDetailCubit(
-      GetMovieDetail(_Movies(overviewLanguage: overviewLanguage)),
+      GetMovieDetail(
+        _Movies(
+          overviewLanguage: overviewLanguage,
+          overviewTranslated: overviewTranslated,
+        ),
+      ),
       1,
     );
     addTearDown(cubit.close);
@@ -171,6 +179,13 @@ void main() {
     );
     expect(find.text('Synopsis available only in English'), findsNothing);
     expect(find.text('Overview'), findsOneWidget);
+  });
+
+  testWidgets('a machine translated synopsis says so', (tester) async {
+    await pumpDetail(tester, overviewTranslated: true);
+
+    expect(find.text('Sinopse traduzida automaticamente'), findsOneWidget);
+    expect(find.text('Sinopse disponível só em inglês'), findsNothing);
   });
 
   testWidgets(

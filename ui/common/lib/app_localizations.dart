@@ -6316,6 +6316,12 @@ abstract class AppLocalizations {
   /// **'Synopsis available only in English'**
   String get movieDetailSynopsisInEnglish;
 
+  /// Note above a synopsis machine translated into Portuguese because TMDB had none
+  ///
+  /// In en, this message translates to:
+  /// **'Synopsis machine translated'**
+  String get movieDetailSynopsisTranslated;
+
   /// No description provided for @movieStatWatched.
   ///
   /// In en, this message translates to:

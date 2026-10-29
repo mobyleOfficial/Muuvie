@@ -3743,6 +3743,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Sinopsis disponible solo en inglés';
 
   @override
+  String get movieDetailSynopsisTranslated =>
+      'Sinopsis traducida automáticamente';
+
+  @override
   String get movieStatWatched => 'La vieron';
 
   @override

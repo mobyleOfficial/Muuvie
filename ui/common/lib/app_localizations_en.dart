@@ -3712,6 +3712,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Synopsis available only in English';
 
   @override
+  String get movieDetailSynopsisTranslated => 'Synopsis machine translated';
+
+  @override
   String get movieStatWatched => 'Watched';
 
   @override

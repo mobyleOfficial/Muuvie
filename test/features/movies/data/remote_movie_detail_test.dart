@@ -26,6 +26,15 @@ void main() {
     }).toDomain();
 
     expect(english.info?.overviewLanguage, 'en');
+    expect(english.info?.overviewTranslated, isFalse);
+    expect(
+      RemoteMovieDetail.fromJson({
+        ...detail(),
+        'overview': 'Dois casais',
+        'overviewTranslated': true,
+      }).toDomain().info?.overviewTranslated,
+      isTrue,
+    );
     expect(
       RemoteMovieDetail.fromJson(detail()).toDomain().info?.overviewLanguage,
       isNull,
