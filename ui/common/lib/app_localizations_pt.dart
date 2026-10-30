@@ -1066,7 +1066,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get comingSoon => 'Em breve';
 
   @override
-  String get navAtts => 'Atts';
+  String get navAtts => 'Social';
 
   @override
   String get navProgramacao => 'Programação';
@@ -3755,6 +3755,13 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get movieDetailReadLess => 'Ler menos';
+
+  @override
+  String get movieDetailSynopsisInEnglish => 'Sinopse disponível só em inglês';
+
+  @override
+  String get movieDetailSynopsisTranslated =>
+      'Sinopse traduzida automaticamente';
 
   @override
   String get movieStatWatched => 'Assistiram';

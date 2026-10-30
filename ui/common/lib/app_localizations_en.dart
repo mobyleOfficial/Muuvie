@@ -1057,7 +1057,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get comingSoon => 'Coming soon';
 
   @override
-  String get navAtts => 'Atts';
+  String get navAtts => 'Social';
 
   @override
   String get navProgramacao => 'Schedule';
@@ -3706,6 +3706,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get movieDetailReadLess => 'Show less';
+
+  @override
+  String get movieDetailSynopsisInEnglish =>
+      'Synopsis available only in English';
+
+  @override
+  String get movieDetailSynopsisTranslated => 'Synopsis machine translated';
 
   @override
   String get movieStatWatched => 'Watched';

@@ -62,14 +62,84 @@ void main() {
       await cubit.close();
     });
 
-    test('switching the scope reloads with it', () async {
+    test('a new scope loads once; switching back keeps it as it was', () async {
+      repository.feedPages['all:null'] = Success(
+        ActivityPage(activities: [activityFixture(id: 1)], nextCursor: 'c1'),
+      );
+      repository.feedPages['all:c1'] = Success(
+        ActivityPage(activities: [activityFixture(id: 2)]),
+      );
       final cubit = cubitFor();
       await _settle();
+      await cubit.loadMore();
+
+      await cubit.selectScope(FeedScope.me);
+      expect(cubit.state.scope, FeedScope.me);
+      await cubit.selectScope(FeedScope.all);
+      await cubit.selectScope(FeedScope.me);
+
+      expect(repository.calls, [
+        'feed all null',
+        'feed all c1',
+        'feed me null',
+      ]);
+      await cubit.selectScope(FeedScope.all);
+      final state = cubit.state as SocialSuccess;
+      expect(state.activities.map((activity) => activity.id), [1, 2]);
+      expect(state.hasMore, false);
+      await cubit.close();
+    });
+
+    test('a page that arrives after leaving the scope is kept', () async {
+      final cubit = cubitFor();
+      await cubit.selectScope(FeedScope.me);
+      await _settle();
+
+      await cubit.selectScope(FeedScope.all);
+
+      expect(cubit.state, isA<SocialSuccess>());
+      expect(repository.calls, ['feed all null', 'feed me null']);
+      await cubit.close();
+    });
+
+    test('a failed scope tries again when picked', () async {
+      repository.feedPages['me:null'] = const Failure(AppError.network);
+      final cubit = cubitFor();
+      await _settle();
+      await cubit.selectScope(FeedScope.me);
+      await cubit.selectScope(FeedScope.all);
 
       await cubit.selectScope(FeedScope.me);
 
-      expect(repository.calls, ['feed all null', 'feed me null']);
-      expect(cubit.state.scope, FeedScope.me);
+      expect(repository.calls, [
+        'feed all null',
+        'feed me null',
+        'feed me null',
+      ]);
+      await cubit.close();
+    });
+
+    test('"amei" reaches the same activity in the other scopes', () async {
+      repository.feedPages['all:null'] = Success(
+        ActivityPage(activities: [activityFixture(loves: 4)]),
+      );
+      repository.feedPages['following:null'] = Success(
+        ActivityPage(activities: [activityFixture(loves: 4)]),
+      );
+      repository.loveResult = const Success(
+        ActivityLoves(loves: 5, loved: true),
+      );
+      final cubit = cubitFor();
+      await _settle();
+      await cubit.selectScope(FeedScope.following);
+      await cubit.selectScope(FeedScope.all);
+
+      await cubit.toggleLove((cubit.state as SocialSuccess).activities.single);
+      await cubit.selectScope(FeedScope.following);
+
+      final activity = (cubit.state as SocialSuccess).activities.single;
+      expect(activity.loved, true);
+      expect(activity.loves, 5);
       await cubit.close();
     });
 

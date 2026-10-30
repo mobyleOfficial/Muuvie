@@ -1,5 +1,6 @@
 import 'package:core/core.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:news/news.dart';
 import 'package:news_ui/article_detail/article_detail_bloc.dart';
 import 'package:news_ui/article_detail/article_detail_state.dart';
@@ -134,6 +135,27 @@ void main() {
       await cubit.close();
     },
   );
+
+  test('switching back to a source keeps its pages', () async {
+    final news = _FakeNews();
+    final cubit = NewsListCubit(
+      GetArticles(news),
+      getSources: GetArticleSources(news),
+    );
+    await Future<void>.delayed(Duration.zero);
+    final all = cubit.pagingController..fetchNextPage();
+    await Future<void>.delayed(Duration.zero);
+
+    cubit.selectSource('Omelete');
+    cubit.pagingController.fetchNextPage();
+    await Future<void>.delayed(Duration.zero);
+    cubit.selectSource(null);
+
+    expect(cubit.pagingController, same(all));
+    expect(cubit.pagingController.items, [_article]);
+    expect(news.requests, [null, 'Omelete']);
+    await cubit.close();
+  });
 
   test(
     'opening an article marks it as read and Quero ver turns on in one tap',

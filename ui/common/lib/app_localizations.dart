@@ -2035,7 +2035,7 @@ abstract class AppLocalizations {
   /// Bottom nav: activity feed of the people you follow
   ///
   /// In en, this message translates to:
-  /// **'Atts'**
+  /// **'Social'**
   String get navAtts;
 
   /// Bottom nav: marathons and film clubs, like a cinema schedule
@@ -6309,6 +6309,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show less'**
   String get movieDetailReadLess;
+
+  /// Note above a synopsis shown in English because there is none in Portuguese; hidden when the app is in English
+  ///
+  /// In en, this message translates to:
+  /// **'Synopsis available only in English'**
+  String get movieDetailSynopsisInEnglish;
+
+  /// Note above a synopsis machine translated into Portuguese because TMDB had none
+  ///
+  /// In en, this message translates to:
+  /// **'Synopsis machine translated'**
+  String get movieDetailSynopsisTranslated;
 
   /// No description provided for @movieStatWatched.
   ///

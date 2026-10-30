@@ -150,6 +150,8 @@ class _Feed extends StatelessWidget {
                 return false;
               },
               child: ListView.builder(
+                // One scroll position per scope, kept while switching.
+                key: PageStorageKey(state.scope),
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.only(bottom: 24),
                 itemCount: activities.length + (state.hasMore ? 1 : 0),

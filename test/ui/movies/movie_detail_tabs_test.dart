@@ -17,23 +17,29 @@ import 'package:watch_logs/watch_logs.dart';
 import '../../helpers/fake_social_network_repository.dart';
 
 class _Movies implements MoviesRepository {
+  final String? overviewLanguage;
+  final bool overviewTranslated;
+
+  _Movies({this.overviewLanguage, this.overviewTranslated = false});
+
   @override
-  Future<Result<Movie>> getMovieDetail({required int movieId}) async =>
-      const Success(
-        Movie(
-          id: 1,
-          title: 'Interstellar',
-          posterPath: '',
-          info: MovieInfo(
-            overview: 'Overview',
-            backdropPath: '',
-            releaseDate: '2014-11-06',
-            runtime: 169,
-            genres: ['Drama'],
-            director: 'Christopher Nolan',
-          ),
-        ),
-      );
+  Future<Result<Movie>> getMovieDetail({required int movieId}) async => Success(
+    Movie(
+      id: 1,
+      title: 'Interstellar',
+      posterPath: '',
+      info: MovieInfo(
+        overview: 'Overview',
+        overviewLanguage: overviewLanguage,
+        overviewTranslated: overviewTranslated,
+        backdropPath: '',
+        releaseDate: '2014-11-06',
+        runtime: 169,
+        genres: ['Drama'],
+        director: 'Christopher Nolan',
+      ),
+    ),
+  );
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -122,28 +128,70 @@ void main() {
   });
   tearDown(() => GetIt.I.reset());
 
+  Future<void> pumpDetail(
+    WidgetTester tester, {
+    String? overviewLanguage,
+    bool overviewTranslated = false,
+    Locale locale = const Locale('pt'),
+  }) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(412, 860);
+    addTearDown(tester.view.reset);
+    final cubit = MovieDetailCubit(
+      GetMovieDetail(
+        _Movies(
+          overviewLanguage: overviewLanguage,
+          overviewTranslated: overviewTranslated,
+        ),
+      ),
+      1,
+    );
+    addTearDown(cubit.close);
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: locale,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: MovieDetailScreen(cubit: cubit, onAddToShelves: (_, _) {}),
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('a synopsis in English says so, unless the app is in English', (
+    tester,
+  ) async {
+    await pumpDetail(tester, overviewLanguage: 'en');
+    expect(find.text('Sinopse disponível só em inglês'), findsOneWidget);
+
+    await pumpDetail(tester);
+    expect(find.text('Sinopse disponível só em inglês'), findsNothing);
+
+    await pumpDetail(
+      tester,
+      overviewLanguage: 'en',
+      locale: const Locale('en'),
+    );
+    expect(find.text('Synopsis available only in English'), findsNothing);
+    expect(find.text('Overview'), findsOneWidget);
+  });
+
+  testWidgets('a machine translated synopsis says so', (tester) async {
+    await pumpDetail(tester, overviewTranslated: true);
+
+    expect(find.text('Sinopse traduzida automaticamente'), findsOneWidget);
+    expect(find.text('Sinopse disponível só em inglês'), findsNothing);
+  });
+
   testWidgets(
     'every tab opens with the header expanded on a phone, without overflow',
     (tester) async {
-      tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(412, 860);
-      addTearDown(tester.view.reset);
-      final cubit = MovieDetailCubit(GetMovieDetail(_Movies()), 1);
-      addTearDown(cubit.close);
-      await tester.pumpWidget(
-        MaterialApp(
-          locale: const Locale('pt'),
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: MovieDetailScreen(cubit: cubit, onAddToShelves: (_, _) {}),
-        ),
-      );
-      await tester.pumpAndSettle();
+      await pumpDetail(tester);
 
       for (final tab in ['Comunidade', 'Atividade', 'Sobre']) {
         await tester.tap(find.text(tab).first);

@@ -1070,7 +1070,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get comingSoon => 'Próximamente';
 
   @override
-  String get navAtts => 'Atts';
+  String get navAtts => 'Social';
 
   @override
   String get navProgramacao => 'Programación';
@@ -3737,6 +3737,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get movieDetailReadLess => 'Leer menos';
+
+  @override
+  String get movieDetailSynopsisInEnglish =>
+      'Sinopsis disponible solo en inglés';
+
+  @override
+  String get movieDetailSynopsisTranslated =>
+      'Sinopsis traducida automáticamente';
 
   @override
   String get movieStatWatched => 'La vieron';

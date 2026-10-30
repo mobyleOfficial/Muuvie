@@ -5,6 +5,14 @@ import 'package:movies_domain/models/watch_provider.dart';
 
 class MovieInfo {
   final String overview;
+
+  /// ISO 639-1 of [overview] when TMDB had no Portuguese one and another
+  /// language filled it; null for a Portuguese overview.
+  final String? overviewLanguage;
+
+  /// True when [overview] was machine translated into Portuguese because
+  /// TMDB had none.
+  final bool overviewTranslated;
   final String backdropPath;
   final String releaseDate;
   final String tagline;
@@ -30,6 +38,8 @@ class MovieInfo {
 
   const MovieInfo({
     required this.overview,
+    this.overviewLanguage,
+    this.overviewTranslated = false,
     required this.backdropPath,
     required this.releaseDate,
     this.tagline = '',
