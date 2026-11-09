@@ -45,11 +45,16 @@ final _universe = {
   10: [_opera],
 };
 
-MovieUniverseCubit _cubit(_FakeMoviesRepository repository) =>
-    MovieUniverseCubit(
-      getSimilarMovies: GetSimilarMovies(repository),
-      origin: _suspiria,
-    );
+/// Without prefetching unless [prefetchedPlanets] is given, so the calls
+/// each test expects are only the ones it makes.
+MovieUniverseCubit _cubit(
+  _FakeMoviesRepository repository, {
+  int prefetchedPlanets = 0,
+}) => MovieUniverseCubit(
+  getSimilarMovies: GetSimilarMovies(repository),
+  origin: _suspiria,
+  prefetchedPlanets: prefetchedPlanets,
+);
 
 Iterable<int> _planetIds(MovieUniverseExploring state) =>
     state.currentSystem.planets.map((planet) => planet.movie.id);
@@ -233,4 +238,59 @@ void main() {
       ),
     ],
   );
+
+  group('prefetch', () {
+    test('the closest planets of the origin load ahead', () async {
+      final repository = _FakeMoviesRepository(_universe);
+      final cubit = _cubit(repository, prefetchedPlanets: 1);
+
+      await cubit.load();
+      await pumpEventQueue();
+
+      expect(repository.askedIds, [7, 8]);
+      await cubit.close();
+    });
+
+    test('a jump to a planet loaded ahead does not ask again', () async {
+      final repository = _FakeMoviesRepository(_universe);
+      final cubit = _cubit(repository, prefetchedPlanets: 3);
+      await cubit.load();
+      await pumpEventQueue();
+
+      await cubit.travelTo(_inferno);
+
+      final state = cubit.state as MovieUniverseExploring;
+      expect(state.currentStarId, 8);
+      expect(repository.askedIds.where((id) => id == 8), hasLength(1));
+      // Inferno is in focus now: its closest planet, Phenomena, loads ahead.
+      await pumpEventQueue();
+      expect(repository.askedIds.last, 10);
+      await cubit.close();
+    });
+
+    test('opening the card of a planet loads it ahead', () async {
+      final repository = _FakeMoviesRepository(_universe);
+      final cubit = _cubit(repository, prefetchedPlanets: 1);
+      await cubit.load();
+
+      cubit.select(_tenebre);
+      await pumpEventQueue();
+
+      expect(repository.askedIds, containsAll([7, 8, 9]));
+      await cubit.close();
+    });
+
+    test('a failed load ahead is asked again on the jump', () async {
+      final repository = _FakeMoviesRepository(_universe, failingIds: {8});
+      final cubit = _cubit(repository, prefetchedPlanets: 1);
+      await cubit.load();
+      await pumpEventQueue();
+
+      await cubit.travelTo(_inferno);
+
+      expect(repository.askedIds.where((id) => id == 8), hasLength(2));
+      expect((cubit.state as MovieUniverseExploring).failedTravel, _inferno);
+      await cubit.close();
+    });
+  });
 }

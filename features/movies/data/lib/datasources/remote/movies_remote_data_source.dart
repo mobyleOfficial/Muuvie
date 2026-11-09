@@ -1,6 +1,5 @@
 import 'package:core/core.dart';
 
-import 'package:movies_data/models/remote/remote_movie.dart';
 import 'package:movies_data/models/remote/remote_movie_detail.dart';
 import 'package:movies_data/models/remote/remote_country.dart';
 import 'package:movies_data/models/remote/remote_genre.dart';
