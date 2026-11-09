@@ -1096,5 +1096,20 @@
   "universeTravelTo": "Viajar até {title}",
   "universeTravelError": "Não deu para viajar até {title}.",
   "universeHops": "{count, plural, =0{Na origem} =1{1 salto da origem} other{{count} saltos da origem}}",
-  "universeBackToOrigin": "Voltar à origem"
+  "universeBackToOrigin": "Voltar à origem",
+  "universeWantToWatch": "Quero ver",
+  "universeAddedToWatchlist": "{title} está em Quero ver.",
+  "universeWantToWatchError": "Não deu para adicionar a Quero ver. Tente de novo.",
+  "universeAddToShelf": "Adicionar à estante",
+  "universeMoreActions": "Mais ações para {title}",
+  "universeInCommon": "Em comum: {items}",
+  "universeFilter": "Filtrar planetas",
+  "universeFilterOnlyUnwatched": "Só os que não assisti",
+  "universeFilterDecade": "Década",
+  "universeFilterDecadeValue": "Anos {decade}",
+  "universeFilterGenre": "Gênero",
+  "universeFilterAny": "Qualquer",
+  "universeFilterClear": "Limpar filtros",
+  "universeFilterSummary": "{count} de {total} planetas combinam",
+  "universeFilterNoMatch": "Nenhum planeta deste sistema combina com os filtros."
 }

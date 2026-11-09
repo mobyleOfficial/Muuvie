@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:movies/movies.dart';
+import 'package:universe_ui/movie_universe/filter/universe_filter.dart';
 import 'package:universe_ui/movie_universe/graph/star_system.dart';
 import 'package:universe_ui/movie_universe/map/orbit_rings.dart';
 import 'package:universe_ui/movie_universe/map/planet_body.dart';
@@ -13,12 +14,14 @@ class SystemComponent extends PositionComponent {
   final UniversePalette palette;
   final bool animate;
   final Map<int, PlanetBody> _planets = {};
+  StarSystem _system;
 
   SystemComponent({
     required StarSystem system,
     required this.palette,
     required this.animate,
   }) : star = system.star,
+       _system = system,
        super(position: Vector2(system.center.dx, system.center.dy)) {
     final slots = system.orbits;
     add(OrbitRings(slots: slots, color: palette.orbit));
@@ -43,8 +46,24 @@ class SystemComponent extends PositionComponent {
 
   Iterable<PlanetBody> get planets => _planets.values;
 
-  /// Removes the planets that left the orbit to become systems.
-  void keepOnly(StarSystem system) {
+  /// Brings the planets in line with [system]: drops the ones that left
+  /// the orbit to become systems and shows the viewer's latest state.
+  void sync(StarSystem system) {
+    _system = system;
+    _keepOnly(system);
+    for (final planet in system.planets) {
+      _planets[planet.movie.id]?.status = planet.movie.me?.status;
+    }
+  }
+
+  /// Fades the planets [filter] leaves out.
+  void applyFilter(UniverseFilter filter) {
+    for (final planet in _system.planets) {
+      _planets[planet.movie.id]?.dimmed = !filter.matches(planet.similar);
+    }
+  }
+
+  void _keepOnly(StarSystem system) {
     final remaining = {for (final planet in system.planets) planet.movie.id};
     final departed = _planets.keys
         .where((movieId) => !remaining.contains(movieId))

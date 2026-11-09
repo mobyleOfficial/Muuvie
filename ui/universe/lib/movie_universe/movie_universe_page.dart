@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:movies/movies.dart';
 import 'package:movies_ui/movie_detail/movie_detail_router.dart';
+import 'package:shelves/shelves.dart' show AddMovieToWatchlist;
+import 'package:shelves_ui/shelves_router.dart';
 import 'package:universe_ui/movie_universe/movie_universe_bloc.dart';
 import 'package:universe_ui/movie_universe/movie_universe_screen.dart';
 import 'package:universe_ui/movie_universe/movie_universe_state.dart';
@@ -31,6 +33,7 @@ class MovieUniversePage extends StatefulWidget {
 class _MovieUniversePageState extends State<MovieUniversePage> {
   late final MovieUniverseCubit _cubit = MovieUniverseCubit(
     getSimilarMovies: GetIt.I<GetSimilarMovies>(),
+    addMovieToWatchlist: GetIt.I<AddMovieToWatchlist>(),
     origin: Movie(
       id: widget.movieId,
       title: widget.movieTitle,
@@ -51,6 +54,37 @@ class _MovieUniversePageState extends State<MovieUniversePage> {
   void dispose() {
     _cubit.close();
     super.dispose();
+  }
+
+  /// "Quero ver" asks for a login first; the snackbar says how it went.
+  Future<void> _addToWatchlist(Movie movie) async {
+    if (!await AuthGate.check(context) || !mounted) return;
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final added = await _cubit.addToWatchlist(movie);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          (added
+                  ? l10n?.universeAddedToWatchlist(movie.displayTitle)
+                  : l10n?.universeWantToWatchError) ??
+              '',
+        ),
+      ),
+    );
+  }
+
+  Future<void> _addToShelves(Movie movie) async {
+    if (!await AuthGate.check(context) || !mounted) return;
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final count = await context.router.root.push<int>(
+      AddToShelvesRoute(movieId: movie.id, movieTitle: movie.displayTitle),
+    );
+    if (count == null) return;
+    messenger.showSnackBar(
+      SnackBar(content: Text(l10n?.addToShelvesSaved(count) ?? '')),
+    );
   }
 
   @override
@@ -75,6 +109,8 @@ class _MovieUniversePageState extends State<MovieUniversePage> {
           onOpenMovie: (movie) => context.router.push(
             MovieDetailRoute(movieId: movie.id, movieTitle: movie.title),
           ),
+          onAddToWatchlist: _addToWatchlist,
+          onAddToShelves: _addToShelves,
         ),
       );
 }

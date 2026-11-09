@@ -2,6 +2,8 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:core/core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:movies/movies.dart';
+import 'package:shelves/shelves.dart';
+import 'package:universe_ui/movie_universe/filter/universe_filter.dart';
 import 'package:universe_ui/universe_ui.dart';
 
 /// Answers the similar movies set for each id (empty otherwise), or
@@ -9,9 +11,14 @@ import 'package:universe_ui/universe_ui.dart';
 class _FakeMoviesRepository implements MoviesRepository {
   final Map<int, List<Movie>> similarById;
   final Set<int> failingIds;
+  final Map<int, List<String>> genresById;
   final askedIds = <int>[];
 
-  _FakeMoviesRepository(this.similarById, {this.failingIds = const {}});
+  _FakeMoviesRepository(
+    this.similarById, {
+    this.failingIds = const {},
+    this.genresById = const {},
+  });
 
   @override
   Future<Result<List<SimilarMovie>>> getSimilarMovies({
@@ -25,6 +32,7 @@ class _FakeMoviesRepository implements MoviesRepository {
         SimilarMovie(
           movie: movies[rank],
           score: SimilarMovie.neutralScore(rank, movies.length),
+          genres: genresById[movies[rank].id] ?? const [],
         ),
     ]);
   }
@@ -33,9 +41,63 @@ class _FakeMoviesRepository implements MoviesRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// "Quero ver" found as shelf 2; [fail] makes adding to it fail.
+class _FakeShelvesRepository implements ShelvesRepository {
+  bool fail = false;
+  final addedMovieIds = <int>[];
+
+  @override
+  Future<Result<Paged<Shelf>>> getUserShelves({
+    required String userId,
+    required int page,
+    bool profile = false,
+  }) async => const Success(
+    Paged(
+      items: [
+        Shelf(
+          id: 2,
+          ownerId: 'me',
+          name: 'Quero ver',
+          visibility: ContentVisibility.public,
+          systemType: SystemShelfType.watchlist,
+          sortMode: ShelfSort.manual,
+          pinned: false,
+          totalMovies: 0,
+          totalWatched: 0,
+          posterPaths: [],
+          isSelf: true,
+        ),
+      ],
+      page: 1,
+      totalPages: 1,
+      totalResults: 1,
+      hasNext: false,
+    ),
+  );
+
+  @override
+  Future<Result<MovieShelves>> addMovieToShelves({
+    required int movieId,
+    required List<int> shelfIds,
+  }) async {
+    if (fail) return const Failure(AppError.network);
+    addedMovieIds.add(movieId);
+    return Success(MovieShelves(movieId: movieId, shelfIds: shelfIds.toSet()));
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw UnimplementedError('${invocation.memberName}');
+}
+
 const _suspiria = Movie(id: 7, title: 'Suspiria', posterPath: '/s.jpg');
 const _inferno = Movie(id: 8, title: 'Inferno', posterPath: '/i.jpg');
-const _tenebre = Movie(id: 9, title: 'Tenebre', posterPath: '/t.jpg');
+const _tenebre = Movie(
+  id: 9,
+  title: 'Tenebre',
+  posterPath: '/t.jpg',
+  me: MovieListState(status: WatchStatus.watched),
+);
 const _phenomena = Movie(id: 10, title: 'Phenomena', posterPath: '/p.jpg');
 const _opera = Movie(id: 11, title: 'Opera', posterPath: '/o.jpg');
 
@@ -50,8 +112,10 @@ final _universe = {
 MovieUniverseCubit _cubit(
   _FakeMoviesRepository repository, {
   int prefetchedPlanets = 0,
+  _FakeShelvesRepository? shelves,
 }) => MovieUniverseCubit(
   getSimilarMovies: GetSimilarMovies(repository),
+  addMovieToWatchlist: AddMovieToWatchlist(shelves ?? _FakeShelvesRepository()),
   origin: _suspiria,
   prefetchedPlanets: prefetchedPlanets,
 );
@@ -290,6 +354,80 @@ void main() {
 
       expect(repository.askedIds.where((id) => id == 8), hasLength(2));
       expect((cubit.state as MovieUniverseExploring).failedTravel, _inferno);
+      await cubit.close();
+    });
+  });
+
+  group('phase 4', () {
+    WatchStatus? statusOf(MovieUniverseCubit cubit, int movieId) =>
+        (cubit.state as MovieUniverseExploring).graph
+            .planetOf(movieId)
+            ?.movie
+            .me
+            ?.status;
+
+    test('"Quero ver" marks the planet at once and keeps it', () async {
+      final shelves = _FakeShelvesRepository();
+      final cubit = _cubit(_FakeMoviesRepository(_universe), shelves: shelves);
+      await cubit.load();
+
+      final pending = cubit.addToWatchlist(_inferno);
+      expect(statusOf(cubit, 8), WatchStatus.wantToWatch);
+
+      expect(await pending, isTrue);
+      expect(statusOf(cubit, 8), WatchStatus.wantToWatch);
+      expect(shelves.addedMovieIds, [8]);
+      await cubit.close();
+    });
+
+    test('a failed "Quero ver" puts the planet back as it was', () async {
+      final shelves = _FakeShelvesRepository()..fail = true;
+      final cubit = _cubit(_FakeMoviesRepository(_universe), shelves: shelves);
+      await cubit.load();
+
+      expect(await cubit.addToWatchlist(_inferno), isFalse);
+      expect(statusOf(cubit, 8), isNull);
+      await cubit.close();
+    });
+
+    test(
+      'the filter keeps the matching planets and the reload keeps it',
+      () async {
+        final repository = _FakeMoviesRepository(
+          _universe,
+          genresById: {
+            8: ['Terror'],
+            9: ['Terror', 'Mistério'],
+          },
+        );
+        final cubit = _cubit(repository);
+        await cubit.load();
+
+        cubit.setFilter(const UniverseFilter(genre: 'Mistério'));
+        var state = cubit.state as MovieUniverseExploring;
+        expect(state.matchingPlanets.map((planet) => planet.movie.id), [9]);
+
+        cubit.setFilter(const UniverseFilter(onlyUnwatched: true));
+        state = cubit.state as MovieUniverseExploring;
+        expect(state.matchingPlanets.map((planet) => planet.movie.id), [8]);
+
+        await cubit.load();
+        state = cubit.state as MovieUniverseExploring;
+        expect(state.filter, const UniverseFilter(onlyUnwatched: true));
+        await cubit.close();
+      },
+    );
+
+    test('the card of a planet the filter leaves out closes', () async {
+      final cubit = _cubit(_FakeMoviesRepository(_universe));
+      await cubit.load();
+      cubit.select(_tenebre);
+      cubit.setFilter(const UniverseFilter(onlyUnwatched: true));
+      expect((cubit.state as MovieUniverseExploring).selected, isNull);
+
+      cubit.select(_inferno);
+      cubit.setFilter(const UniverseFilter(onlyUnwatched: true, decade: null));
+      expect((cubit.state as MovieUniverseExploring).selected, _inferno);
       await cubit.close();
     });
   });

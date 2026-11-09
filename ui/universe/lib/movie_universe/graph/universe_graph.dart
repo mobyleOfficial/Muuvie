@@ -55,6 +55,35 @@ class UniverseGraph {
     return null;
   }
 
+  /// The planet of [movieId], with how similar it is to its star; null when
+  /// the movie is a star or not in the universe.
+  OrbitingPlanet? planetOf(int movieId) {
+    for (final system in _systems.values) {
+      for (final planet in system.planets) {
+        if (planet.movie.id == movieId) return planet;
+      }
+    }
+    return null;
+  }
+
+  /// The movie of [movieId], star or planet, with the viewer's state [me].
+  /// Only the system holding it changes.
+  UniverseGraph withMovieState(int movieId, MovieListState? me) {
+    final holder = _systems.containsKey(movieId)
+        ? _systems[movieId]
+        : orbitedBy(movieId);
+    if (holder == null) return this;
+    final movie = holder.star.id == movieId
+        ? holder.star
+        : holder.planets
+              .firstWhere((planet) => planet.movie.id == movieId)
+              .movie;
+    return UniverseGraph._(originId, {
+      ..._systems,
+      holder.star.id: holder.withMovie(movie.withMe(me)),
+    });
+  }
+
   bool contains(int movieId) =>
       _systems.containsKey(movieId) || orbitedBy(movieId) != null;
 

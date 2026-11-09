@@ -3862,4 +3862,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get universeBackToOrigin => 'Back to the origin';
+
+  @override
+  String get universeWantToWatch => 'Want to watch';
+
+  @override
+  String universeAddedToWatchlist(String title) {
+    return '$title is in Want to watch.';
+  }
+
+  @override
+  String get universeWantToWatchError =>
+      'Couldn\'t add it to Want to watch. Try again.';
+
+  @override
+  String get universeAddToShelf => 'Add to shelf';
+
+  @override
+  String universeMoreActions(String title) {
+    return 'More actions for $title';
+  }
+
+  @override
+  String universeInCommon(String items) {
+    return 'In common: $items';
+  }
+
+  @override
+  String get universeFilter => 'Filter planets';
+
+  @override
+  String get universeFilterOnlyUnwatched => 'Only the ones I haven\'t watched';
+
+  @override
+  String get universeFilterDecade => 'Decade';
+
+  @override
+  String universeFilterDecadeValue(int decade) {
+    return '${decade}s';
+  }
+
+  @override
+  String get universeFilterGenre => 'Genre';
+
+  @override
+  String get universeFilterAny => 'Any';
+
+  @override
+  String get universeFilterClear => 'Clear filters';
+
+  @override
+  String universeFilterSummary(int count, int total) {
+    return '$count of $total planets match';
+  }
+
+  @override
+  String get universeFilterNoMatch =>
+      'No planet of this system matches the filters.';
 }

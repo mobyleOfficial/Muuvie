@@ -1,6 +1,8 @@
 import 'package:core/core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies/movies.dart';
+import 'package:shelves/shelves.dart' show AddMovieToWatchlist;
+import 'package:universe_ui/movie_universe/filter/universe_filter.dart';
 import 'package:universe_ui/movie_universe/graph/universe_graph.dart';
 import 'package:universe_ui/movie_universe/movie_universe_state.dart';
 
@@ -12,8 +14,12 @@ import 'package:universe_ui/movie_universe/movie_universe_state.dart';
 /// Phase 3: the similar movies of the [prefetchedPlanets] closest planets of
 /// the system in focus, and of the planet whose card is open, are loaded
 /// ahead, so most jumps happen without waiting.
+///
+/// Phase 4: planets carry the viewer's state, can go to "Quero ver" from
+/// the card, and a [UniverseFilter] makes some of them stand out.
 class MovieUniverseCubit extends Cubit<MovieUniverseState> {
   final GetSimilarMovies _getSimilarMovies;
+  final AddMovieToWatchlist _addMovieToWatchlist;
   final Movie origin;
   final int prefetchedPlanets;
 
@@ -23,18 +29,23 @@ class MovieUniverseCubit extends Cubit<MovieUniverseState> {
 
   MovieUniverseCubit({
     required GetSimilarMovies getSimilarMovies,
+    required AddMovieToWatchlist addMovieToWatchlist,
     required this.origin,
     this.prefetchedPlanets = 3,
   }) : _getSimilarMovies = getSimilarMovies,
+       _addMovieToWatchlist = addMovieToWatchlist,
        super(const MovieUniverseLoading());
 
   /// [startAsList] opens the list rather than the map, for screen reader
-  /// users. A reload keeps the view the user picked.
+  /// users. A reload keeps the view and the filter the user picked.
   Future<void> load({bool startAsList = false}) async {
     final current = state;
     final showAsList = current is MovieUniverseExploring
         ? current.showAsList
         : startAsList;
+    final filter = current is MovieUniverseExploring
+        ? current.filter
+        : UniverseFilter.none;
     emit(const MovieUniverseLoading());
     final result = await _getSimilarMovies(origin.id);
     if (isClosed) return;
@@ -44,6 +55,7 @@ class MovieUniverseCubit extends Cubit<MovieUniverseState> {
         graph: UniverseGraph.origin(origin, data),
         currentStarId: origin.id,
         showAsList: showAsList,
+        filter: filter,
       ),
       Failure() => const MovieUniverseFailure(),
     });
@@ -112,6 +124,54 @@ class MovieUniverseCubit extends Cubit<MovieUniverseState> {
     if (current is! MovieUniverseExploring) return;
     focusSystem(current.graph.originId);
   }
+
+  /// Shows only the planets that match [filter]. The open card closes when
+  /// its planet no longer matches.
+  void setFilter(UniverseFilter filter) {
+    final current = state;
+    if (current is! MovieUniverseExploring || current.filter == filter) return;
+    final selected = current.selected;
+    final selectedPlanet = selected == null
+        ? null
+        : current.graph.planetOf(selected.id);
+    final keepSelected =
+        selectedPlanet != null && filter.matches(selectedPlanet.similar);
+    emit(
+      current.copyWith(
+        filter: filter,
+        selected: keepSelected ? null : () => null,
+      ),
+    );
+  }
+
+  /// "Quero ver" in one tap: the planet shows it right away and goes back
+  /// if the request fails. Answers whether it worked.
+  Future<bool> addToWatchlist(Movie movie) async {
+    final current = state;
+    if (current is! MovieUniverseExploring) return false;
+    final previous = _movieIn(current.graph, movie.id)?.me;
+    if (previous?.status == WatchStatus.wantToWatch) return true;
+    _setMovieState(
+      movie.id,
+      MovieListState(status: WatchStatus.wantToWatch, rating: previous?.rating),
+    );
+    final result = await _addMovieToWatchlist(movie.id);
+    if (isClosed) return false;
+    if (result is Failure) {
+      _setMovieState(movie.id, previous);
+      return false;
+    }
+    return true;
+  }
+
+  void _setMovieState(int movieId, MovieListState? me) {
+    final current = state;
+    if (current is! MovieUniverseExploring) return;
+    emit(current.copyWith(graph: current.graph.withMovieState(movieId, me)));
+  }
+
+  static Movie? _movieIn(UniverseGraph graph, int movieId) =>
+      graph.systemOf(movieId)?.star ?? graph.planetOf(movieId)?.movie;
 
   void toggleView() {
     final current = state;

@@ -6567,6 +6567,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to the origin'**
   String get universeBackToOrigin;
+
+  /// Universe card: adds the planet to the Quero ver shelf
+  ///
+  /// In en, this message translates to:
+  /// **'Want to watch'**
+  String get universeWantToWatch;
+
+  /// Universe: the planet was added to Quero ver
+  ///
+  /// In en, this message translates to:
+  /// **'{title} is in Want to watch.'**
+  String universeAddedToWatchlist(String title);
+
+  /// Universe: adding to Quero ver failed
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t add it to Want to watch. Try again.'**
+  String get universeWantToWatchError;
+
+  /// Universe card: opens the add-to-shelves screen for the planet
+  ///
+  /// In en, this message translates to:
+  /// **'Add to shelf'**
+  String get universeAddToShelf;
+
+  /// Universe list: menu with the actions of a planet
+  ///
+  /// In en, this message translates to:
+  /// **'More actions for {title}'**
+  String universeMoreActions(String title);
+
+  /// Universe: the genres and keywords a planet shares with its star, comma-separated
+  ///
+  /// In en, this message translates to:
+  /// **'In common: {items}'**
+  String universeInCommon(String items);
+
+  /// Universe: opens the planet filters
+  ///
+  /// In en, this message translates to:
+  /// **'Filter planets'**
+  String get universeFilter;
+
+  /// Universe filter: hides watched movies
+  ///
+  /// In en, this message translates to:
+  /// **'Only the ones I haven\'t watched'**
+  String get universeFilterOnlyUnwatched;
+
+  /// Universe filter: decade section
+  ///
+  /// In en, this message translates to:
+  /// **'Decade'**
+  String get universeFilterDecade;
+
+  /// Universe filter: one decade
+  ///
+  /// In en, this message translates to:
+  /// **'{decade}s'**
+  String universeFilterDecadeValue(int decade);
+
+  /// Universe filter: genre section
+  ///
+  /// In en, this message translates to:
+  /// **'Genre'**
+  String get universeFilterGenre;
+
+  /// Universe filter: no decade or genre picked
+  ///
+  /// In en, this message translates to:
+  /// **'Any'**
+  String get universeFilterAny;
+
+  /// Universe filter: removes every filter
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get universeFilterClear;
+
+  /// Universe: how many planets of the system in focus match the filters
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total} planets match'**
+  String universeFilterSummary(int count, int total);
+
+  /// Universe list: no planet matches the filters
+  ///
+  /// In en, this message translates to:
+  /// **'No planet of this system matches the filters.'**
+  String get universeFilterNoMatch;
 }
 
 class _AppLocalizationsDelegate

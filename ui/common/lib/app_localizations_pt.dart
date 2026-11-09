@@ -3912,4 +3912,61 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get universeBackToOrigin => 'Voltar à origem';
+
+  @override
+  String get universeWantToWatch => 'Quero ver';
+
+  @override
+  String universeAddedToWatchlist(String title) {
+    return '$title está em Quero ver.';
+  }
+
+  @override
+  String get universeWantToWatchError =>
+      'Não deu para adicionar a Quero ver. Tente de novo.';
+
+  @override
+  String get universeAddToShelf => 'Adicionar à estante';
+
+  @override
+  String universeMoreActions(String title) {
+    return 'Mais ações para $title';
+  }
+
+  @override
+  String universeInCommon(String items) {
+    return 'Em comum: $items';
+  }
+
+  @override
+  String get universeFilter => 'Filtrar planetas';
+
+  @override
+  String get universeFilterOnlyUnwatched => 'Só os que não assisti';
+
+  @override
+  String get universeFilterDecade => 'Década';
+
+  @override
+  String universeFilterDecadeValue(int decade) {
+    return 'Anos $decade';
+  }
+
+  @override
+  String get universeFilterGenre => 'Gênero';
+
+  @override
+  String get universeFilterAny => 'Qualquer';
+
+  @override
+  String get universeFilterClear => 'Limpar filtros';
+
+  @override
+  String universeFilterSummary(int count, int total) {
+    return '$count de $total planetas combinam';
+  }
+
+  @override
+  String get universeFilterNoMatch =>
+      'Nenhum planeta deste sistema combina com os filtros.';
 }

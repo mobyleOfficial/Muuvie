@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:common/common.dart';
+import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies/movies.dart';
+import 'package:universe_ui/movie_universe/filter/universe_filter.dart';
 import 'package:universe_ui/movie_universe/graph/star_system.dart';
 import 'package:universe_ui/movie_universe/map/universe_map.dart';
 import 'package:universe_ui/movie_universe/movie_universe_bloc.dart';
@@ -14,12 +16,32 @@ import 'package:universe_ui/movie_universe/movie_universe_state.dart';
 class MovieUniverseScreen extends StatelessWidget {
   final MovieUniverseCubit cubit;
   final ValueChanged<Movie> onOpenMovie;
+  final ValueChanged<Movie> onAddToWatchlist;
+  final ValueChanged<Movie> onAddToShelves;
 
   const MovieUniverseScreen({
     super.key,
     required this.cubit,
     required this.onOpenMovie,
+    required this.onAddToWatchlist,
+    required this.onAddToShelves,
   });
+
+  void _showFilters(BuildContext context) => showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (_) => BlocBuilder<MovieUniverseCubit, MovieUniverseState>(
+      bloc: cubit,
+      builder: (_, state) => state is MovieUniverseExploring
+          ? _FilterSheet(
+              filter: state.filter,
+              options: UniverseFilterOptions.of(state.graph),
+              onChanged: cubit.setFilter,
+            )
+          : const SizedBox.shrink(),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +52,16 @@ class MovieUniverseScreen extends StatelessWidget {
         appBar: AppBar(
           title: Text(l10n?.universeTitle(cubit.origin.displayTitle) ?? ''),
           actions: [
+            if (state is MovieUniverseExploring)
+              IconButton(
+                tooltip: l10n?.universeFilter,
+                isSelected: state.filter.isActive,
+                icon: Badge(
+                  isLabelVisible: state.filter.isActive,
+                  child: const Icon(Icons.filter_list),
+                ),
+                onPressed: () => _showFilters(context),
+              ),
             if (state is MovieUniverseExploring)
               IconButton(
                 tooltip: state.showAsList
@@ -59,11 +91,13 @@ class MovieUniverseScreen extends StatelessWidget {
             onAction: cubit.load,
           ),
           MovieUniverseExploring(showAsList: true) => _UniverseList(
-            system: state.currentSystem,
-            travelingTo: state.travelingTo,
+            state: state,
             onOpenMovie: onOpenMovie,
             onTravel: cubit.travelTo,
             onBackToOrigin: cubit.backToOrigin,
+            onClearFilter: () => cubit.setFilter(UniverseFilter.none),
+            onAddToWatchlist: onAddToWatchlist,
+            onAddToShelves: onAddToShelves,
           ),
           MovieUniverseExploring() => Stack(
             children: [
@@ -78,36 +112,50 @@ class MovieUniverseScreen extends StatelessWidget {
                       graph: state.graph,
                       currentStarId: state.currentStarId,
                       selected: state.selected,
+                      filter: state.filter,
                       onSelect: cubit.select,
                       onFocusSystem: cubit.focusSystem,
                     ),
                   ),
                 ),
               ),
-              if (state.currentSystem.hops > 0)
-                Positioned(
-                  top: 12,
-                  left: 16,
-                  right: 16,
-                  child: _HopsBar(
-                    hops: state.currentSystem.hops,
-                    onBackToOrigin: cubit.backToOrigin,
-                  ),
+              Positioned(
+                top: 12,
+                left: 16,
+                right: 16,
+                child: Column(
+                  children: [
+                    if (state.currentSystem.hops > 0)
+                      _HopsBar(
+                        hops: state.currentSystem.hops,
+                        onBackToOrigin: cubit.backToOrigin,
+                      ),
+                    if (state.filter.isActive)
+                      _FilterBar(
+                        matching: state.matchingPlanets.length,
+                        total: state.currentSystem.planets.length,
+                        onClear: () => cubit.setFilter(UniverseFilter.none),
+                      ),
+                  ],
                 ),
+              ),
               if (state.selected case final selected?)
-                Positioned(
-                  left: 16,
-                  right: 16,
-                  bottom: 16,
-                  child: SafeArea(
-                    child: _PlanetCard(
-                      movie: selected,
-                      traveling: state.travelingTo?.id == selected.id,
-                      onOpen: () => onOpenMovie(selected),
-                      onTravel: () => cubit.travelTo(selected),
+                if (state.graph.planetOf(selected.id) case final planet?)
+                  Positioned(
+                    left: 16,
+                    right: 16,
+                    bottom: 16,
+                    child: SafeArea(
+                      child: _PlanetCard(
+                        planet: planet,
+                        traveling: state.travelingTo?.id == selected.id,
+                        onOpen: () => onOpenMovie(planet.movie),
+                        onTravel: () => cubit.travelTo(planet.movie),
+                        onAddToWatchlist: () => onAddToWatchlist(planet.movie),
+                        onAddToShelves: () => onAddToShelves(planet.movie),
+                      ),
                     ),
                   ),
-                ),
             ],
           ),
         },
@@ -186,25 +234,33 @@ class _HopsBar extends StatelessWidget {
   }
 }
 
-/// The card of the selected planet, over the map.
+/// The card of the selected planet, over the map: what it is, why it is
+/// here, and what to do with it.
 class _PlanetCard extends StatelessWidget {
-  final Movie movie;
+  final OrbitingPlanet planet;
   final bool traveling;
   final VoidCallback onOpen;
   final VoidCallback onTravel;
+  final VoidCallback onAddToWatchlist;
+  final VoidCallback onAddToShelves;
 
   const _PlanetCard({
-    required this.movie,
+    required this.planet,
     required this.traveling,
     required this.onOpen,
     required this.onTravel,
+    required this.onAddToWatchlist,
+    required this.onAddToShelves,
   });
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final textTheme = Theme.of(context).textTheme;
+    final movie = planet.movie;
     final year = movie.year;
+    final status = movie.me?.status;
+    final inCommon = _inCommon(planet.similar);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -227,6 +283,14 @@ class _PlanetCard extends StatelessWidget {
                         style: textTheme.titleMedium,
                       ),
                       if (year != null) Text(year, style: textTheme.bodySmall),
+                      if (status != null) _StatusLabel(status: status),
+                      if (inCommon != null)
+                        Text(
+                          l10n?.universeInCommon(inCommon) ?? '',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: textTheme.bodySmall,
+                        ),
                     ],
                   ),
                 ),
@@ -256,6 +320,192 @@ class _PlanetCard extends StatelessWidget {
                 ),
               ],
             ),
+            Wrap(
+              alignment: WrapAlignment.center,
+              children: [
+                if (status == null)
+                  TextButton.icon(
+                    onPressed: onAddToWatchlist,
+                    icon: const Icon(Icons.bookmark_add_outlined),
+                    label: Text(l10n?.universeWantToWatch ?? ''),
+                  ),
+                TextButton.icon(
+                  onPressed: onAddToShelves,
+                  icon: const Icon(Icons.playlist_add),
+                  label: Text(l10n?.universeAddToShelf ?? ''),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Up to four of the genres and keywords a planet shares with its star,
+/// comma-separated; null when it shares none or they are unknown.
+String? _inCommon(SimilarMovie similar) {
+  const shown = 4;
+  final shared = [...similar.sharedGenres, ...similar.sharedKeywords];
+  if (shared.isEmpty) return null;
+  final listed = shared.take(shown).join(', ');
+  return shared.length > shown ? '$listed…' : listed;
+}
+
+/// Já assisti or Quero ver, as an icon and its words: the map badge in
+/// text.
+class _StatusLabel extends StatelessWidget {
+  final WatchStatus status;
+
+  const _StatusLabel({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final textTheme = Theme.of(context).textTheme;
+    final (icon, label) = switch (status) {
+      WatchStatus.watched => (Icons.check_circle, l10n?.systemShelfWatched),
+      WatchStatus.wantToWatch => (Icons.bookmark, l10n?.systemShelfWatchlist),
+    };
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ExcludeSemantics(child: Icon(icon, size: 16)),
+        const SizedBox(width: 4),
+        Text(label ?? '', style: textTheme.labelMedium),
+      ],
+    );
+  }
+}
+
+/// How many planets of the system in focus the filter keeps, and the way to
+/// clear it.
+class _FilterBar extends StatelessWidget {
+  final int matching;
+  final int total;
+  final VoidCallback onClear;
+
+  const _FilterBar({
+    required this.matching,
+    required this.total,
+    required this.onClear,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 4),
+        child: Row(
+          children: [
+            const ExcludeSemantics(child: Icon(Icons.filter_list, size: 20)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(l10n?.universeFilterSummary(matching, total) ?? ''),
+            ),
+            TextButton(
+              onPressed: onClear,
+              child: Text(l10n?.universeFilterClear ?? ''),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The constellations: only the unwatched, one decade, one genre. Each
+/// change applies at once, so the map behind updates as the user picks.
+class _FilterSheet extends StatelessWidget {
+  final UniverseFilter filter;
+  final UniverseFilterOptions options;
+  final ValueChanged<UniverseFilter> onChanged;
+
+  const _FilterSheet({
+    required this.filter,
+    required this.options,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final textTheme = Theme.of(context).textTheme;
+    Widget section(String title, List<Widget> chips) => Padding(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Semantics(
+            header: true,
+            child: Text(title, style: textTheme.titleSmall),
+          ),
+          const SizedBox(height: 8),
+          Wrap(spacing: 8, runSpacing: 8, children: chips),
+        ],
+      ),
+    );
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Semantics(
+                header: true,
+                child: Text(
+                  l10n?.universeFilter ?? '',
+                  style: textTheme.titleLarge,
+                ),
+              ),
+            ),
+            SwitchListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+              title: Text(l10n?.universeFilterOnlyUnwatched ?? ''),
+              value: filter.onlyUnwatched,
+              onChanged: (value) => onChanged(filter.withOnlyUnwatched(value)),
+            ),
+            if (options.decades.isNotEmpty)
+              section(l10n?.universeFilterDecade ?? '', [
+                ChoiceChip(
+                  label: Text(l10n?.universeFilterAny ?? ''),
+                  selected: filter.decade == null,
+                  onSelected: (_) => onChanged(filter.withDecade(null)),
+                ),
+                for (final decade in options.decades)
+                  ChoiceChip(
+                    label: Text(l10n?.universeFilterDecadeValue(decade) ?? ''),
+                    selected: filter.decade == decade,
+                    onSelected: (_) => onChanged(filter.withDecade(decade)),
+                  ),
+              ]),
+            if (options.genres.isNotEmpty)
+              section(l10n?.universeFilterGenre ?? '', [
+                ChoiceChip(
+                  label: Text(l10n?.universeFilterAny ?? ''),
+                  selected: filter.genre == null,
+                  onSelected: (_) => onChanged(filter.withGenre(null)),
+                ),
+                for (final genre in options.genres)
+                  ChoiceChip(
+                    label: Text(genre),
+                    selected: filter.genre == genre,
+                    onSelected: (_) => onChanged(filter.withGenre(genre)),
+                  ),
+              ]),
+            if (filter.isActive)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+                child: OutlinedButton(
+                  onPressed: () => onChanged(UniverseFilter.none),
+                  child: Text(l10n?.universeFilterClear ?? ''),
+                ),
+              ),
           ],
         ),
       ),
@@ -264,25 +514,33 @@ class _PlanetCard extends StatelessWidget {
 }
 
 /// The accessible view of the system in focus: its star first, then every
-/// planet in orbit order, each one openable and travelable.
+/// planet the filter keeps, in orbit order, each one openable, travelable
+/// and with the card's actions in a menu.
 class _UniverseList extends StatelessWidget {
-  final StarSystem system;
-  final Movie? travelingTo;
+  final MovieUniverseExploring state;
   final ValueChanged<Movie> onOpenMovie;
   final ValueChanged<Movie> onTravel;
   final VoidCallback onBackToOrigin;
+  final VoidCallback onClearFilter;
+  final ValueChanged<Movie> onAddToWatchlist;
+  final ValueChanged<Movie> onAddToShelves;
 
   const _UniverseList({
-    required this.system,
-    required this.travelingTo,
+    required this.state,
     required this.onOpenMovie,
     required this.onTravel,
     required this.onBackToOrigin,
+    required this.onClearFilter,
+    required this.onAddToWatchlist,
+    required this.onAddToShelves,
   });
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final system = state.currentSystem;
+    final travelingTo = state.travelingTo;
+    final planets = state.matchingPlanets;
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 8),
       children: [
@@ -291,6 +549,15 @@ class _UniverseList extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: _HopsBar(hops: system.hops, onBackToOrigin: onBackToOrigin),
           ),
+        if (state.filter.isActive)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: _FilterBar(
+              matching: planets.length,
+              total: system.planets.length,
+              onClear: onClearFilter,
+            ),
+          ),
         ListTile(
           leading: _Poster(movie: system.star, width: 40),
           title: Text(system.star.displayTitle),
@@ -298,26 +565,95 @@ class _UniverseList extends StatelessWidget {
           onTap: () => onOpenMovie(system.star),
         ),
         const Divider(),
-        for (final planet in system.planets)
+        if (planets.isEmpty && state.filter.isActive)
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              l10n?.universeFilterNoMatch ?? '',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        for (final planet in planets)
           ListTile(
             leading: _Poster(movie: planet.movie, width: 40),
             title: Text(planet.movie.displayTitle),
-            subtitle: planet.movie.year != null
-                ? Text(planet.movie.year!)
-                : null,
+            subtitle: _PlanetSubtitle(planet: planet),
+            isThreeLine: _inCommon(planet.similar) != null,
             onTap: () => onOpenMovie(planet.movie),
-            trailing: travelingTo?.id == planet.movie.id
-                ? const SizedBox.square(
-                    dimension: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                PopupMenuButton<VoidCallback>(
+                  tooltip: l10n?.universeMoreActions(planet.movie.displayTitle),
+                  onSelected: (action) => action(),
+                  itemBuilder: (_) => [
+                    if (planet.movie.me?.status == null)
+                      PopupMenuItem(
+                        value: () => onAddToWatchlist(planet.movie),
+                        child: Text(l10n?.universeWantToWatch ?? ''),
+                      ),
+                    PopupMenuItem(
+                      value: () => onAddToShelves(planet.movie),
+                      child: Text(l10n?.universeAddToShelf ?? ''),
+                    ),
+                  ],
+                ),
+                if (travelingTo?.id == planet.movie.id)
+                  const SizedBox.square(
+                    dimension: 48,
+                    child: Center(
+                      child: SizedBox.square(
+                        dimension: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
                   )
-                : IconButton(
+                else
+                  IconButton(
                     tooltip: l10n?.universeTravelTo(planet.movie.displayTitle),
                     icon: const Icon(Icons.rocket_launch_outlined),
                     onPressed: travelingTo == null
                         ? () => onTravel(planet.movie)
                         : null,
                   ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// The year, the viewer's state and what the planet shares with its star.
+class _PlanetSubtitle extends StatelessWidget {
+  final OrbitingPlanet planet;
+
+  const _PlanetSubtitle({required this.planet});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final year = planet.movie.year;
+    final status = planet.movie.me?.status;
+    final inCommon = _inCommon(planet.similar);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (year != null || status != null)
+          Wrap(
+            spacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              if (year != null) Text(year),
+              if (status != null) _StatusLabel(status: status),
+            ],
+          ),
+        if (inCommon != null)
+          Text(
+            l10n?.universeInCommon(inCommon) ?? '',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
       ],
     );

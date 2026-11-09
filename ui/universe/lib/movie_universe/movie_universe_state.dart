@@ -1,4 +1,5 @@
 import 'package:movies/movies.dart';
+import 'package:universe_ui/movie_universe/filter/universe_filter.dart';
 import 'package:universe_ui/movie_universe/graph/star_system.dart';
 import 'package:universe_ui/movie_universe/graph/universe_graph.dart';
 
@@ -16,7 +17,8 @@ final class MovieUniverseLoading extends MovieUniverseState {
 /// the planet whose card is open; [travelingTo] is the planet whose system
 /// is loading; [failedTravel] is the last planet a jump to failed, so the
 /// page can say so once. [showAsList] swaps the star map for the accessible
-/// list of the system in focus.
+/// list of the system in focus. [filter] picks the planets that stand out
+/// (phase 4).
 final class MovieUniverseExploring extends MovieUniverseState {
   final UniverseGraph graph;
   final int currentStarId;
@@ -24,6 +26,7 @@ final class MovieUniverseExploring extends MovieUniverseState {
   final Movie? travelingTo;
   final Movie? failedTravel;
   final bool showAsList;
+  final UniverseFilter filter;
 
   const MovieUniverseExploring({
     required this.graph,
@@ -32,9 +35,16 @@ final class MovieUniverseExploring extends MovieUniverseState {
     this.travelingTo,
     this.failedTravel,
     this.showAsList = false,
+    this.filter = UniverseFilter.none,
   });
 
   StarSystem get currentSystem => graph.systemOf(currentStarId)!;
+
+  /// The planets of the system in focus that match [filter], in orbit order.
+  List<OrbitingPlanet> get matchingPlanets => [
+    for (final planet in currentSystem.planets)
+      if (filter.matches(planet.similar)) planet,
+  ];
 
   MovieUniverseExploring copyWith({
     UniverseGraph? graph,
@@ -43,6 +53,7 @@ final class MovieUniverseExploring extends MovieUniverseState {
     Movie? Function()? travelingTo,
     Movie? Function()? failedTravel,
     bool? showAsList,
+    UniverseFilter? filter,
   }) => MovieUniverseExploring(
     graph: graph ?? this.graph,
     currentStarId: currentStarId ?? this.currentStarId,
@@ -51,6 +62,7 @@ final class MovieUniverseExploring extends MovieUniverseState {
     // A failure is reported once: any other change clears it.
     failedTravel: failedTravel?.call(),
     showAsList: showAsList ?? this.showAsList,
+    filter: filter ?? this.filter,
   );
 }
 

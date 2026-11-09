@@ -9,12 +9,14 @@ class RemoteSimilarMovie {
   final double? score;
   final List<String> sharedGenres;
   final List<String> sharedKeywords;
+  final List<String> genres;
 
   const RemoteSimilarMovie({
     required this.movie,
     this.score,
     this.sharedGenres = const [],
     this.sharedKeywords = const [],
+    this.genres = const [],
   });
 
   static List<RemoteSimilarMovie> listFromJson(Map<String, dynamic> json) {
@@ -34,6 +36,7 @@ class RemoteSimilarMovie {
             score: (affinity?['score'] as num?)?.toDouble(),
             sharedGenres: _strings(affinity?['sharedGenres']),
             sharedKeywords: _strings(affinity?['sharedKeywords']),
+            genres: _strings(affinity?['genres']),
           );
         })
         .toList();
@@ -49,5 +52,6 @@ class RemoteSimilarMovie {
         score: (score ?? SimilarMovie.neutralScore(rank, count)).clamp(0, 1),
         sharedGenres: sharedGenres,
         sharedKeywords: sharedKeywords,
+        genres: genres,
       );
 }

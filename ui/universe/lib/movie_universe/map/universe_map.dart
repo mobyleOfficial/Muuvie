@@ -1,6 +1,7 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:movies/movies.dart';
+import 'package:universe_ui/movie_universe/filter/universe_filter.dart';
 import 'package:universe_ui/movie_universe/graph/universe_graph.dart';
 import 'package:universe_ui/movie_universe/map/universe_game.dart';
 import 'package:universe_ui/movie_universe/map/universe_palette.dart';
@@ -12,6 +13,7 @@ class UniverseMap extends StatefulWidget {
   final UniverseGraph graph;
   final int currentStarId;
   final Movie? selected;
+  final UniverseFilter filter;
   final ValueChanged<Movie?> onSelect;
   final ValueChanged<int> onFocusSystem;
 
@@ -20,6 +22,7 @@ class UniverseMap extends StatefulWidget {
     required this.graph,
     required this.currentStarId,
     required this.selected,
+    this.filter = UniverseFilter.none,
     required this.onSelect,
     required this.onFocusSystem,
   });
@@ -38,6 +41,7 @@ class _UniverseMapState extends State<UniverseMap> {
     _game ??= UniverseGame(
       graph: widget.graph,
       focusedStarId: widget.currentStarId,
+      filter: widget.filter,
       palette: UniversePalette(
         highlight: Theme.of(context).colorScheme.primaryContainer,
       ),
@@ -60,6 +64,7 @@ class _UniverseMapState extends State<UniverseMap> {
     if (oldWidget.selected?.id != widget.selected?.id) {
       game.showSelected(widget.selected?.id);
     }
+    if (oldWidget.filter != widget.filter) game.showFilter(widget.filter);
   }
 
   @override

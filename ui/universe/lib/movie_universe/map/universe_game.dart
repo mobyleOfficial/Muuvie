@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:movies/movies.dart';
+import 'package:universe_ui/movie_universe/filter/universe_filter.dart';
 import 'package:universe_ui/movie_universe/graph/universe_graph.dart';
 import 'package:universe_ui/movie_universe/map/nebula_layer.dart';
 import 'package:universe_ui/movie_universe/map/orbit_layout.dart';
@@ -62,6 +63,7 @@ class UniverseGame extends FlameGame {
   Vector2? _focusPosition;
   double? _focusZoom;
   int? _selectedMovieId;
+  UniverseFilter _filter;
   UniverseGraph? _syncedGraph;
   Map<int, Rect> _systemAreas = const {};
   double _sinceStreaming = 0;
@@ -71,8 +73,10 @@ class UniverseGame extends FlameGame {
     required int focusedStarId,
     required this.palette,
     required this.animate,
+    UniverseFilter filter = UniverseFilter.none,
   }) : _graph = graph,
-       _focusedStarId = focusedStarId;
+       _focusedStarId = focusedStarId,
+       _filter = filter;
 
   @override
   Color backgroundColor() => palette.space;
@@ -106,8 +110,9 @@ class UniverseGame extends FlameGame {
     if (isLoaded) focusSystem(_focusedStarId, animated: false);
   }
 
-  /// Adds the systems new in [graph] and drops the planets that left their
-  /// orbit. Systems already on the map are kept as they are.
+  /// Adds the systems new in [graph], drops the planets that left their
+  /// orbit and shows the viewer's latest state of each movie. Systems
+  /// already on the map stay where they are.
   /// Before the game loads, it only keeps [graph] for [onLoad].
   void syncGraph(UniverseGraph graph) {
     _graph = graph;
@@ -126,7 +131,11 @@ class UniverseGame extends FlameGame {
       _syncedGraph = _graph;
       for (final MapEntry(key: starId, value: component) in _systems.entries) {
         final system = _graph.systemOf(starId);
-        if (system != null) component.keepOnly(system);
+        if (system == null) continue;
+        // A new state can change what the filter keeps (now watched, say).
+        component
+          ..sync(system)
+          ..applyFilter(_filter);
       }
       _systemAreas = {
         for (final system in _graph.systems)
@@ -156,6 +165,7 @@ class UniverseGame extends FlameGame {
       for (final body in component.planets) {
         body.selected = body.movie.id == _selectedMovieId;
       }
+      component.applyFilter(_filter);
       _systems[starId] = component;
       world.add(component);
     }
@@ -247,6 +257,7 @@ class UniverseGame extends FlameGame {
         OrbitLayout.starRadius,
       );
       for (final body in system.planets) {
+        if (body.dimmed) continue;
         consider(
           PlanetHit(body.movie),
           body.absolutePosition,
@@ -264,6 +275,15 @@ class UniverseGame extends FlameGame {
       for (final body in system.planets) {
         body.selected = body.movie.id == movieId;
       }
+    }
+  }
+
+  /// Fades the planets [filter] leaves out, in every system on the map and
+  /// in the ones that come later.
+  void showFilter(UniverseFilter filter) {
+    _filter = filter;
+    for (final system in _systems.values) {
+      system.applyFilter(filter);
     }
   }
 }

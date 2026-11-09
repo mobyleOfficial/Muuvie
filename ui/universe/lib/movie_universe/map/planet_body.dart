@@ -1,12 +1,14 @@
 import 'dart:math' as math;
 
 import 'package:common/common.dart';
+import 'package:core/core.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/painting.dart';
 import 'package:movies/movies.dart';
 import 'package:universe_ui/movie_universe/map/orbit_layout.dart';
 import 'package:universe_ui/movie_universe/map/poster_detail.dart';
 import 'package:universe_ui/movie_universe/map/poster_disc.dart';
+import 'package:universe_ui/movie_universe/map/status_badge.dart';
 import 'package:universe_ui/movie_universe/map/universe_game.dart';
 import 'package:universe_ui/movie_universe/map/universe_palette.dart';
 
@@ -22,12 +24,20 @@ class PlanetBody extends PositionComponent with HasGameReference<UniverseGame> {
   final OrbitSlot slot;
   final bool animate;
   bool selected = false;
+
+  /// The viewer's state of the movie, drawn as a badge.
+  WatchStatus? status;
+
+  /// Left out by the filter: faded, and taps go through it.
+  bool dimmed = false;
   double _angle;
   final PosterDisc _disc;
   final PosterDetail _poster;
   final Paint _ring;
   final Paint _selectedRing;
   final Paint _selectedHalo;
+  final Paint _fade;
+  final StatusBadge _badge;
 
   PlanetBody({
     required Movie movie,
@@ -72,6 +82,9 @@ class PlanetBody extends PositionComponent with HasGameReference<UniverseGame> {
          ..color = palette.highlight.withValues(alpha: 0.6)
          ..style = PaintingStyle.stroke
          ..strokeWidth = 6,
+       _fade = Paint()..color = palette.fade,
+       _badge = StatusBadge(palette: palette),
+       status = movie.me?.status,
        super(anchor: Anchor.center) {
     _moveToAngle();
   }
@@ -103,6 +116,13 @@ class PlanetBody extends PositionComponent with HasGameReference<UniverseGame> {
     if (selected) canvas.drawCircle(Offset.zero, radius + 8, _selectedHalo);
     _disc.paint(canvas, radius);
     canvas.drawCircle(Offset.zero, radius, selected ? _selectedRing : _ring);
+    // A faded planet drops its badge too: half of it would stick out of
+    // the fade.
+    if (dimmed) {
+      canvas.drawCircle(Offset.zero, radius + 2, _fade);
+    } else if (status case final status?) {
+      _badge.paint(canvas, radius, status, zoom: game.zoom);
+    }
   }
 
   @override

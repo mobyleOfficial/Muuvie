@@ -70,6 +70,7 @@ void main() {
             'score': 0.82,
             'sharedGenres': ['Terror'],
             'sharedKeywords': ['witch'],
+            'genres': ['Mistério', 'Terror'],
           },
           {'movieId': 9, 'score': 0.4},
         ],
@@ -88,6 +89,8 @@ void main() {
       expect(similarMovies.first.sharedGenres, ['Terror']);
       expect(similarMovies.first.sharedKeywords, ['witch']);
       expect(similarMovies.last.sharedKeywords, isEmpty);
+      expect(similarMovies.first.genres, ['Mistério', 'Terror']);
+      expect(similarMovies.last.genres, isEmpty);
       expect(similarMovies.first.movie.me?.status, WatchStatus.watched);
       expect(similarMovies.first.movie.year, '1980');
       expect(similarMovies.last.movie.me, isNull);

@@ -21,6 +21,10 @@ dependencies:
     path: ../../features/movies
   movies_ui:
     path: ../movies_ui
+  shelves:
+    path: ../../features/shelves
+  shelves_ui:
+    path: ../shelves
   flame: ^1.38.2
 
 dev_dependencies:

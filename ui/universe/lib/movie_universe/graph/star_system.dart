@@ -11,6 +11,9 @@ class OrbitingPlanet {
   const OrbitingPlanet({required this.similar, required this.rank});
 
   Movie get movie => similar.movie;
+
+  OrbitingPlanet withMovie(Movie movie) =>
+      OrbitingPlanet(similar: similar.withMovie(movie), rank: rank);
 }
 
 /// One movie as a star, its similar movies in orbit, placed at [center] in
@@ -40,6 +43,20 @@ class StarSystem {
   });
 
   double get extent => OrbitLayout.extent(orbits);
+
+  /// The same system with [movie] in place of the star or planet of the
+  /// same id: how the viewer's state of a movie reaches the map.
+  StarSystem withMovie(Movie movie) => StarSystem(
+    star: star.id == movie.id ? movie : star,
+    center: center,
+    planets: [
+      for (final planet in planets)
+        planet.movie.id == movie.id ? planet.withMovie(movie) : planet,
+    ],
+    parentStarId: parentStarId,
+    hops: hops,
+    orbits: orbits,
+  );
 
   StarSystem withoutPlanet(int movieId) => StarSystem(
     star: star,
