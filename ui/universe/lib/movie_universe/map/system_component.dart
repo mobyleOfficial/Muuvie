@@ -1,4 +1,3 @@
-import 'package:common/common.dart';
 import 'package:flame/components.dart';
 import 'package:movies/movies.dart';
 import 'package:universe_ui/movie_universe/graph/star_system.dart';
@@ -25,7 +24,7 @@ class SystemComponent extends PositionComponent {
     add(OrbitRings(slots: slots, color: palette.orbit));
     add(
       StarBody(
-        posterUrl: posterUrl(system.star, large: true),
+        posterPath: system.star.posterPath,
         palette: palette,
         animate: animate,
       ),
@@ -34,7 +33,6 @@ class SystemComponent extends PositionComponent {
       final body = PlanetBody(
         movie: planet.movie,
         slot: slots[planet.rank],
-        posterUrl: posterUrl(planet.movie),
         palette: palette,
         animate: animate,
       );
@@ -54,12 +52,5 @@ class SystemComponent extends PositionComponent {
     for (final movieId in departed) {
       _planets.remove(movieId)?.removeFromParent();
     }
-  }
-
-  static String? posterUrl(Movie movie, {bool large = false}) {
-    if (movie.posterPath.isEmpty) return null;
-    return large
-        ? TmdbImageUrl.buildPosterMedium(movie.posterPath)
-        : TmdbImageUrl.buildPosterSmall(movie.posterPath);
   }
 }

@@ -12,6 +12,9 @@ class UniversePalette {
   final Color placeholder;
   final Color highlight;
 
+  /// Faint cloud colors, picked per chunk.
+  final List<Color> nebulae;
+
   const UniversePalette({
     required this.highlight,
     this.space = const Color(0xFF05060F),
@@ -20,5 +23,11 @@ class UniversePalette {
     this.route = const Color(0x66FFC870),
     this.planetRing = const Color(0xCCFFFFFF),
     this.placeholder = const Color(0xFF2A2D45),
+    this.nebulae = const [
+      Color(0x1A6A4CFF),
+      Color(0x1A2F8FFF),
+      Color(0x14C0508A),
+      Color(0x1430B5A0),
+    ],
   });
 }

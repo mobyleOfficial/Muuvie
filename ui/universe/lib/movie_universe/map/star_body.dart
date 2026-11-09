@@ -1,30 +1,55 @@
 import 'dart:math' as math;
 
+import 'package:common/common.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/painting.dart';
 import 'package:universe_ui/movie_universe/map/orbit_layout.dart';
+import 'package:universe_ui/movie_universe/map/poster_detail.dart';
 import 'package:universe_ui/movie_universe/map/poster_disc.dart';
-import 'package:universe_ui/movie_universe/map/poster_image_loader.dart';
+import 'package:universe_ui/movie_universe/map/universe_game.dart';
 import 'package:universe_ui/movie_universe/map/universe_palette.dart';
 
-/// The chosen movie, at the center: its poster inside a pulsing glow.
-class StarBody extends PositionComponent {
+/// The chosen movie, at the center: its poster inside a pulsing glow. The
+/// poster is w185 from afar and w342 up close.
+class StarBody extends PositionComponent with HasGameReference<UniverseGame> {
   static const _glowScale = 2.4;
+  static const _largePosterRadius = 90.0;
 
-  final String? posterUrl;
   final UniversePalette palette;
   final bool animate;
   final PosterDisc _disc;
+  final PosterDetail _poster;
   final Paint _ring;
   late final Paint _glow;
   double _time = 0;
-  bool _removed = false;
 
   StarBody({
-    required this.posterUrl,
+    required String posterPath,
+    required UniversePalette palette,
+    required bool animate,
+  }) : this._(
+         posterPath: posterPath,
+         palette: palette,
+         animate: animate,
+         disc: PosterDisc(placeholder: palette.placeholder),
+       );
+
+  StarBody._({
+    required String posterPath,
     required this.palette,
     required this.animate,
-  }) : _disc = PosterDisc(placeholder: palette.placeholder),
+    required PosterDisc disc,
+  }) : _disc = disc,
+       _poster = PosterDetail(
+         smallUrl: posterPath.isEmpty
+             ? null
+             : TmdbImageUrl.buildPosterMedium(posterPath),
+         largeUrl: posterPath.isEmpty
+             ? null
+             : TmdbImageUrl.buildPosterLarge(posterPath),
+         switchUpAt: _largePosterRadius,
+         disc: disc,
+       ),
        _ring = Paint()
          ..color = palette.starGlow
          ..style = PaintingStyle.stroke
@@ -43,19 +68,14 @@ class StarBody extends PositionComponent {
         ],
         stops: const [0.35, 0.7, 1],
       ).createShader(Rect.fromCircle(center: Offset.zero, radius: glowRadius));
-    final url = posterUrl;
-    if (url == null) return;
-    PosterImageLoader.load(url).then((image) {
-      if (_removed) {
-        image?.dispose();
-      } else {
-        _disc.image = image;
-      }
-    });
   }
 
   @override
   void update(double dt) {
+    _poster.update(
+      screenRadius: OrbitLayout.starRadius * game.zoom,
+      cache: game.posters,
+    );
     if (animate) _time += dt;
   }
 
@@ -73,8 +93,7 @@ class StarBody extends PositionComponent {
 
   @override
   void onRemove() {
-    _removed = true;
-    _disc.dispose();
+    _poster.dispose();
     super.onRemove();
   }
 }

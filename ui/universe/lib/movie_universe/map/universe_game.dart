@@ -5,11 +5,15 @@ import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:movies/movies.dart';
 import 'package:universe_ui/movie_universe/graph/universe_graph.dart';
+import 'package:universe_ui/movie_universe/map/nebula_layer.dart';
 import 'package:universe_ui/movie_universe/map/orbit_layout.dart';
+import 'package:universe_ui/movie_universe/map/poster_image_loader.dart';
 import 'package:universe_ui/movie_universe/map/route_lines.dart';
 import 'package:universe_ui/movie_universe/map/star_field.dart';
 import 'package:universe_ui/movie_universe/map/system_component.dart';
 import 'package:universe_ui/movie_universe/map/universe_palette.dart';
+import 'package:universe_ui/movie_universe/streaming/poster_cache.dart';
+import 'package:universe_ui/movie_universe/streaming/system_streaming.dart';
 
 /// What a tap hit on the map.
 sealed class UniverseHit {
@@ -32,6 +36,10 @@ final class StarHit extends UniverseHit {
 /// The star map. It only draws and answers hit tests: gestures come from the
 /// Flutter widget around it, and the universe graph and selection live in
 /// the cubit. [syncGraph] brings new systems in as the user travels.
+///
+/// Only the systems near the camera are in the world (see
+/// [SystemStreaming]); the others live in the graph alone, and their
+/// posters can leave the [posters] cache.
 class UniverseGame extends FlameGame {
   static const minZoom = 0.12;
   static const maxZoom = 3.0;
@@ -41,15 +49,22 @@ class UniverseGame extends FlameGame {
   static const _minimumTouchRadius = 24.0;
   static const _margin = 16.0;
   static const _focusSpeed = 4.0;
+  static const _streamingInterval = 0.2;
 
   final UniversePalette palette;
   final bool animate;
   UniverseGraph _graph;
   int _focusedStarId;
   final Map<int, SystemComponent> _systems = {};
+  final SystemStreaming _streaming = const SystemStreaming();
+  final PosterCache posters = PosterCache(fetch: PosterImageLoader.load);
   late final RouteLines _routes;
   Vector2? _focusPosition;
   double? _focusZoom;
+  int? _selectedMovieId;
+  UniverseGraph? _syncedGraph;
+  Map<int, Rect> _systemAreas = const {};
+  double _sinceStreaming = 0;
 
   UniverseGame({
     required UniverseGraph graph,
@@ -68,11 +83,22 @@ class UniverseGame extends FlameGame {
   Future<void> onLoad() async {
     camera.viewfinder.anchor = Anchor.center;
     camera.backdrop.add(StarField(seed: _graph.originId));
+    world.add(NebulaLayer(originId: _graph.originId, colors: palette.nebulae));
     _routes = RouteLines(color: palette.route);
     world.add(_routes);
-    _addSystemsOf(_graph);
     focusSystem(_focusedStarId, animated: false);
+    // The camera is only measured once mounted: the first update streams.
+    _sinceStreaming = _streamingInterval;
   }
+
+  @override
+  void onRemove() {
+    posters.dispose();
+    super.onRemove();
+  }
+
+  /// The systems in the world now, by star id.
+  Iterable<int> get loadedStarIds => _systems.keys;
 
   @override
   void onGameResize(Vector2 size) {
@@ -85,25 +111,54 @@ class UniverseGame extends FlameGame {
   /// Before the game loads, it only keeps [graph] for [onLoad].
   void syncGraph(UniverseGraph graph) {
     _graph = graph;
-    if (isLoaded) _addSystemsOf(graph);
+    if (isMounted) _syncSystems();
   }
 
-  void _addSystemsOf(UniverseGraph graph) {
-    for (final system in graph.systems) {
-      final existing = _systems[system.star.id];
-      if (existing != null) {
-        existing.keepOnly(system);
-        continue;
+  /// Brings the world in line with the graph and the camera: drops the
+  /// planets that left their orbit, adds the systems that came near and
+  /// removes the ones that went far.
+  void _syncSystems() {
+    _sinceStreaming = 0;
+    // Planets, areas and routes only change with the graph; the camera alone
+    // only moves systems in and out.
+    final graphChanged = !identical(_graph, _syncedGraph);
+    if (graphChanged) {
+      _syncedGraph = _graph;
+      for (final MapEntry(key: starId, value: component) in _systems.entries) {
+        final system = _graph.systemOf(starId);
+        if (system != null) component.keepOnly(system);
       }
+      _systemAreas = {
+        for (final system in _graph.systems)
+          system.star.id: Rect.fromCircle(
+            center: system.center,
+            radius: system.extent,
+          ),
+      };
+      _routes.showRoutesOf(_graph);
+    }
+    final change = _streaming.update(
+      systemAreas: _systemAreas,
+      loaded: _systems.keys.toSet(),
+      view: camera.visibleWorldRect,
+      // The system in focus stays even while the camera glides away.
+      pinned: {_focusedStarId},
+    );
+    for (final starId in change.toUnload) {
+      _systems.remove(starId)?.removeFromParent();
+    }
+    for (final starId in change.toLoad) {
       final component = SystemComponent(
-        system: system,
+        system: _graph.systemOf(starId)!,
         palette: palette,
         animate: animate,
       );
-      _systems[system.star.id] = component;
+      for (final body in component.planets) {
+        body.selected = body.movie.id == _selectedMovieId;
+      }
+      _systems[starId] = component;
       world.add(component);
     }
-    _routes.showRoutesOf(graph);
   }
 
   /// Centers the camera on a system and zooms so it fits the screen. The
@@ -132,6 +187,8 @@ class UniverseGame extends FlameGame {
   @override
   void update(double dt) {
     super.update(dt);
+    _sinceStreaming += dt;
+    if (_sinceStreaming >= _streamingInterval) _syncSystems();
     final target = _focusPosition;
     final targetZoom = _focusZoom;
     if (target == null || targetZoom == null) return;
@@ -202,6 +259,7 @@ class UniverseGame extends FlameGame {
 
   /// Highlights the planet of [movieId]; null clears the highlight.
   void showSelected(int? movieId) {
+    _selectedMovieId = movieId;
     for (final system in _systems.values) {
       for (final body in system.planets) {
         body.selected = body.movie.id == movieId;
