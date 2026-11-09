@@ -22,24 +22,27 @@ void _showActionsSheet(
   void Function(int, String)? onAddToShelves,
   MovieDetailLinks? links,
 ) {
-  Widget action(IconData icon, String label, VoidCallback onSelected) =>
-      Builder(
-        builder: (sheetContext) => ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24),
-          leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
-          title: Text(
-            label,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
-          ),
-          onTap: () async {
-            Navigator.of(sheetContext).pop();
-            final authenticated = await AuthGate.check(context);
-            if (authenticated && context.mounted) onSelected();
-          },
-        ),
-      );
+  Widget action(
+    IconData icon,
+    String label,
+    VoidCallback onSelected, {
+    bool requiresLogin = true,
+  }) => Builder(
+    builder: (sheetContext) => ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+      leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
+      title: Text(
+        label,
+        style: Theme.of(context).textTheme.bodyLarge
+            ?.copyWith(fontWeight: FontWeight.w500),
+      ),
+      onTap: () async {
+        Navigator.of(sheetContext).pop();
+        final authenticated = !requiresLogin || await AuthGate.check(context);
+        if (authenticated && context.mounted) onSelected();
+      },
+    ),
+  );
 
   final colorScheme = Theme.of(context).colorScheme;
   final textTheme = Theme.of(context).textTheme;
@@ -72,6 +75,13 @@ void _showActionsSheet(
               () => onAddToShelves(detail.id, detail.title),
             ),
           if (links != null) ...[
+            // The universe is public: no login needed to explore it.
+            action(
+              Icons.blur_circular_outlined,
+              l10n?.universeAction ?? '',
+              () => links.openUniverse(context, detail),
+              requiresLogin: false,
+            ),
             action(
               Icons.groups_outlined,
               l10n?.movieDetailCreateCineClube ?? '',
@@ -736,9 +746,8 @@ class _GenrePill extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: Theme.of(
-          context,
-        ).textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+        style: Theme.of(context).textTheme.labelMedium
+            ?.copyWith(color: colorScheme.onSurfaceVariant),
       ),
     );
   }

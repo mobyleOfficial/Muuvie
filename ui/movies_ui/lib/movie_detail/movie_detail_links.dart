@@ -25,6 +25,9 @@ abstract interface class MovieDetailLinks {
 
   void startWatchParty(BuildContext context, Movie movie);
 
+  /// The Universo de Filmes of [movie]: its similar movies as planets.
+  void openUniverse(BuildContext context, Movie movie);
+
   /// The Comunidade tab: everything people did with the movie (B13.3). Each
   /// new value of [kindRequests] selects that filter.
   Widget activities(

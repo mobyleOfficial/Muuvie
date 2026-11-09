@@ -121,6 +121,8 @@ dependencies:
     path: ui/social
   whispers:
     path: ui/whispers
+  universe_ui:
+    path: ui/universe
   auth_ui:
     path: ui/auth
 

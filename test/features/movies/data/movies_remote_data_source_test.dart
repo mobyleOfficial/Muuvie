@@ -48,6 +48,46 @@ void main() {
   });
 
   test(
+    'the similar movies are read by database id with the viewer state',
+    () async {
+      http.response = const Success({
+        'movieId': 7,
+        'results': [
+          {
+            'id': 8,
+            'tmdbId': 11906,
+            'title': 'Inferno',
+            'overview': '',
+            'posterPath': '/i.jpg',
+            'releaseDate': '1980-02-07',
+            'me': {'status': 'watched'},
+          },
+          {'id': 9, 'title': 'Tenebre', 'overview': '', 'me': null},
+        ],
+      });
+
+      final result = await dataSource.getSimilarMovies(movieId: 7);
+
+      expect(http.calls.single.path, '/api/v1/movies/7/similar');
+      final similarMovies = (result as Success<List<RemoteMovie>>).data
+          .map((remoteMovie) => remoteMovie.toDomain())
+          .toList();
+      expect(similarMovies.map((movie) => movie.id), [8, 9]);
+      expect(similarMovies.first.me?.status, WatchStatus.watched);
+      expect(similarMovies.first.year, '1980');
+      expect(similarMovies.last.me, isNull);
+    },
+  );
+
+  test('a movie without similar movies reads an empty list', () async {
+    http.response = const Success({'movieId': 7, 'results': []});
+
+    final result = await dataSource.getSimilarMovies(movieId: 7);
+
+    expect((result as Success<List<RemoteMovie>>).data, isEmpty);
+  });
+
+  test(
     'countries come by their localized name, accents sorted in place',
     () async {
       http.response = const Success([

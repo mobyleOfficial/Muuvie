@@ -1,5 +1,6 @@
 import 'package:core/core.dart';
 
+import 'package:movies_data/models/remote/remote_movie.dart';
 import 'package:movies_data/models/remote/remote_movie_detail.dart';
 import 'package:movies_data/models/remote/remote_country.dart';
 import 'package:movies_data/models/remote/remote_genre.dart';
@@ -8,6 +9,9 @@ import 'package:movies_data/models/remote/remote_movie_listing.dart';
 
 abstract interface class MoviesRemoteDataSource {
   Future<Result<RemoteMovieDetail>> getMovieDetail({required int movieId});
+
+  /// `GET /movies/{id}/similar`, by the database id.
+  Future<Result<List<RemoteMovie>>> getSimilarMovies({required int movieId});
   Future<Result<RemoteMovieListing>> searchMovies({
     required String query,
     required int page,

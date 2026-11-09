@@ -23,6 +23,18 @@ class MoviesRepositoryImpl implements MoviesRepository {
   }
 
   @override
+  Future<Result<List<Movie>>> getSimilarMovies({required int movieId}) async {
+    final result = await _dataSource.getSimilarMovies(movieId: movieId);
+
+    return switch (result) {
+      Success(:final data) => Success(
+        data.map((remoteMovie) => remoteMovie.toDomain()).toList(),
+      ),
+      Failure(:final error) => Failure(error),
+    };
+  }
+
+  @override
   Future<Result<MovieListing>> searchMovies({
     required String query,
     required int page,

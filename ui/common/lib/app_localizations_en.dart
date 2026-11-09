@@ -3803,4 +3803,63 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get savedShelvesEmpty =>
       'Shelves you save from other people show up here.';
+
+  @override
+  String get universeAction => 'Explore universe';
+
+  @override
+  String universeTitle(String title) {
+    return 'Universe of $title';
+  }
+
+  @override
+  String get universeShowList => 'Show as list';
+
+  @override
+  String get universeShowMap => 'Show as universe';
+
+  @override
+  String get universeEmpty => 'No similar movies around here yet.';
+
+  @override
+  String get universeError => 'Couldn\'t load this universe.';
+
+  @override
+  String get universeOpenDetails => 'See details';
+
+  @override
+  String universeMapLabel(int count, String title) {
+    return 'Map of $count movies similar to $title. Use the list mode to go through them.';
+  }
+
+  @override
+  String get universeCenterLabel => 'The center of this universe';
+
+  @override
+  String get universeTravel => 'Travel';
+
+  @override
+  String universeTravelTo(String title) {
+    return 'Travel to $title';
+  }
+
+  @override
+  String universeTravelError(String title) {
+    return 'Couldn\'t travel to $title.';
+  }
+
+  @override
+  String universeHops(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count jumps from the origin',
+      one: '1 jump from the origin',
+      zero: 'At the origin',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get universeBackToOrigin => 'Back to the origin';
 }

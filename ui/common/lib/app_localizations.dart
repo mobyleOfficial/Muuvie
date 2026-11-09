@@ -6483,6 +6483,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Shelves you save from other people show up here.'**
   String get savedShelvesEmpty;
+
+  /// Movie actions: opens the universe of similar movies
+  ///
+  /// In en, this message translates to:
+  /// **'Explore universe'**
+  String get universeAction;
+
+  /// Title of the universe screen
+  ///
+  /// In en, this message translates to:
+  /// **'Universe of {title}'**
+  String universeTitle(String title);
+
+  /// Universe: switches to the accessible list of the movies
+  ///
+  /// In en, this message translates to:
+  /// **'Show as list'**
+  String get universeShowList;
+
+  /// Universe: switches back to the star map
+  ///
+  /// In en, this message translates to:
+  /// **'Show as universe'**
+  String get universeShowMap;
+
+  /// Universe with no similar movies
+  ///
+  /// In en, this message translates to:
+  /// **'No similar movies around here yet.'**
+  String get universeEmpty;
+
+  /// Universe failed to load
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this universe.'**
+  String get universeError;
+
+  /// Universe: opens the detail of the selected planet
+  ///
+  /// In en, this message translates to:
+  /// **'See details'**
+  String get universeOpenDetails;
+
+  /// Screen reader label of the star map
+  ///
+  /// In en, this message translates to:
+  /// **'Map of {count} movies similar to {title}. Use the list mode to go through them.'**
+  String universeMapLabel(int count, String title);
+
+  /// Universe list: marks the movie at the center
+  ///
+  /// In en, this message translates to:
+  /// **'The center of this universe'**
+  String get universeCenterLabel;
+
+  /// Universe card: turns the selected planet into a star system and flies there
+  ///
+  /// In en, this message translates to:
+  /// **'Travel'**
+  String get universeTravel;
+
+  /// Universe list: travel button of a planet
+  ///
+  /// In en, this message translates to:
+  /// **'Travel to {title}'**
+  String universeTravelTo(String title);
+
+  /// Universe: a jump to a planet failed
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t travel to {title}.'**
+  String universeTravelError(String title);
+
+  /// Universe: how many jumps the system in focus is from the first movie
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{At the origin} =1{1 jump from the origin} other{{count} jumps from the origin}}'**
+  String universeHops(int count);
+
+  /// Universe: flies back to the first movie's system
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the origin'**
+  String get universeBackToOrigin;
 }
 
 class _AppLocalizationsDelegate

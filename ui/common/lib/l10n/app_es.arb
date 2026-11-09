@@ -1082,5 +1082,19 @@
   "shelfOpenOwnerProfile": "Abrir el perfil de {name}",
   "savedShelvesTitle": "Estantes guardadas",
   "savedShelvesAction": "Guardadas",
-  "savedShelvesEmpty": "Las estantes que guardes de otras personas aparecen aquí."
+  "savedShelvesEmpty": "Las estantes que guardes de otras personas aparecen aquí.",
+  "universeAction": "Explorar universo",
+  "universeTitle": "Universo de {title}",
+  "universeShowList": "Ver como lista",
+  "universeShowMap": "Ver como universo",
+  "universeEmpty": "Aún no hay películas parecidas por aquí.",
+  "universeError": "No se pudo cargar este universo.",
+  "universeOpenDetails": "Ver detalles",
+  "universeMapLabel": "Mapa con {count} películas parecidas a {title}. Usa el modo lista para recorrerlas.",
+  "universeCenterLabel": "El centro de este universo",
+  "universeTravel": "Viajar",
+  "universeTravelTo": "Viajar a {title}",
+  "universeTravelError": "No se pudo viajar a {title}.",
+  "universeHops": "{count, plural, =0{En el origen} =1{1 salto del origen} other{{count} saltos del origen}}",
+  "universeBackToOrigin": "Volver al origen"
 }
