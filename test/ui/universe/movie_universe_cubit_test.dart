@@ -14,10 +14,19 @@ class _FakeMoviesRepository implements MoviesRepository {
   _FakeMoviesRepository(this.similarById, {this.failingIds = const {}});
 
   @override
-  Future<Result<List<Movie>>> getSimilarMovies({required int movieId}) async {
+  Future<Result<List<SimilarMovie>>> getSimilarMovies({
+    required int movieId,
+  }) async {
     askedIds.add(movieId);
     if (failingIds.contains(movieId)) return const Failure(AppError.network);
-    return Success(similarById[movieId] ?? const []);
+    final movies = similarById[movieId] ?? const <Movie>[];
+    return Success([
+      for (var rank = 0; rank < movies.length; rank++)
+        SimilarMovie(
+          movie: movies[rank],
+          score: SimilarMovie.neutralScore(rank, movies.length),
+        ),
+    ]);
   }
 
   @override

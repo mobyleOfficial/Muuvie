@@ -25,7 +25,7 @@ class UniverseGraph {
   const UniverseGraph._(this.originId, this._systems);
 
   /// The origin at the center of the universe, with [similarMovies] in orbit.
-  factory UniverseGraph.origin(Movie star, List<Movie> similarMovies) {
+  factory UniverseGraph.origin(Movie star, List<SimilarMovie> similarMovies) {
     final planets = _rankPlanets(similarMovies, placed: {star.id});
     return UniverseGraph._(star.id, {
       star.id: StarSystem(
@@ -34,7 +34,7 @@ class UniverseGraph {
         planets: planets,
         parentStarId: null,
         hops: 0,
-        orbitCount: planets.length,
+        orbits: _orbitsOf(planets),
       ),
     });
   }
@@ -61,7 +61,7 @@ class UniverseGraph {
   /// [planet] leaves the orbit of its system and becomes a new system, with
   /// [similarMovies] in orbit. Movies already somewhere in the universe are
   /// left out: the universe never shows a movie twice.
-  UniverseGraph addSystem(Movie planet, List<Movie> similarMovies) {
+  UniverseGraph addSystem(Movie planet, List<SimilarMovie> similarMovies) {
     final parent = orbitedBy(planet.id);
     if (parent == null) {
       throw ArgumentError('${planet.id} does not orbit any system');
@@ -76,7 +76,8 @@ class UniverseGraph {
       ],
     };
     final planets = _rankPlanets(similarMovies, placed: placed);
-    final extent = OrbitLayout.extent(planets.length);
+    final orbits = _orbitsOf(planets);
+    final extent = OrbitLayout.extent(orbits);
     final systems = {
       ..._systems,
       parent.star.id: parent.withoutPlanet(planet.id),
@@ -87,7 +88,7 @@ class UniverseGraph {
       planets: planets,
       parentStarId: parent.star.id,
       hops: parent.hops + 1,
-      orbitCount: planets.length,
+      orbits: orbits,
     );
     return UniverseGraph._(originId, systems);
   }
@@ -101,17 +102,20 @@ class UniverseGraph {
       .reduce((union, rect) => union.expandToInclude(rect));
 
   static List<OrbitingPlanet> _rankPlanets(
-    List<Movie> movies, {
+    List<SimilarMovie> similarMovies, {
     required Set<int> placed,
   }) {
     final seen = {...placed};
     final planets = <OrbitingPlanet>[];
-    for (final movie in movies) {
-      if (!seen.add(movie.id)) continue;
-      planets.add(OrbitingPlanet(movie: movie, rank: planets.length));
+    for (final similar in similarMovies) {
+      if (!seen.add(similar.movie.id)) continue;
+      planets.add(OrbitingPlanet(similar: similar, rank: planets.length));
     }
     return planets;
   }
+
+  static List<OrbitSlot> _orbitsOf(List<OrbitingPlanet> planets) =>
+      OrbitLayout.slots([for (final planet in planets) planet.similar.score]);
 
   /// Where a new system of [extent] goes, next to [parent], in the direction
   /// of the orbit [rank] it came from and away from the parent's own parent.
@@ -121,7 +125,7 @@ class UniverseGraph {
     final grandparent = parent.parentStarId == null
         ? null
         : _systems[parent.parentStarId];
-    final slotAngle = OrbitLayout.slot(rank).startAngle;
+    final slotAngle = OrbitLayout.startAngle(rank);
     final direction = grandparent == null
         ? slotAngle
         : _angleOf(parent.center - grandparent.center) +

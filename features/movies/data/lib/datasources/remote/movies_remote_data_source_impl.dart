@@ -8,6 +8,7 @@ import 'package:movies_data/models/remote/remote_country.dart';
 import 'package:movies_data/models/remote/remote_genre.dart';
 import 'package:movies_data/models/remote/remote_language.dart';
 import 'package:movies_data/models/remote/remote_movie_listing.dart';
+import 'package:movies_data/models/remote/remote_similar_movie.dart';
 
 @injectable
 class MoviesRemoteDataSourceImpl implements MoviesRemoteDataSource {
@@ -37,7 +38,7 @@ class MoviesRemoteDataSourceImpl implements MoviesRemoteDataSource {
   }
 
   @override
-  Future<Result<List<RemoteMovie>>> getSimilarMovies({
+  Future<Result<List<RemoteSimilarMovie>>> getSimilarMovies({
     required int movieId,
   }) async {
     final result = await _httpClient.get<Map<String, dynamic>>(
@@ -46,10 +47,7 @@ class MoviesRemoteDataSourceImpl implements MoviesRemoteDataSource {
 
     return switch (result) {
       Success<Map<String, dynamic>>(:final data) => Success(
-        (data['results'] as List<dynamic>? ?? const [])
-            .cast<Map<String, dynamic>>()
-            .map(RemoteMovie.fromJson)
-            .toList(),
+        RemoteSimilarMovie.listFromJson(data),
       ),
       Failure<Map<String, dynamic>>(:final error) => Failure(error),
     };
@@ -145,9 +143,9 @@ class MoviesRemoteDataSourceImpl implements MoviesRemoteDataSource {
             )
             .toList()
           ..sort(
-            (first, second) =>
-                _sortKey(first.name ?? first.englishName)
-                    .compareTo(_sortKey(second.name ?? second.englishName)),
+            (first, second) => _sortKey(
+              first.name ?? first.englishName,
+            ).compareTo(_sortKey(second.name ?? second.englishName)),
           ),
       ),
       Failure<List<dynamic>>(:final error) => Failure(error),
@@ -167,9 +165,9 @@ class MoviesRemoteDataSourceImpl implements MoviesRemoteDataSource {
             )
             .toList()
           ..sort(
-            (first, second) =>
-                _sortKey(first.name ?? first.englishName)
-                    .compareTo(_sortKey(second.name ?? second.englishName)),
+            (first, second) => _sortKey(
+              first.name ?? first.englishName,
+            ).compareTo(_sortKey(second.name ?? second.englishName)),
           ),
       ),
       Failure<List<dynamic>>(:final error) => Failure(error),

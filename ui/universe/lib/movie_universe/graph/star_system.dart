@@ -5,10 +5,12 @@ import 'package:universe_ui/movie_universe/map/orbit_layout.dart';
 
 /// A planet of a system, on the orbit of its [rank].
 class OrbitingPlanet {
-  final Movie movie;
+  final SimilarMovie similar;
   final int rank;
 
-  const OrbitingPlanet({required this.movie, required this.rank});
+  const OrbitingPlanet({required this.similar, required this.rank});
+
+  Movie get movie => similar.movie;
 }
 
 /// One movie as a star, its similar movies in orbit, placed at [center] in
@@ -23,10 +25,10 @@ class StarSystem {
   /// How many jumps away from the origin.
   final int hops;
 
-  /// How many orbits the system was laid out with. Planets that left to
-  /// become systems of their own keep their orbit empty, so the others do
-  /// not move.
-  final int orbitCount;
+  /// The orbits the system was laid out with, one per rank. Planets that
+  /// left to become systems of their own keep their orbit empty, so the
+  /// others do not move.
+  final List<OrbitSlot> orbits;
 
   const StarSystem({
     required this.star,
@@ -34,10 +36,10 @@ class StarSystem {
     required this.planets,
     required this.parentStarId,
     required this.hops,
-    required this.orbitCount,
+    required this.orbits,
   });
 
-  double get extent => OrbitLayout.extent(orbitCount);
+  double get extent => OrbitLayout.extent(orbits);
 
   StarSystem withoutPlanet(int movieId) => StarSystem(
     star: star,
@@ -48,6 +50,6 @@ class StarSystem {
     ],
     parentStarId: parentStarId,
     hops: hops,
-    orbitCount: orbitCount,
+    orbits: orbits,
   );
 }

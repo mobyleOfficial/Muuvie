@@ -2,7 +2,6 @@ import 'package:common/common.dart';
 import 'package:flame/components.dart';
 import 'package:movies/movies.dart';
 import 'package:universe_ui/movie_universe/graph/star_system.dart';
-import 'package:universe_ui/movie_universe/map/orbit_layout.dart';
 import 'package:universe_ui/movie_universe/map/orbit_rings.dart';
 import 'package:universe_ui/movie_universe/map/planet_body.dart';
 import 'package:universe_ui/movie_universe/map/star_body.dart';
@@ -22,7 +21,7 @@ class SystemComponent extends PositionComponent {
     required this.animate,
   }) : star = system.star,
        super(position: Vector2(system.center.dx, system.center.dy)) {
-    final slots = OrbitLayout.slots(system.orbitCount);
+    final slots = system.orbits;
     add(OrbitRings(slots: slots, color: palette.orbit));
     add(
       StarBody(
