@@ -477,7 +477,7 @@
   "importPreviewWatchlist": "{count, plural, =1{1 película → Quiero ver} other{{count} películas → Quiero ver}}",
   "importPreviewFavorites": "{count, plural, =1{1 favorita queda como Favorito} other{{count} favoritas quedan como Favorito}}",
   "importPreviewLogs": "{count, plural, =1{1 sesión con fecha} other{{count} sesiones con fecha}}",
-  "importPreviewReviews": "{count, plural, =1{1 reseña se vuelve valoración} other{{count} reseñas se vuelven valoraciones}}",
+  "importPreviewReviews": "{count, plural, =1{1 reseña} other{{count} reseñas}}",
   "importPreviewLists": "Listas → estantes",
   "importPreviewNoLists": "No se encontraron listas en tu perfil.",
   "importPreviewVisibility": "Quién ve los estantes y sesiones nuevos",

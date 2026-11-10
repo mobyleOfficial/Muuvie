@@ -2854,10 +2854,10 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 dated session} other{{count} dated sessions}}'**
   String importPreviewLogs(int count);
 
-  /// Import preview and report count of reviews that become the rating's review
+  /// Import preview and report count of imported reviews (on the rating, or on a session without one)
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 review becomes a rating} other{{count} reviews become ratings}}'**
+  /// **'{count, plural, =1{1 review} other{{count} reviews}}'**
   String importPreviewReviews(int count);
 
   /// Header of the lists to choose on the preview

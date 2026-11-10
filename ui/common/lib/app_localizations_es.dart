@@ -1595,8 +1595,8 @@ class AppLocalizationsEs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count reseñas se vuelven valoraciones',
-      one: '1 reseña se vuelve valoración',
+      other: '$count reseñas',
+      one: '1 reseña',
     );
     return '$_temp0';
   }
