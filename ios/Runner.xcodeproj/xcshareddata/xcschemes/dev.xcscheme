@@ -25,6 +25,22 @@
          <ExecutionAction
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
+               title = "Run Prepare Flutter Framework Script"
+               scriptText = "/bin/sh &quot;$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh&quot; prepare&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "97C146ED1CF9000F007C117D"
+                     BuildableName = "Runner.app"
+                     BlueprintName = "Runner"
+                     ReferencedContainer = "container:Runner.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
                title = "Load env variables"
                scriptText = "ENV_FILE=&quot;$FLUTTER_APPLICATION_PATH/env&quot;&#10;if [ -f &quot;$ENV_FILE&quot; ]; then&#10;  EXTRA_DEFINES=&quot;&quot;&#10;  while IFS=&apos;=&apos; read -r key value || [ -n &quot;$key&quot; ]; do&#10;    [ -z &quot;$key&quot; ] &amp;&amp; continue&#10;    [[ &quot;$key&quot; =~ ^# ]] &amp;&amp; continue&#10;    ENCODED=$(printf &apos;%s&apos; &quot;$key=$value&quot; | base64 | tr -d &apos;\n&apos;)&#10;    if [ -z &quot;$EXTRA_DEFINES&quot; ]; then&#10;      EXTRA_DEFINES=&quot;$ENCODED&quot;&#10;    else&#10;      EXTRA_DEFINES=&quot;$EXTRA_DEFINES,$ENCODED&quot;&#10;    fi&#10;  done &lt; &quot;$ENV_FILE&quot;&#10;  GENERATED=&quot;$SRCROOT/Flutter/Generated.xcconfig&quot;&#10;  if [ -f &quot;$GENERATED&quot; ] &amp;&amp; [ -n &quot;$EXTRA_DEFINES&quot; ]; then&#10;    if grep -q &quot;^DART_DEFINES=&quot; &quot;$GENERATED&quot;; then&#10;      sed -i &apos;&apos; &quot;s|^DART_DEFINES=\(.*\)|DART_DEFINES=\1,$EXTRA_DEFINES|&quot; &quot;$GENERATED&quot;&#10;    else&#10;      echo &quot;DART_DEFINES=$EXTRA_DEFINES&quot; &gt;&gt; &quot;$GENERATED&quot;&#10;    fi&#10;  fi&#10;fi">
                <EnvironmentBuildable>
