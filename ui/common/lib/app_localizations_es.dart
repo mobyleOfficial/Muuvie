@@ -1512,6 +1512,13 @@ class AppLocalizationsEs extends AppLocalizations {
       'Los archivos son demasiado grandes. Sube como máximo 10 archivos, hasta 10 MB en total.';
 
   @override
+  String get importFileAmbiguous =>
+      'No sabemos si este CSV es de películas vistas o de pendientes. Renómbralo a watched.csv o watchlist.csv, o sube el .zip de la exportación.';
+
+  @override
+  String get importFileEmpty => 'No encontramos películas en este archivo.';
+
+  @override
   String get importActionError => 'Algo salió mal. Inténtalo de nuevo.';
 
   @override
@@ -1579,6 +1586,17 @@ class AppLocalizationsEs extends AppLocalizations {
       locale: localeName,
       other: '$count sesiones con fecha',
       one: '1 sesión con fecha',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importPreviewReviews(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reseñas se vuelven valoraciones',
+      one: '1 reseña se vuelve valoración',
     );
     return '$_temp0';
   }

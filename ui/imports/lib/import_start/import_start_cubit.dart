@@ -83,14 +83,18 @@ class ImportStartCubit extends Cubit<ImportStartState> {
         history: [data, ...history],
         started: data,
       ),
-      Failure(:final error) => ImportStartSuccess(
+      Failure(:final error, :final code) => ImportStartSuccess(
         history: history,
-        failure: switch (error) {
-          AppError.conflict => ImportStartFailure.inProgress,
+        // The server's code first: several file errors share the 400.
+        failure: switch ((error, code)) {
+          (_, 'ambiguous_file') => ImportStartFailure.ambiguousFile,
+          (_, 'empty_file') => ImportStartFailure.emptyFile,
+          (_, 'file_too_large') => ImportStartFailure.tooLarge,
+          (AppError.conflict, _) => ImportStartFailure.inProgress,
           // From the login, a 400 is a bad username, not a file.
-          AppError.badRequest when method == 'file' =>
+          (AppError.badRequest, _) when method == 'file' =>
             ImportStartFailure.unreadableFile,
-          AppError.payloadTooLarge => ImportStartFailure.tooLarge,
+          (AppError.payloadTooLarge, _) => ImportStartFailure.tooLarge,
           _ => ImportStartFailure.other,
         },
       ),

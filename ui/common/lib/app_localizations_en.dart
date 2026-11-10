@@ -1492,6 +1492,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'The files are too big. Upload at most 10 files, up to 10 MB in total.';
 
   @override
+  String get importFileAmbiguous =>
+      'We can\'t tell whether this CSV is your watched movies or your watchlist. Rename it to watched.csv or watchlist.csv, or upload the export .zip.';
+
+  @override
+  String get importFileEmpty => 'We found no movies in this file.';
+
+  @override
   String get importActionError => 'Something went wrong. Try again.';
 
   @override
@@ -1559,6 +1566,17 @@ class AppLocalizationsEn extends AppLocalizations {
       locale: localeName,
       other: '$count dated sessions',
       one: '1 dated session',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importPreviewReviews(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reviews become ratings',
+      one: '1 review becomes a rating',
     );
     return '$_temp0';
   }

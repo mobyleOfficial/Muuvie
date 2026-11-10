@@ -21,6 +21,12 @@ enum ImportStartFailure {
   /// The server could not read an uploaded file (wrong file or wrong origin).
   unreadableFile,
 
+  /// A loose Letterboxd CSV that could be watched or watchlist.
+  ambiguousFile,
+
+  /// The files have no movies.
+  emptyFile,
+
   /// The uploaded files are over the server's limits.
   tooLarge,
   other,

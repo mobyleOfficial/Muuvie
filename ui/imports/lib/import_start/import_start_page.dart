@@ -109,6 +109,9 @@ class _ImportStartPageState extends State<ImportStartPage> {
                 ImportStartFailure.inProgress => l10n?.importInProgress ?? '',
                 ImportStartFailure.unreadableFile =>
                   l10n?.importFileUnreadable ?? '',
+                ImportStartFailure.ambiguousFile =>
+                  l10n?.importFileAmbiguous ?? '',
+                ImportStartFailure.emptyFile => l10n?.importFileEmpty ?? '',
                 ImportStartFailure.tooLarge => l10n?.importFileTooLarge ?? '',
                 ImportStartFailure.other => l10n?.importStartError ?? '',
               }),

@@ -78,6 +78,7 @@ abstract final class RemoteImports {
     watchlist: _int(json['watchlist']),
     favorites: _int(json['favorites']),
     logs: _int(json['logs']),
+    reviews: _int(json['reviews']),
     lists: _list(json['lists'])
         .map(
           (list) => ImportPreviewList(
@@ -98,6 +99,7 @@ abstract final class RemoteImports {
     logs: _int(json['logs']),
     unmatched: _int(json['unmatched']),
     keptFromMuuvie: _int(json['keptFromMuuvie']),
+    reviews: _int(json['reviews']),
   );
 
   static int _int(Object? value, {int fallback = 0}) =>

@@ -70,12 +70,16 @@ class ImportPreview {
   final int logs;
   final List<ImportPreviewList> lists;
 
+  /// Reviews that become the review of the movie's rating.
+  final int reviews;
+
   const ImportPreview({
     required this.watched,
     required this.watchlist,
     required this.favorites,
     required this.logs,
     this.lists = const [],
+    this.reviews = 0,
   });
 }
 
@@ -92,6 +96,7 @@ class ImportCounts {
 
   /// Movies the user already had in the Muuvie, left as they were.
   final int keptFromMuuvie;
+  final int reviews;
 
   const ImportCounts({
     this.watched = 0,
@@ -101,6 +106,7 @@ class ImportCounts {
     this.logs = 0,
     this.unmatched = 0,
     this.keptFromMuuvie = 0,
+    this.reviews = 0,
   });
 }
 

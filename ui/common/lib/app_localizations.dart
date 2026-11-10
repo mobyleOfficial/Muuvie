@@ -2788,6 +2788,18 @@ abstract class AppLocalizations {
   /// **'The files are too big. Upload at most 10 files, up to 10 MB in total.'**
   String get importFileTooLarge;
 
+  /// Snackbar when a loose Letterboxd CSV could be watched or watchlist
+  ///
+  /// In en, this message translates to:
+  /// **'We can't tell whether this CSV is your watched movies or your watchlist. Rename it to watched.csv or watchlist.csv, or upload the export .zip.'**
+  String get importFileAmbiguous;
+
+  /// Snackbar when the uploaded import files have no movies
+  ///
+  /// In en, this message translates to:
+  /// **'We found no movies in this file.'**
+  String get importFileEmpty;
+
   /// Snackbar when confirming or cancelling fails
   ///
   /// In en, this message translates to:
@@ -2841,6 +2853,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 dated session} other{{count} dated sessions}}'**
   String importPreviewLogs(int count);
+
+  /// Import preview and report count of reviews that become the rating's review
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 review becomes a rating} other{{count} reviews become ratings}}'**
+  String importPreviewReviews(int count);
 
   /// Header of the lists to choose on the preview
   ///

@@ -51,11 +51,17 @@ class DioHttpClient implements HttpClient {
       final response = await call();
       return Success(response.data as T);
     } on DioException catch (e) {
-      return Failure(_mapDioError(e));
+      return Failure(_mapDioError(e), code: _errorCode(e.response?.data));
     } catch (_) {
       return const Failure(AppError.unknown);
     }
   }
+
+  /// The `error` key of the v1 error envelope: `{ error, message, details? }`.
+  String? _errorCode(Object? body) => switch (body) {
+    {'error': final String code} => code,
+    _ => null,
+  };
 
   AppError _mapDioError(DioException e) => switch (e.type) {
     DioExceptionType.connectionError => AppError.network,

@@ -109,6 +109,31 @@ void main() {
     await cubit.close();
   });
 
+  test('the server code tells the file errors apart', () async {
+    final cubit = build();
+    await cubit.load();
+
+    Future<ImportStartFailure?> failureFor(String code) async {
+      repository.startResult = Failure(AppError.badRequest, code: code);
+      await cubit.startFromFiles(
+        source: ImportSource.letterboxd,
+        files: [_zip],
+      );
+      return (cubit.state as ImportStartSuccess).failure;
+    }
+
+    expect(
+      await failureFor('ambiguous_file'),
+      ImportStartFailure.ambiguousFile,
+    );
+    expect(await failureFor('empty_file'), ImportStartFailure.emptyFile);
+    expect(
+      await failureFor('unsupported_file'),
+      ImportStartFailure.unreadableFile,
+    );
+    await cubit.close();
+  });
+
   test('a 400 from the Filmow login is not blamed on a file', () async {
     final cubit = build();
     await cubit.load();
