@@ -823,7 +823,7 @@ abstract class AppLocalizations {
   /// Notice on an imported movie the backend could not match with TMDB
   ///
   /// In en, this message translates to:
-  /// **'We couldn't find this movie in our catalog. The details come from your import (Filmow or Letterboxd) and may be incomplete.'**
+  /// **'We couldn\'t find this movie in our catalog. The details come from your import (Filmow or Letterboxd) and may be incomplete.'**
   String get movieDetailUnmatched;
 
   /// Section title for movie cast
@@ -2791,7 +2791,7 @@ abstract class AppLocalizations {
   /// Snackbar when a loose Letterboxd CSV could be watched or watchlist
   ///
   /// In en, this message translates to:
-  /// **'We can't tell whether this CSV is your watched movies or your watchlist. Rename it to watched.csv or watchlist.csv, or upload the export .zip.'**
+  /// **'We can\'t tell whether this CSV is your watched movies or your watchlist. Rename it to watched.csv or watchlist.csv, or upload the export .zip.'**
   String get importFileAmbiguous;
 
   /// Snackbar when the uploaded import files have no movies

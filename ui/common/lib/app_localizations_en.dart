@@ -1690,7 +1690,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importUnmatchedEmpty => 'Every movie was matched.';
 
   @override
-  String importFinishedSnack(String source) => 'Your $source import is done';
+  String importFinishedSnack(String source) {
+    return 'Your $source import is done';
+  }
 
   @override
   String get importSeeReport => 'See report';

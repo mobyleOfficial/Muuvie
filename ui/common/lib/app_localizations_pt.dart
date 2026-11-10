@@ -1712,8 +1712,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get importUnmatchedEmpty => 'Todos os filmes foram encontrados.';
 
   @override
-  String importFinishedSnack(String source) =>
-      'Sua importação do $source terminou';
+  String importFinishedSnack(String source) {
+    return 'Sua importação do $source terminou';
+  }
 
   @override
   String get importSeeReport => 'Ver relatório';
