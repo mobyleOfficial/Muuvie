@@ -29,6 +29,11 @@ dependencies:
     path: ../shelves
   watch_logs:
     path: ../../features/watch_logs
+  gamification:
+    path: ../../features/gamification
+  gamification_ui:
+    path: ../gamification
+  share_plus: ^11.0.0
   flame: ^1.38.2
 
 dev_dependencies:

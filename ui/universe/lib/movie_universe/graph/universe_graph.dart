@@ -103,6 +103,19 @@ class UniverseGraph {
     return UniverseGraph._(originId, systems);
   }
 
+  /// The stars from the origin to the system of [starId], both included:
+  /// the route the user travelled. Empty when there is no such system.
+  List<Movie> routeTo(int starId) {
+    final route = <Movie>[];
+    StarSystem? system = _systems[starId];
+    while (system != null) {
+      route.insert(0, system.star);
+      final parentId = system.parentStarId;
+      system = parentId == null ? null : _systems[parentId];
+    }
+    return route;
+  }
+
   bool contains(int movieId) =>
       _systems.containsKey(movieId) || orbitedBy(movieId) != null;
 

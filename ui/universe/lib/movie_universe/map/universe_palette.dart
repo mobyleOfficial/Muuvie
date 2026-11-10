@@ -19,6 +19,9 @@ class UniversePalette {
   /// Laid over the planets a filter leaves out.
   final Color fade;
 
+  /// The lines of a constellation.
+  final Color constellation;
+
   /// Faint cloud colors, picked per chunk.
   final List<Color> nebulae;
 
@@ -34,6 +37,7 @@ class UniversePalette {
     this.watchlistBadge = const Color(0xFFE0A030),
     this.badgeGlyph = const Color(0xFF05060F),
     this.fade = const Color(0xC005060F),
+    this.constellation = const Color(0xCCB3E5FC),
     this.nebulae = const [
       Color(0x1A6A4CFF),
       Color(0x1A2F8FFF),

@@ -6657,6 +6657,95 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No planet of this system matches the filters.'**
   String get universeFilterNoMatch;
+
+  /// Vaquinha name
+  ///
+  /// In en, this message translates to:
+  /// **'Rocket'**
+  String get petFoguete;
+
+  /// Vaquinha name
+  ///
+  /// In en, this message translates to:
+  /// **'Astronaut'**
+  String get petAstronauta;
+
+  /// Unlock rule
+  ///
+  /// In en, this message translates to:
+  /// **'Visit {count} systems in the Movie Universe'**
+  String petRuleUniverse(int count);
+
+  /// Universe: shares the route from the origin to the system in focus
+  ///
+  /// In en, this message translates to:
+  /// **'Share route'**
+  String get universeShareRoute;
+
+  /// Universe: the shared text of a route; path is the titles joined by arrows
+  ///
+  /// In en, this message translates to:
+  /// **'I went from {origin} to {destination} in {hops, plural, =1{1 jump} other{{hops} jumps}} in Muuvie\'s Movie Universe: {path}'**
+  String universeShareRouteText(
+    String origin,
+    String destination,
+    int hops,
+    String path,
+  );
+
+  /// Universe filter: public shelves section
+  ///
+  /// In en, this message translates to:
+  /// **'Constellations'**
+  String get universeConstellations;
+
+  /// Universe filter: explains constellations
+  ///
+  /// In en, this message translates to:
+  /// **'Public shelves with {title}. Their movies light up and join on the map.'**
+  String universeConstellationsHelp(String title);
+
+  /// Universe filter: no public shelf holds the star
+  ///
+  /// In en, this message translates to:
+  /// **'No public shelf has {title} yet.'**
+  String universeConstellationsEmpty(String title);
+
+  /// Universe filter: public shelves failed to load
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the shelves.'**
+  String get universeConstellationsError;
+
+  /// Universe filter: one public shelf
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · by {owner}'**
+  String universeConstellationLabel(String name, String owner);
+
+  /// Universe: a shelf's movies failed to load
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t draw this constellation.'**
+  String get universeConstellationError;
+
+  /// Universe: the constellation shown and how many planets of the system are in it
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {count} of {total} planets'**
+  String universeConstellationSummary(String name, int count, int total);
+
+  /// Universe: an explorer bichinho was unlocked
+  ///
+  /// In en, this message translates to:
+  /// **'You unlocked the {name} vaquinha exploring the universe!'**
+  String universeUnlockedPet(String name);
+
+  /// Universe: opens the shelter after an unlock
+  ///
+  /// In en, this message translates to:
+  /// **'See'**
+  String get universeSeePet;
 }
 
 class _AppLocalizationsDelegate

@@ -4,6 +4,8 @@ import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies/movies.dart';
+import 'package:shelves/shelves.dart' show PublicShelf;
+import 'package:universe_ui/movie_universe/filter/constellation_shelves.dart';
 import 'package:universe_ui/movie_universe/filter/universe_filter.dart';
 import 'package:universe_ui/movie_universe/graph/star_system.dart';
 import 'package:universe_ui/movie_universe/map/universe_map.dart';
@@ -18,6 +20,7 @@ class MovieUniverseScreen extends StatelessWidget {
   final ValueChanged<Movie> onOpenMovie;
   final ValueChanged<Movie> onAddToWatchlist;
   final ValueChanged<Movie> onAddToShelves;
+  final VoidCallback onShareRoute;
 
   const MovieUniverseScreen({
     super.key,
@@ -25,23 +28,35 @@ class MovieUniverseScreen extends StatelessWidget {
     required this.onOpenMovie,
     required this.onAddToWatchlist,
     required this.onAddToShelves,
+    required this.onShareRoute,
   });
 
-  void _showFilters(BuildContext context) => showModalBottomSheet<void>(
-    context: context,
-    showDragHandle: true,
-    isScrollControlled: true,
-    builder: (_) => BlocBuilder<MovieUniverseCubit, MovieUniverseState>(
-      bloc: cubit,
-      builder: (_, state) => state is MovieUniverseExploring
-          ? _FilterSheet(
-              filter: state.filter,
-              options: UniverseFilterOptions.of(state.graph),
-              onChanged: cubit.setFilter,
-            )
-          : const SizedBox.shrink(),
-    ),
-  );
+  void _showFilters(BuildContext context) {
+    cubit.loadConstellations();
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (_) => BlocBuilder<MovieUniverseCubit, MovieUniverseState>(
+        bloc: cubit,
+        builder: (_, state) => state is MovieUniverseExploring
+            ? _FilterSheet(
+                filter: state.filter,
+                options: UniverseFilterOptions.of(state.graph),
+                onChanged: cubit.setFilter,
+                starTitle: state.currentSystem.star.displayTitle,
+                constellations:
+                    state.constellationShelves?.starId == state.currentStarId
+                    ? state.constellationShelves
+                    : null,
+                buildingConstellationId: state.buildingConstellationId,
+                onConstellation: cubit.showConstellation,
+                onRetryConstellations: cubit.loadConstellations,
+              )
+            : const SizedBox.shrink(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +110,7 @@ class MovieUniverseScreen extends StatelessWidget {
             onOpenMovie: onOpenMovie,
             onTravel: cubit.travelTo,
             onBackToOrigin: cubit.backToOrigin,
+            onShareRoute: onShareRoute,
             onClearFilter: () => cubit.setFilter(UniverseFilter.none),
             onAddToWatchlist: onAddToWatchlist,
             onAddToShelves: onAddToShelves,
@@ -129,9 +145,11 @@ class MovieUniverseScreen extends StatelessWidget {
                       _HopsBar(
                         hops: state.currentSystem.hops,
                         onBackToOrigin: cubit.backToOrigin,
+                        onShareRoute: onShareRoute,
                       ),
                     if (state.filter.isActive)
                       _FilterBar(
+                        filter: state.filter,
                         matching: state.matchingPlanets.length,
                         total: state.currentSystem.planets.length,
                         onClear: () => cubit.setFilter(UniverseFilter.none),
@@ -208,8 +226,13 @@ class _Message extends StatelessWidget {
 class _HopsBar extends StatelessWidget {
   final int hops;
   final VoidCallback onBackToOrigin;
+  final VoidCallback onShareRoute;
 
-  const _HopsBar({required this.hops, required this.onBackToOrigin});
+  const _HopsBar({
+    required this.hops,
+    required this.onBackToOrigin,
+    required this.onShareRoute,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -222,6 +245,11 @@ class _HopsBar extends StatelessWidget {
             const ExcludeSemantics(child: Icon(Icons.route_outlined, size: 20)),
             const SizedBox(width: 8),
             Expanded(child: Text(l10n?.universeHops(hops) ?? '')),
+            IconButton(
+              tooltip: l10n?.universeShareRoute,
+              icon: const Icon(Icons.share_outlined),
+              onPressed: onShareRoute,
+            ),
             TextButton.icon(
               onPressed: onBackToOrigin,
               icon: const Icon(Icons.home_outlined),
@@ -382,11 +410,13 @@ class _StatusLabel extends StatelessWidget {
 /// How many planets of the system in focus the filter keeps, and the way to
 /// clear it.
 class _FilterBar extends StatelessWidget {
+  final UniverseFilter filter;
   final int matching;
   final int total;
   final VoidCallback onClear;
 
   const _FilterBar({
+    required this.filter,
     required this.matching,
     required this.total,
     required this.onClear,
@@ -403,7 +433,16 @@ class _FilterBar extends StatelessWidget {
             const ExcludeSemantics(child: Icon(Icons.filter_list, size: 20)),
             const SizedBox(width: 8),
             Expanded(
-              child: Text(l10n?.universeFilterSummary(matching, total) ?? ''),
+              child: Text(
+                (filter.constellation != null
+                        ? l10n?.universeConstellationSummary(
+                            filter.constellation!.name,
+                            matching,
+                            total,
+                          )
+                        : l10n?.universeFilterSummary(matching, total)) ??
+                    '',
+              ),
             ),
             TextButton(
               onPressed: onClear,
@@ -416,17 +455,28 @@ class _FilterBar extends StatelessWidget {
   }
 }
 
-/// The constellations: only the unwatched, one decade, one genre. Each
-/// change applies at once, so the map behind updates as the user picks.
+/// What stands out: only the unwatched, one decade, one genre, and one
+/// public shelf holding the star in focus as a constellation. Each change
+/// applies at once, so the map behind updates as the user picks.
 class _FilterSheet extends StatelessWidget {
   final UniverseFilter filter;
   final UniverseFilterOptions options;
   final ValueChanged<UniverseFilter> onChanged;
+  final String starTitle;
+  final ConstellationShelves? constellations;
+  final int? buildingConstellationId;
+  final ValueChanged<PublicShelf> onConstellation;
+  final VoidCallback onRetryConstellations;
 
   const _FilterSheet({
     required this.filter,
     required this.options,
     required this.onChanged,
+    required this.starTitle,
+    required this.constellations,
+    required this.buildingConstellationId,
+    required this.onConstellation,
+    required this.onRetryConstellations,
   });
 
   @override
@@ -498,6 +548,52 @@ class _FilterSheet extends StatelessWidget {
                     onSelected: (_) => onChanged(filter.withGenre(genre)),
                   ),
               ]),
+            section(l10n?.universeConstellations ?? '', [
+              Text(
+                l10n?.universeConstellationsHelp(starTitle) ?? '',
+                style: textTheme.bodySmall,
+              ),
+              ...switch (constellations) {
+                null || ConstellationShelvesLoading() => [
+                  const SizedBox.square(
+                    dimension: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ],
+                ConstellationShelvesFailed() => [
+                  Text(l10n?.universeConstellationsError ?? ''),
+                  TextButton(
+                    onPressed: onRetryConstellations,
+                    child: Text(l10n?.retry ?? ''),
+                  ),
+                ],
+                ConstellationShelvesLoaded(:final shelves)
+                    when shelves.isEmpty =>
+                  [Text(l10n?.universeConstellationsEmpty(starTitle) ?? '')],
+                ConstellationShelvesLoaded(:final shelves) => [
+                  for (final shelf in shelves)
+                    FilterChip(
+                      avatar: buildingConstellationId == shelf.shelf.id
+                          ? const SizedBox.square(
+                              dimension: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : null,
+                      label: Text(
+                        l10n?.universeConstellationLabel(
+                              shelf.shelf.name,
+                              shelf.ownerName,
+                            ) ??
+                            '',
+                      ),
+                      selected: filter.constellation?.shelfId == shelf.shelf.id,
+                      onSelected: buildingConstellationId == null
+                          ? (_) => onConstellation(shelf)
+                          : null,
+                    ),
+                ],
+              },
+            ]),
             if (filter.isActive)
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
@@ -521,6 +617,7 @@ class _UniverseList extends StatelessWidget {
   final ValueChanged<Movie> onOpenMovie;
   final ValueChanged<Movie> onTravel;
   final VoidCallback onBackToOrigin;
+  final VoidCallback onShareRoute;
   final VoidCallback onClearFilter;
   final ValueChanged<Movie> onAddToWatchlist;
   final ValueChanged<Movie> onAddToShelves;
@@ -530,6 +627,7 @@ class _UniverseList extends StatelessWidget {
     required this.onOpenMovie,
     required this.onTravel,
     required this.onBackToOrigin,
+    required this.onShareRoute,
     required this.onClearFilter,
     required this.onAddToWatchlist,
     required this.onAddToShelves,
@@ -547,12 +645,17 @@ class _UniverseList extends StatelessWidget {
         if (system.hops > 0)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: _HopsBar(hops: system.hops, onBackToOrigin: onBackToOrigin),
+            child: _HopsBar(
+              hops: system.hops,
+              onBackToOrigin: onBackToOrigin,
+              onShareRoute: onShareRoute,
+            ),
           ),
         if (state.filter.isActive)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: _FilterBar(
+              filter: state.filter,
               matching: planets.length,
               total: system.planets.length,
               onClear: onClearFilter,

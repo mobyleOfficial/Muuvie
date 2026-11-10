@@ -4,10 +4,15 @@ import 'package:core/core.dart';
 import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gamification/gamification.dart' show RecordUniverseVisits;
+import 'package:gamification_ui/gamification_router.dart';
+import 'package:gamification_ui/widgets/gamification_labels.dart';
 import 'package:get_it/get_it.dart';
 import 'package:movies/movies.dart';
 import 'package:movies_ui/movie_detail/movie_detail_router.dart';
-import 'package:shelves/shelves.dart' show AddMovieToWatchlist;
+import 'package:share_plus/share_plus.dart';
+import 'package:shelves/shelves.dart'
+    show AddMovieToWatchlist, GetPublicShelvesWithMovie, GetShelfMovies;
 import 'package:shelves_ui/shelves_router.dart';
 import 'package:watch_logs/watch_logs.dart' show GetMovieWatchState;
 import 'package:universe_ui/movie_universe/movie_universe_bloc.dart';
@@ -38,6 +43,9 @@ class _MovieUniversePageState extends State<MovieUniversePage> {
     getSimilarMovies: GetIt.I<GetSimilarMovies>(),
     addMovieToWatchlist: GetIt.I<AddMovieToWatchlist>(),
     getMovieWatchState: GetIt.I<GetMovieWatchState>(),
+    recordUniverseVisits: GetIt.I<RecordUniverseVisits>(),
+    getPublicShelvesWithMovie: GetIt.I<GetPublicShelvesWithMovie>(),
+    getShelfMovies: GetIt.I<GetShelfMovies>(),
     origin: Movie(
       id: widget.movieId,
       title: widget.movieTitle,
@@ -111,23 +119,62 @@ class _MovieUniversePageState extends State<MovieUniversePage> {
     );
   }
 
+  /// The route from the origin to the system in focus, as text to share.
+  Future<void> _shareRoute() async {
+    final route = _cubit.route;
+    if (route.length < 2) return;
+    final l10n = AppLocalizations.of(context);
+    final text = l10n?.universeShareRouteText(
+      route.first.displayTitle,
+      route.last.displayTitle,
+      route.length - 1,
+      route.map((movie) => movie.displayTitle).join(' → '),
+    );
+    if (text == null) return;
+    await SharePlus.instance.share(ShareParams(text: text));
+  }
+
+  /// What the universe says once: a failed jump or constellation, and the
+  /// explorer bichinhos just unlocked.
+  void _announce(BuildContext context, MovieUniverseExploring state) {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    if (state.failedTravel case final failed?) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n?.universeTravelError(failed.displayTitle) ?? ''),
+        ),
+      );
+    }
+    if (state.failedConstellation) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n?.universeConstellationError ?? '')),
+      );
+    }
+    for (final slug in state.unlockedPets) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n?.universeUnlockedPet(petName(l10n, slug)) ?? ''),
+          action: SnackBarAction(
+            label: l10n?.universeSeePet ?? '',
+            onPressed: () => context.router.root.push(const ShelterRoute()),
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) =>
       BlocListener<MovieUniverseCubit, MovieUniverseState>(
         bloc: _cubit,
         listenWhen: (_, state) =>
-            state is MovieUniverseExploring && state.failedTravel != null,
-        listener: (context, state) {
-          final failed = (state as MovieUniverseExploring).failedTravel!;
-          final l10n = AppLocalizations.of(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                l10n?.universeTravelError(failed.displayTitle) ?? '',
-              ),
-            ),
-          );
-        },
+            state is MovieUniverseExploring &&
+            (state.failedTravel != null ||
+                state.failedConstellation ||
+                state.unlockedPets.isNotEmpty),
+        listener: (context, state) =>
+            _announce(context, state as MovieUniverseExploring),
         child: MovieUniverseScreen(
           cubit: _cubit,
           onOpenMovie: (movie) => context.router.push(
@@ -135,6 +182,7 @@ class _MovieUniversePageState extends State<MovieUniversePage> {
           ),
           onAddToWatchlist: _addToWatchlist,
           onAddToShelves: _addToShelves,
+          onShareRoute: _shareRoute,
         ),
       );
 }

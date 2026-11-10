@@ -3,10 +3,13 @@ import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gamification/gamification.dart';
 import 'package:movies/movies.dart';
 import 'package:shelves/shelves.dart';
 import 'package:universe_ui/universe_ui.dart';
 import 'package:watch_logs/watch_logs.dart';
+
+import '../../helpers/fake_gamification_repository.dart';
 
 /// The list of the universe and its filters, as a screen reader user gets
 /// them: the map itself is a canvas, so the list is where every planet and
@@ -61,6 +64,21 @@ class _UnusedShelvesRepository implements ShelvesRepository {
       throw UnimplementedError('${invocation.memberName}');
 }
 
+/// No public shelf holds any movie.
+class _NoShelves implements ShelvesRepository {
+  @override
+  Future<Result<Paged<PublicShelf>>> getPublicShelvesWithMovie({
+    required int movieId,
+    required int page,
+  }) async => const Success(
+    Paged(items: [], page: 1, totalPages: 1, totalResults: 0, hasNext: false),
+  );
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw UnimplementedError('${invocation.memberName}');
+}
+
 class _UnusedWatchLogsRepository implements WatchLogsRepository {
   @override
   dynamic noSuchMethod(Invocation invocation) =>
@@ -75,6 +93,9 @@ Future<MovieUniverseCubit> _pumpList(
     getSimilarMovies: GetSimilarMovies(_FakeMoviesRepository()),
     addMovieToWatchlist: AddMovieToWatchlist(_UnusedShelvesRepository()),
     getMovieWatchState: GetMovieWatchState(_UnusedWatchLogsRepository()),
+    recordUniverseVisits: RecordUniverseVisits(FakeGamificationRepository()),
+    getPublicShelvesWithMovie: GetPublicShelvesWithMovie(_NoShelves()),
+    getShelfMovies: GetShelfMovies(_NoShelves()),
     origin: const Movie(id: 7, title: 'Suspiria', posterPath: ''),
     prefetchedPlanets: 0,
   );
@@ -95,6 +116,7 @@ Future<MovieUniverseCubit> _pumpList(
         onOpenMovie: (_) {},
         onAddToWatchlist: (_) {},
         onAddToShelves: (_) {},
+        onShareRoute: () {},
       ),
     ),
   );
@@ -138,6 +160,11 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Anos 1980'), findsOneWidget);
       expect(find.text('Mistério'), findsOneWidget);
+      expect(find.text('Constelações'), findsOneWidget);
+      expect(
+        find.text('Nenhuma estante pública tem Suspiria ainda.'),
+        findsOneWidget,
+      );
       await _expectAccessible(tester);
 
       await tester.tap(find.text('Só os que não assisti'));

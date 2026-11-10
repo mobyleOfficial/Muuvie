@@ -1,4 +1,5 @@
 import 'package:movies/movies.dart';
+import 'package:universe_ui/movie_universe/filter/constellation_shelves.dart';
 import 'package:universe_ui/movie_universe/filter/universe_filter.dart';
 import 'package:universe_ui/movie_universe/graph/star_system.dart';
 import 'package:universe_ui/movie_universe/graph/universe_graph.dart';
@@ -19,6 +20,11 @@ final class MovieUniverseLoading extends MovieUniverseState {
 /// page can say so once. [showAsList] swaps the star map for the accessible
 /// list of the system in focus. [filter] picks the planets that stand out
 /// (phase 4).
+///
+/// Phase 5: [constellationShelves] are the public shelves offered as
+/// constellations; [buildingConstellationId] is the shelf whose movies are
+/// loading. [failedConstellation] and [unlockedPets] are said once, like
+/// [failedTravel].
 final class MovieUniverseExploring extends MovieUniverseState {
   final UniverseGraph graph;
   final int currentStarId;
@@ -27,6 +33,10 @@ final class MovieUniverseExploring extends MovieUniverseState {
   final Movie? failedTravel;
   final bool showAsList;
   final UniverseFilter filter;
+  final ConstellationShelves? constellationShelves;
+  final int? buildingConstellationId;
+  final bool failedConstellation;
+  final List<String> unlockedPets;
 
   const MovieUniverseExploring({
     required this.graph,
@@ -36,6 +46,10 @@ final class MovieUniverseExploring extends MovieUniverseState {
     this.failedTravel,
     this.showAsList = false,
     this.filter = UniverseFilter.none,
+    this.constellationShelves,
+    this.buildingConstellationId,
+    this.failedConstellation = false,
+    this.unlockedPets = const [],
   });
 
   StarSystem get currentSystem => graph.systemOf(currentStarId)!;
@@ -54,6 +68,10 @@ final class MovieUniverseExploring extends MovieUniverseState {
     Movie? Function()? failedTravel,
     bool? showAsList,
     UniverseFilter? filter,
+    ConstellationShelves? Function()? constellationShelves,
+    int? Function()? buildingConstellationId,
+    bool failedConstellation = false,
+    List<String> unlockedPets = const [],
   }) => MovieUniverseExploring(
     graph: graph ?? this.graph,
     currentStarId: currentStarId ?? this.currentStarId,
@@ -63,6 +81,15 @@ final class MovieUniverseExploring extends MovieUniverseState {
     failedTravel: failedTravel?.call(),
     showAsList: showAsList ?? this.showAsList,
     filter: filter ?? this.filter,
+    constellationShelves: constellationShelves != null
+        ? constellationShelves()
+        : this.constellationShelves,
+    buildingConstellationId: buildingConstellationId != null
+        ? buildingConstellationId()
+        : this.buildingConstellationId,
+    // Said once, like failedTravel.
+    failedConstellation: failedConstellation,
+    unlockedPets: unlockedPets,
   );
 }
 

@@ -4,6 +4,13 @@ import 'package:gamification_domain/models/models.dart';
 /// "Bichinho, missions and Caderninho" and "Watch parties and the poster
 /// game") to domain models, and the diary day back to JSON.
 abstract final class RemoteGamification {
+  static UniverseVisits universeVisits(Map<String, dynamic> json) =>
+      UniverseVisits(
+        systemsVisited: json['systemsVisited'] as int? ?? 0,
+        unlockedPets: (json['unlockedPets'] as List<dynamic>? ?? const [])
+            .cast<String>(),
+      );
+
   static PetShelter shelter(Map<String, dynamic> json) {
     final pinned = json['pinned'];
     return PetShelter(

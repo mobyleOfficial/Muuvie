@@ -1,11 +1,15 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:core/core.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gamification/gamification.dart';
 import 'package:movies/movies.dart';
 import 'package:shelves/shelves.dart';
+import 'package:universe_ui/movie_universe/filter/constellation_shelves.dart';
 import 'package:universe_ui/movie_universe/filter/universe_filter.dart';
 import 'package:universe_ui/universe_ui.dart';
 import 'package:watch_logs/watch_logs.dart';
+
+import '../../helpers/fake_gamification_repository.dart';
 
 /// Answers the similar movies set for each id (empty otherwise), or
 /// [failure] for the ids in [failingIds], and records every id asked for.
@@ -48,10 +52,51 @@ class _FakeMoviesRepository implements MoviesRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-/// "Quero ver" found as shelf 2; [fail] makes adding to it fail.
+/// "Quero ver" found as shelf 2; [fail] makes adding to it fail. Public
+/// shelves hold any movie; [shelfMovieIds] are read two per page.
 class _FakeShelvesRepository implements ShelvesRepository {
   bool fail = false;
+  bool failShelfMovies = false;
   final addedMovieIds = <int>[];
+  List<PublicShelf> publicShelves = const [];
+  Map<int, List<int>> shelfMovieIds = const {};
+
+  @override
+  Future<Result<Paged<PublicShelf>>> getPublicShelvesWithMovie({
+    required int movieId,
+    required int page,
+  }) async => Success(
+    Paged(
+      items: publicShelves,
+      page: 1,
+      totalPages: 1,
+      totalResults: publicShelves.length,
+      hasNext: false,
+    ),
+  );
+
+  @override
+  Future<Result<Paged<ShelfMovie>>> getShelfMovies({
+    required int shelfId,
+    required ShelfMovieFilter filter,
+    required int page,
+  }) async {
+    if (failShelfMovies) return const Failure(AppError.network);
+    final ids = shelfMovieIds[shelfId] ?? const [];
+    final pageIds = ids.skip((page - 1) * 2).take(2).toList();
+    return Success(
+      Paged(
+        items: [
+          for (final id in pageIds)
+            ShelfMovie(movieId: id, title: 'Filme $id', watched: false),
+        ],
+        page: page,
+        totalPages: (ids.length / 2).ceil(),
+        totalResults: ids.length,
+        hasNext: page * 2 < ids.length,
+      ),
+    );
+  }
 
   @override
   Future<Result<Paged<Shelf>>> getUserShelves({
@@ -134,12 +179,20 @@ MovieUniverseCubit _cubit(
   int prefetchedPlanets = 0,
   _FakeShelvesRepository? shelves,
   _FakeWatchLogsRepository? watchLogs,
+  FakeGamificationRepository? gamification,
 }) => MovieUniverseCubit(
   getSimilarMovies: GetSimilarMovies(repository),
   addMovieToWatchlist: AddMovieToWatchlist(shelves ?? _FakeShelvesRepository()),
   getMovieWatchState: GetMovieWatchState(
     watchLogs ?? _FakeWatchLogsRepository(),
   ),
+  recordUniverseVisits: RecordUniverseVisits(
+    gamification ?? FakeGamificationRepository(),
+  ),
+  getPublicShelvesWithMovie: GetPublicShelvesWithMovie(
+    shelves ?? _FakeShelvesRepository(),
+  ),
+  getShelfMovies: GetShelfMovies(shelves ?? _FakeShelvesRepository()),
   origin: _suspiria,
   prefetchedPlanets: prefetchedPlanets,
 );
@@ -526,4 +579,110 @@ void main() {
       },
     );
   });
+
+  group('phase 5', () {
+    test('every system opened counts as a visit, once', () async {
+      final gamification = FakeGamificationRepository();
+      final cubit = _cubit(
+        _FakeMoviesRepository(_universe),
+        gamification: gamification,
+      );
+      await cubit.load();
+      await cubit.travelTo(_inferno);
+      cubit.focusSystem(7); // going back is not a new visit
+      await pumpEventQueue();
+
+      expect(gamification.universeVisits, [
+        [7],
+        [8],
+      ]);
+      await cubit.close();
+    });
+
+    test('an explorer bichinho unlocked is said once', () async {
+      final gamification = FakeGamificationRepository()
+        ..unlockOnNextVisit = const ['foguete'];
+      final cubit = _cubit(
+        _FakeMoviesRepository(_universe),
+        gamification: gamification,
+      );
+      await cubit.load();
+      await pumpEventQueue();
+
+      expect((cubit.state as MovieUniverseExploring).unlockedPets, ['foguete']);
+      cubit.toggleView();
+      expect((cubit.state as MovieUniverseExploring).unlockedPets, isEmpty);
+      await cubit.close();
+    });
+
+    test('the route goes from the origin to the system in focus', () async {
+      final cubit = _cubit(_FakeMoviesRepository(_universe));
+      await cubit.load();
+      expect(cubit.route.map((movie) => movie.id), [7]);
+
+      await cubit.travelTo(_inferno);
+      await cubit.travelTo(_phenomena);
+
+      expect(cubit.route.map((movie) => movie.id), [7, 8, 10]);
+      await cubit.close();
+    });
+
+    test('a public shelf becomes a constellation of its planets', () async {
+      final shelves = _FakeShelvesRepository()
+        ..publicShelves = [_publicShelf(5, 'Argento')]
+        ..shelfMovieIds = {
+          5: [7, 9, 30], // the star, Tenebre and a movie not in the universe
+        };
+      final cubit = _cubit(_FakeMoviesRepository(_universe), shelves: shelves);
+      await cubit.load();
+
+      await cubit.loadConstellations();
+      final offered =
+          (cubit.state as MovieUniverseExploring).constellationShelves;
+      expect(offered, isA<ConstellationShelvesLoaded>());
+      expect(offered!.starId, 7);
+
+      await cubit.showConstellation(_publicShelf(5, 'Argento'));
+      var state = cubit.state as MovieUniverseExploring;
+      expect(state.filter.constellation?.movieIds, {7, 9, 30});
+      expect(state.matchingPlanets.map((planet) => planet.movie.id), [9]);
+      expect(state.buildingConstellationId, isNull);
+
+      // Picking it again clears it.
+      await cubit.showConstellation(_publicShelf(5, 'Argento'));
+      state = cubit.state as MovieUniverseExploring;
+      expect(state.filter.constellation, isNull);
+      await cubit.close();
+    });
+
+    test('a shelf that fails to load is said once and draws nothing', () async {
+      final shelves = _FakeShelvesRepository()..failShelfMovies = true;
+      final cubit = _cubit(_FakeMoviesRepository(_universe), shelves: shelves);
+      await cubit.load();
+
+      await cubit.showConstellation(_publicShelf(5, 'Argento'));
+
+      final state = cubit.state as MovieUniverseExploring;
+      expect(state.failedConstellation, isTrue);
+      expect(state.filter.isActive, isFalse);
+      await cubit.close();
+    });
+  });
 }
+
+PublicShelf _publicShelf(int id, String name) => PublicShelf(
+  shelf: Shelf(
+    id: id,
+    ownerId: 'bia',
+    name: name,
+    visibility: ContentVisibility.public,
+    sortMode: ShelfSort.manual,
+    pinned: false,
+    totalMovies: 0,
+    totalWatched: 0,
+    posterPaths: const [],
+    isSelf: false,
+  ),
+  ownerId: 'bia',
+  ownerName: 'Bia',
+);

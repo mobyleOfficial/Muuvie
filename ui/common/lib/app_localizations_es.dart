@@ -3953,4 +3953,73 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get universeFilterNoMatch =>
       'Ningún planeta de este sistema coincide con los filtros.';
+
+  @override
+  String get petFoguete => 'Cohete';
+
+  @override
+  String get petAstronauta => 'Astronauta';
+
+  @override
+  String petRuleUniverse(int count) {
+    return 'Visita $count sistemas en el Universo de Películas';
+  }
+
+  @override
+  String get universeShareRoute => 'Compartir ruta';
+
+  @override
+  String universeShareRouteText(
+    String origin,
+    String destination,
+    int hops,
+    String path,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hops,
+      locale: localeName,
+      other: '$hops saltos',
+      one: '1 salto',
+    );
+    return 'Fui de $origin a $destination en $_temp0 en el Universo de Películas de Muuvie: $path';
+  }
+
+  @override
+  String get universeConstellations => 'Constelaciones';
+
+  @override
+  String universeConstellationsHelp(String title) {
+    return 'Estantes públicas con $title. Sus películas se encienden y se unen en el mapa.';
+  }
+
+  @override
+  String universeConstellationsEmpty(String title) {
+    return 'Ninguna estante pública tiene $title todavía.';
+  }
+
+  @override
+  String get universeConstellationsError =>
+      'No se pudieron cargar las estantes.';
+
+  @override
+  String universeConstellationLabel(String name, String owner) {
+    return '$name · de $owner';
+  }
+
+  @override
+  String get universeConstellationError =>
+      'No se pudo armar esta constelación.';
+
+  @override
+  String universeConstellationSummary(String name, int count, int total) {
+    return '$name: $count de $total planetas';
+  }
+
+  @override
+  String universeUnlockedPet(String name) {
+    return '¡Desbloqueaste la vaquinha $name explorando el universo!';
+  }
+
+  @override
+  String get universeSeePet => 'Ver';
 }

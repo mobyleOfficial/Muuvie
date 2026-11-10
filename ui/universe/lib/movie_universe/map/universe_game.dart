@@ -6,6 +6,7 @@ import 'package:flame/game.dart';
 import 'package:movies/movies.dart';
 import 'package:universe_ui/movie_universe/filter/universe_filter.dart';
 import 'package:universe_ui/movie_universe/graph/universe_graph.dart';
+import 'package:universe_ui/movie_universe/map/constellation_lines.dart';
 import 'package:universe_ui/movie_universe/map/nebula_layer.dart';
 import 'package:universe_ui/movie_universe/map/orbit_layout.dart';
 import 'package:universe_ui/movie_universe/map/poster_image_loader.dart';
@@ -90,6 +91,8 @@ class UniverseGame extends FlameGame {
     world.add(NebulaLayer(originId: _graph.originId, colors: palette.nebulae));
     _routes = RouteLines(color: palette.route);
     world.add(_routes);
+    // Above the routes, under the systems added later.
+    world.add(ConstellationLines(color: palette.constellation));
     focusSystem(_focusedStarId, animated: false);
     // The camera is only measured once mounted: the first update streams.
     _sinceStreaming = _streamingInterval;
@@ -276,6 +279,19 @@ class UniverseGame extends FlameGame {
         body.selected = body.movie.id == movieId;
       }
     }
+  }
+
+  /// Where the planets of the constellation shown are now, system by system
+  /// in the order they were opened and planets in orbit order; empty while
+  /// no constellation is shown.
+  List<Vector2> constellationPoints() {
+    if (_filter.constellation == null) return const [];
+    return [
+      for (final system in _graph.systems)
+        if (_systems[system.star.id] case final component?)
+          for (final body in component.planets)
+            if (!body.dimmed) body.absolutePosition,
+    ];
   }
 
   /// Fades the planets [filter] leaves out, in every system on the map and

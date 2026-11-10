@@ -1,10 +1,11 @@
 import 'package:core/core.dart';
 import 'package:movies/movies.dart';
+import 'package:universe_ui/movie_universe/filter/universe_constellation.dart';
 import 'package:universe_ui/movie_universe/graph/universe_graph.dart';
 
-/// The constellations of the universe (phase 4): which planets stand out.
-/// Planets that do not match stay where they are, so the map never moves,
-/// but they fade on the map and leave the list.
+/// Which planets stand out (phases 4 and 5). Planets that do not match stay
+/// where they are, so the map never moves, but they fade on the map and
+/// leave the list.
 class UniverseFilter {
   static const none = UniverseFilter();
 
@@ -17,9 +18,18 @@ class UniverseFilter {
   /// Hides the movies the viewer already watched.
   final bool onlyUnwatched;
 
-  const UniverseFilter({this.genre, this.decade, this.onlyUnwatched = false});
+  /// A public shelf: only its movies stand out, joined by lines.
+  final UniverseConstellation? constellation;
 
-  bool get isActive => genre != null || decade != null || onlyUnwatched;
+  const UniverseFilter({
+    this.genre,
+    this.decade,
+    this.onlyUnwatched = false,
+    this.constellation,
+  });
+
+  bool get isActive =>
+      genre != null || decade != null || onlyUnwatched || constellation != null;
 
   /// A movie whose genres or year are unknown does not match a filter on
   /// them: there is nothing to show it belongs.
@@ -29,26 +39,34 @@ class UniverseFilter {
     }
     if (decade != null && decadeOf(similar.movie) != decade) return false;
     if (genre != null && !similar.genres.contains(genre)) return false;
+    final shelf = constellation;
+    if (shelf != null && !shelf.movieIds.contains(similar.movie.id)) {
+      return false;
+    }
     return true;
   }
 
-  UniverseFilter withGenre(String? genre) => UniverseFilter(
-    genre: genre,
-    decade: decade,
-    onlyUnwatched: onlyUnwatched,
+  UniverseFilter _copy({
+    String? Function()? genre,
+    int? Function()? decade,
+    bool? onlyUnwatched,
+    UniverseConstellation? Function()? constellation,
+  }) => UniverseFilter(
+    genre: genre != null ? genre() : this.genre,
+    decade: decade != null ? decade() : this.decade,
+    onlyUnwatched: onlyUnwatched ?? this.onlyUnwatched,
+    constellation: constellation != null ? constellation() : this.constellation,
   );
 
-  UniverseFilter withDecade(int? decade) => UniverseFilter(
-    genre: genre,
-    decade: decade,
-    onlyUnwatched: onlyUnwatched,
-  );
+  UniverseFilter withGenre(String? genre) => _copy(genre: () => genre);
 
-  UniverseFilter withOnlyUnwatched(bool onlyUnwatched) => UniverseFilter(
-    genre: genre,
-    decade: decade,
-    onlyUnwatched: onlyUnwatched,
-  );
+  UniverseFilter withDecade(int? decade) => _copy(decade: () => decade);
+
+  UniverseFilter withOnlyUnwatched(bool onlyUnwatched) =>
+      _copy(onlyUnwatched: onlyUnwatched);
+
+  UniverseFilter withConstellation(UniverseConstellation? constellation) =>
+      _copy(constellation: () => constellation);
 
   static int? decadeOf(Movie movie) {
     final year = int.tryParse(movie.year ?? '');
@@ -60,10 +78,12 @@ class UniverseFilter {
       other is UniverseFilter &&
       other.genre == genre &&
       other.decade == decade &&
-      other.onlyUnwatched == onlyUnwatched;
+      other.onlyUnwatched == onlyUnwatched &&
+      other.constellation?.shelfId == constellation?.shelfId;
 
   @override
-  int get hashCode => Object.hash(genre, decade, onlyUnwatched);
+  int get hashCode =>
+      Object.hash(genre, decade, onlyUnwatched, constellation?.shelfId);
 }
 
 /// The genres and decades the planets of the universe have, to offer only

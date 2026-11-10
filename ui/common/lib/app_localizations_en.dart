@@ -3919,4 +3919,71 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get universeFilterNoMatch =>
       'No planet of this system matches the filters.';
+
+  @override
+  String get petFoguete => 'Rocket';
+
+  @override
+  String get petAstronauta => 'Astronaut';
+
+  @override
+  String petRuleUniverse(int count) {
+    return 'Visit $count systems in the Movie Universe';
+  }
+
+  @override
+  String get universeShareRoute => 'Share route';
+
+  @override
+  String universeShareRouteText(
+    String origin,
+    String destination,
+    int hops,
+    String path,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hops,
+      locale: localeName,
+      other: '$hops jumps',
+      one: '1 jump',
+    );
+    return 'I went from $origin to $destination in $_temp0 in Muuvie\'s Movie Universe: $path';
+  }
+
+  @override
+  String get universeConstellations => 'Constellations';
+
+  @override
+  String universeConstellationsHelp(String title) {
+    return 'Public shelves with $title. Their movies light up and join on the map.';
+  }
+
+  @override
+  String universeConstellationsEmpty(String title) {
+    return 'No public shelf has $title yet.';
+  }
+
+  @override
+  String get universeConstellationsError => 'Couldn\'t load the shelves.';
+
+  @override
+  String universeConstellationLabel(String name, String owner) {
+    return '$name · by $owner';
+  }
+
+  @override
+  String get universeConstellationError => 'Couldn\'t draw this constellation.';
+
+  @override
+  String universeConstellationSummary(String name, int count, int total) {
+    return '$name: $count of $total planets';
+  }
+
+  @override
+  String universeUnlockedPet(String name) {
+    return 'You unlocked the $name vaquinha exploring the universe!';
+  }
+
+  @override
+  String get universeSeePet => 'See';
 }

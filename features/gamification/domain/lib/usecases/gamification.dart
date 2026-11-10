@@ -34,6 +34,18 @@ class ChooseStarterPet extends UseCase<String, Result<PetShelter>> {
       _repository.chooseStarter(slug!);
 }
 
+/// Records star systems opened in the Universo de Filmes; enough of them
+/// unlock the explorer bichinhos (roadmap of the universe, phase 5).
+class RecordUniverseVisits extends UseCase<List<int>, Result<UniverseVisits>> {
+  final GamificationRepository _repository;
+
+  RecordUniverseVisits(this._repository);
+
+  @override
+  Future<Result<UniverseVisits>> call([List<int>? movieIds]) =>
+      _repository.recordUniverseVisits(movieIds!);
+}
+
 class PinPet extends UseCase<String, Result<PetShelter>> {
   final GamificationRepository _repository;
 

@@ -1111,5 +1111,19 @@
   "universeFilterAny": "Cualquiera",
   "universeFilterClear": "Limpiar filtros",
   "universeFilterSummary": "{count} de {total} planetas coinciden",
-  "universeFilterNoMatch": "Ningún planeta de este sistema coincide con los filtros."
+  "universeFilterNoMatch": "Ningún planeta de este sistema coincide con los filtros.",
+  "petFoguete": "Cohete",
+  "petAstronauta": "Astronauta",
+  "petRuleUniverse": "Visita {count} sistemas en el Universo de Películas",
+  "universeShareRoute": "Compartir ruta",
+  "universeShareRouteText": "Fui de {origin} a {destination} en {hops, plural, =1{1 salto} other{{hops} saltos}} en el Universo de Películas de Muuvie: {path}",
+  "universeConstellations": "Constelaciones",
+  "universeConstellationsHelp": "Estantes públicas con {title}. Sus películas se encienden y se unen en el mapa.",
+  "universeConstellationsEmpty": "Ninguna estante pública tiene {title} todavía.",
+  "universeConstellationsError": "No se pudieron cargar las estantes.",
+  "universeConstellationLabel": "{name} · de {owner}",
+  "universeConstellationError": "No se pudo armar esta constelación.",
+  "universeConstellationSummary": "{name}: {count} de {total} planetas",
+  "universeUnlockedPet": "¡Desbloqueaste la vaquinha {name} explorando el universo!",
+  "universeSeePet": "Ver"
 }

@@ -1,8 +1,18 @@
 import 'package:core/core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies/movies.dart';
-import 'package:shelves/shelves.dart' show AddMovieToWatchlist;
+import 'package:gamification/gamification.dart' show RecordUniverseVisits;
+import 'package:shelves/shelves.dart'
+    show
+        AddMovieToWatchlist,
+        GetPublicShelvesWithMovie,
+        GetShelfMovies,
+        GetShelfMoviesParams,
+        PublicShelf,
+        PublicShelvesParams;
 import 'package:watch_logs/watch_logs.dart' show GetMovieWatchState;
+import 'package:universe_ui/movie_universe/filter/constellation_shelves.dart';
+import 'package:universe_ui/movie_universe/filter/universe_constellation.dart';
 import 'package:universe_ui/movie_universe/filter/universe_filter.dart';
 import 'package:universe_ui/movie_universe/graph/universe_graph.dart';
 import 'package:universe_ui/movie_universe/movie_universe_state.dart';
@@ -18,10 +28,22 @@ import 'package:universe_ui/movie_universe/movie_universe_state.dart';
 ///
 /// Phase 4: planets carry the viewer's state, can go to "Quero ver" from
 /// the card, and a [UniverseFilter] makes some of them stand out.
+///
+/// Phase 5: every system opened is recorded for the explorer bichinhos, and
+/// a public shelf that holds the star in focus can become a constellation.
 class MovieUniverseCubit extends Cubit<MovieUniverseState> {
   final GetSimilarMovies _getSimilarMovies;
   final AddMovieToWatchlist _addMovieToWatchlist;
   final GetMovieWatchState _getMovieWatchState;
+  final RecordUniverseVisits _recordUniverseVisits;
+  final GetPublicShelvesWithMovie _getPublicShelvesWithMovie;
+  final GetShelfMovies _getShelfMovies;
+
+  /// The backend takes up to 50 movie ids per call.
+  static const _visitsPerCall = 50;
+
+  /// Pages of 20 read from a shelf to draw it: the first 200 movies.
+  static const _constellationPages = 10;
 
   /// Systems whose similar movies are asked again at a time when the
   /// viewer's states are refreshed.
@@ -47,11 +69,17 @@ class MovieUniverseCubit extends Cubit<MovieUniverseState> {
     required GetSimilarMovies getSimilarMovies,
     required AddMovieToWatchlist addMovieToWatchlist,
     required GetMovieWatchState getMovieWatchState,
+    required RecordUniverseVisits recordUniverseVisits,
+    required GetPublicShelvesWithMovie getPublicShelvesWithMovie,
+    required GetShelfMovies getShelfMovies,
     required this.origin,
     this.prefetchedPlanets = 3,
   }) : _getSimilarMovies = getSimilarMovies,
        _addMovieToWatchlist = addMovieToWatchlist,
        _getMovieWatchState = getMovieWatchState,
+       _recordUniverseVisits = recordUniverseVisits,
+       _getPublicShelvesWithMovie = getPublicShelvesWithMovie,
+       _getShelfMovies = getShelfMovies,
        super(const MovieUniverseLoading());
 
   /// [startAsList] opens the list rather than the map, for screen reader
@@ -79,6 +107,7 @@ class MovieUniverseCubit extends Cubit<MovieUniverseState> {
       ),
       Failure() => const MovieUniverseFailure(),
     });
+    if (state is MovieUniverseExploring) _recordVisits([origin.id]);
     _prefetchAroundFocus();
   }
 
@@ -127,7 +156,10 @@ class MovieUniverseCubit extends Cubit<MovieUniverseState> {
     });
     // After a failure the focus has not moved: asking again now would only
     // repeat it.
-    if (result is Success) _prefetchAroundFocus();
+    if (result is Success) {
+      _recordVisits([planet.id]);
+      _prefetchAroundFocus();
+    }
   }
 
   /// Moves the focus to a system already in the universe.
@@ -231,6 +263,8 @@ class MovieUniverseCubit extends Cubit<MovieUniverseState> {
     final latest = state;
     if (latest is! MovieUniverseExploring) return;
     emit(latest.copyWith(graph: latest.graph.withMovieStates(states)));
+    // The systems opened before the login were not counted.
+    _recordVisits([for (final system in latest.graph.systems) system.star.id]);
     _prefetchAroundFocus();
   }
 
@@ -253,6 +287,122 @@ class MovieUniverseCubit extends Cubit<MovieUniverseState> {
     if (_viewPicked || current is! MovieUniverseExploring) return;
     if (current.showAsList) return;
     emit(current.copyWith(showAsList: true, selected: () => null));
+  }
+
+  /// The public shelves that hold the star in focus, for the filters. Asked
+  /// once per star; a failure can be asked again.
+  Future<void> loadConstellations() async {
+    final current = state;
+    if (current is! MovieUniverseExploring) return;
+    final starId = current.currentStarId;
+    final known = current.constellationShelves;
+    if (known != null &&
+        known.starId == starId &&
+        known is! ConstellationShelvesFailed) {
+      return;
+    }
+    emit(
+      current.copyWith(
+        constellationShelves: () => ConstellationShelvesLoading(starId),
+      ),
+    );
+    final result = await _getPublicShelvesWithMovie(
+      PublicShelvesParams(movieId: starId),
+    );
+    if (isClosed) return;
+    final latest = state;
+    if (latest is! MovieUniverseExploring) return;
+    emit(
+      latest.copyWith(
+        constellationShelves: () => switch (result) {
+          Success(:final data) => ConstellationShelvesLoaded(
+            starId,
+            data.items,
+          ),
+          Failure() => ConstellationShelvesFailed(starId),
+        },
+      ),
+    );
+  }
+
+  /// Draws [shelf] over the universe: its movies stand out. Picking the
+  /// shelf already drawn clears it.
+  Future<void> showConstellation(PublicShelf shelf) async {
+    final current = state;
+    if (current is! MovieUniverseExploring ||
+        current.buildingConstellationId != null) {
+      return;
+    }
+    if (current.filter.constellation?.shelfId == shelf.shelf.id) {
+      setFilter(current.filter.withConstellation(null));
+      return;
+    }
+    emit(current.copyWith(buildingConstellationId: () => shelf.shelf.id));
+    final movieIds = <int>{};
+    var failed = false;
+    for (var page = 1; page <= _constellationPages; page++) {
+      final result = await _getShelfMovies(
+        GetShelfMoviesParams(shelfId: shelf.shelf.id, page: page),
+      );
+      if (isClosed) return;
+      if (result case Success(:final data)) {
+        movieIds.addAll(data.items.map((movie) => movie.movieId));
+        if (!data.hasNext) break;
+      } else {
+        failed = true;
+        break;
+      }
+    }
+    final latest = state;
+    if (latest is! MovieUniverseExploring) return;
+    if (failed) {
+      emit(
+        latest.copyWith(
+          buildingConstellationId: () => null,
+          failedConstellation: true,
+        ),
+      );
+      return;
+    }
+    emit(latest.copyWith(buildingConstellationId: () => null));
+    setFilter(
+      latest.filter.withConstellation(
+        UniverseConstellation(
+          shelfId: shelf.shelf.id,
+          name: shelf.shelf.name,
+          ownerName: shelf.ownerName,
+          movieIds: movieIds,
+        ),
+      ),
+    );
+  }
+
+  /// The stars from the origin to the system in focus.
+  List<Movie> get route {
+    final current = state;
+    return current is MovieUniverseExploring
+        ? current.graph.routeTo(current.currentStarId)
+        : const [];
+  }
+
+  /// Counts [starIds] as visited for the explorer bichinhos. Logged out the
+  /// call fails and nothing is kept; a login sends every system again.
+  Future<void> _recordVisits(List<int> starIds) async {
+    final unlocked = <String>[];
+    for (var start = 0; start < starIds.length; start += _visitsPerCall) {
+      final result = await _recordUniverseVisits(
+        starIds.skip(start).take(_visitsPerCall).toList(),
+      );
+      if (isClosed) return;
+      if (result case Success(:final data)) {
+        unlocked.addAll(data.unlockedPets);
+      } else {
+        return;
+      }
+    }
+    final latest = state;
+    if (unlocked.isEmpty || latest is! MovieUniverseExploring) return;
+    emit(latest.copyWith(unlockedPets: unlocked));
   }
 
   void toggleView() {

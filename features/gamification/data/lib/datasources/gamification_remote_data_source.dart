@@ -11,6 +11,8 @@ abstract interface class GamificationRemoteDataSource {
 
   Future<Result<PetShelter>> pin(String slug);
 
+  Future<Result<UniverseVisits>> recordUniverseVisits(List<int> movieIds);
+
   Future<Result<MissionWeek>> getMissions();
 
   Future<Result<DiaryDay>> getDiaryDay(DateTime date);
@@ -180,6 +182,17 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
     final received = _now().toUtc();
     return _map(result, (json) => RemoteGamification.party(json, received));
   }
+
+  @override
+  Future<Result<UniverseVisits>> recordUniverseVisits(
+    List<int> movieIds,
+  ) async => _map(
+    await _httpClient.post<Map<String, dynamic>>(
+      '$_me/universe/visits',
+      body: {'movieIds': movieIds},
+    ),
+    RemoteGamification.universeVisits,
+  );
 
   Result<T> _map<T>(
     Result<Map<String, dynamic>> result,
