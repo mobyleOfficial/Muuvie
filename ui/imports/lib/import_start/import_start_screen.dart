@@ -79,6 +79,16 @@ class _StartContent extends StatelessWidget {
           style: textTheme.bodyLarge?.copyWith(color: colorScheme.onSurface),
         ),
         const SizedBox(height: 24),
+        if (state.uploadProgress case final progress?) ...[
+          Text(l10n?.importUploading ?? '', style: textTheme.bodyMedium),
+          const SizedBox(height: 8),
+          LinearProgressIndicator(
+            value: progress,
+            semanticsLabel: l10n?.importUploading,
+            semanticsValue: '${(progress * 100).round()}%',
+          ),
+          const SizedBox(height: 16),
+        ],
         SizedBox(
           width: double.infinity,
           child: MuuvieButton(
@@ -109,7 +119,9 @@ class _StartContent extends StatelessWidget {
             child: SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: state.starting ? null : () => onStartFromFile(source),
+                onPressed: state.starting
+                    ? null
+                    : () => onStartFromFile(source),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size.fromHeight(48),
                 ),

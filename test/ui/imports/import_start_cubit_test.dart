@@ -21,8 +21,11 @@ class _FakeImportsRepository implements ImportsRepository {
   Future<Result<ImportJob>> startFileImport({
     required ImportSource source,
     required List<ImportUploadFile> files,
+    void Function(double progress)? onProgress,
   }) async {
     fileStarts++;
+    onProgress?.call(0.5);
+    onProgress?.call(1);
     uploaded = (source: source, files: files);
     return startResult;
   }
@@ -81,6 +84,23 @@ void main() {
       await cubit.close();
     },
   );
+
+  test('the upload reports its progress until the job opens', () async {
+    final cubit = build();
+    await cubit.load();
+    final progress = <double?>[];
+    final subscription = cubit.stream.listen(
+      (state) => progress.add((state as ImportStartSuccess).uploadProgress),
+    );
+
+    await cubit.startFromFiles(source: ImportSource.letterboxd, files: [_zip]);
+    // The cubit's stream delivers asynchronously.
+    await Future<void>.delayed(Duration.zero);
+    await subscription.cancel();
+
+    expect(progress, [0, 0.5, 1, null]);
+    await cubit.close();
+  });
 
   test('a file the server cannot read, or too large, says so', () async {
     final cubit = build();

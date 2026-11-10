@@ -56,20 +56,45 @@ class ImportStartCubit extends Cubit<ImportStartState> {
   }) => _start(
     source: source,
     method: 'file',
-    request: () =>
-        _startFileImport(StartFileImportParams(source: source, files: files)),
+    uploads: true,
+    request: () => _startFileImport(
+      StartFileImportParams(
+        source: source,
+        files: files,
+        onProgress: _reportUpload,
+      ),
+    ),
   );
+
+  void _reportUpload(double progress) {
+    final current = state;
+    if (isClosed || current is! ImportStartSuccess || !current.starting) return;
+    emit(
+      ImportStartSuccess(
+        history: current.history,
+        starting: true,
+        uploadProgress: progress.clamp(0, 1).toDouble(),
+      ),
+    );
+  }
 
   Future<void> _start({
     required ImportSource source,
     required String method,
     required Future<Result<ImportJob>> Function() request,
+    bool uploads = false,
   }) async {
     final current = state;
     final history = current is ImportStartSuccess
         ? current.history
         : const <ImportJob>[];
-    emit(ImportStartSuccess(history: history, starting: true));
+    emit(
+      ImportStartSuccess(
+        history: history,
+        starting: true,
+        uploadProgress: uploads ? 0 : null,
+      ),
+    );
     final result = await request();
     if (isClosed) return;
     if (result is Success) {

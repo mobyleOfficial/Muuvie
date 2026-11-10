@@ -12,8 +12,9 @@ abstract interface class ImportsRemoteDataSource {
 
   Future<Result<ImportJob>> startFileImport(
     ImportSource source,
-    List<ImportUploadFile> files,
-  );
+    List<ImportUploadFile> files, {
+    void Function(double progress)? onProgress,
+  });
 
   Future<Result<ImportJob>> getImport(int jobId);
 
@@ -66,8 +67,9 @@ class ImportsRemoteDataSourceImpl implements ImportsRemoteDataSource {
   @override
   Future<Result<ImportJob>> startFileImport(
     ImportSource source,
-    List<ImportUploadFile> files,
-  ) async => _map(
+    List<ImportUploadFile> files, {
+    void Function(double progress)? onProgress,
+  }) async => _map(
     await _httpClient.post<Map<String, dynamic>>(
       _base,
       body: FormData()
@@ -80,6 +82,11 @@ class ImportsRemoteDataSourceImpl implements ImportsRemoteDataSource {
               MultipartFile.fromBytes(file.bytes, filename: file.name),
             ),
         ]),
+      onSendProgress: onProgress == null
+          ? null
+          : (sent, total) {
+              if (total > 0) onProgress(sent / total);
+            },
     ),
     RemoteImports.job,
   );

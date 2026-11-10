@@ -54,11 +54,15 @@ class ImportPreviewList {
   final int movieCount;
   final String? coverUrl;
 
+  /// Unchecked at first: a Letterboxd tag, which becomes a shelf only if chosen.
+  final bool optional;
+
   const ImportPreviewList({
     required this.externalId,
     required this.title,
     required this.movieCount,
     this.coverUrl,
+    this.optional = false,
   });
 }
 
@@ -158,6 +162,11 @@ class ImportJobPage {
 class ImportProgress {
   final int jobId;
   final ImportStatus status;
+  final ImportSource source;
 
-  const ImportProgress({required this.jobId, required this.status});
+  const ImportProgress({
+    required this.jobId,
+    required this.status,
+    this.source = ImportSource.filmow,
+  });
 }

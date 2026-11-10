@@ -70,7 +70,13 @@ abstract final class RemoteImports {
     final jobId = int.tryParse(payload?['jobId']?.toString() ?? '');
     final status = ImportStatus.fromWireValue(payload?['status'] as String?);
     if (jobId == null || status == null) return null;
-    return ImportProgress(jobId: jobId, status: status);
+    return ImportProgress(
+      jobId: jobId,
+      status: status,
+      source:
+          ImportSource.fromWireValue(payload?['source'] as String?) ??
+          ImportSource.filmow,
+    );
   }
 
   static ImportPreview _preview(Map<String, dynamic> json) => ImportPreview(
@@ -86,6 +92,7 @@ abstract final class RemoteImports {
             title: list['title'] as String? ?? '',
             movieCount: _int(list['movieCount']),
             coverUrl: list['coverUrl'] as String?,
+            optional: list['optional'] as bool? ?? false,
           ),
         )
         .toList(),

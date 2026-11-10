@@ -18,8 +18,15 @@ class DioHttpClient implements HttpClient {
     String path, {
     Map<String, dynamic>? queryParams,
     Object? body,
-  }) =>
-      _request(() => _dio.post(path, queryParameters: queryParams, data: body));
+    void Function(int sent, int total)? onSendProgress,
+  }) => _request(
+    () => _dio.post(
+      path,
+      queryParameters: queryParams,
+      data: body,
+      onSendProgress: onSendProgress,
+    ),
+  );
 
   @override
   Future<Result<T>> put<T>(

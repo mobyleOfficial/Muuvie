@@ -97,7 +97,7 @@ class ProfilesRemoteDataSourceImpl implements ProfilesRemoteDataSource {
     T Function(Map<String, dynamic>) fromJson,
   ) => switch (result) {
     Success(:final data) => Success(fromJson(data)),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 
   Result<List<RemoteProfileHighlight>> _list(Result<List<dynamic>> result) =>
@@ -110,6 +110,6 @@ class ProfilesRemoteDataSourceImpl implements ProfilesRemoteDataSource {
               )
               .toList(),
         ),
-        Failure(:final error) => Failure(error),
+        Failure(:final error, :final code) => Failure(error, code: code),
       };
 }

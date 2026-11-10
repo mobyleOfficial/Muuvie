@@ -41,7 +41,11 @@ class ImportStartSuccess extends ImportStartState {
   /// Set once the job is created; the page opens it.
   final ImportJob? started;
 
+  /// 0 to 1 while files upload; null otherwise.
+  final double? uploadProgress;
+
   const ImportStartSuccess({
+    this.uploadProgress,
     this.history = const [],
     this.starting = false,
     this.failure,

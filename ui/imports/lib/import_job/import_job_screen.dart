@@ -183,6 +183,16 @@ class _Preview extends StatelessWidget {
               color: colorScheme.onSurfaceVariant,
             ),
           ),
+          if (preview.lists.any((list) => list.optional))
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                l10n?.importPreviewTagsHint ?? '',
+                style: textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
         ],
         for (final list in preview.lists)
           CheckboxListTile(

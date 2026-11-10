@@ -38,6 +38,7 @@ class FakeHttpClient implements HttpClient {
     String path, {
     Map<String, dynamic>? queryParams,
     Object? body,
+    void Function(int sent, int total)? onSendProgress,
   }) => _record('POST', path, queryParams, body);
 
   @override

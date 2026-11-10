@@ -21,7 +21,9 @@ class ImportsRepositoryImpl implements ImportsRepository {
   Future<Result<ImportJob>> startFileImport({
     required ImportSource source,
     required List<ImportUploadFile> files,
-  }) => _remoteDataSource.startFileImport(source, files);
+    void Function(double progress)? onProgress,
+  }) =>
+      _remoteDataSource.startFileImport(source, files, onProgress: onProgress);
 
   @override
   Future<Result<ImportJob>> getImport(int jobId) =>

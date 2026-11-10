@@ -6,7 +6,14 @@ class StartFileImportParams {
   final ImportSource source;
   final List<ImportUploadFile> files;
 
-  const StartFileImportParams({required this.source, required this.files});
+  /// 0 to 1 while the files upload.
+  final void Function(double progress)? onProgress;
+
+  const StartFileImportParams({
+    required this.source,
+    required this.files,
+    this.onProgress,
+  });
 }
 
 /// Imports from files instead of the Filmow login: the user picks the origin,
@@ -24,6 +31,7 @@ class StartFileImport
     return _repository.startFileImport(
       source: value.source,
       files: value.files,
+      onProgress: value.onProgress,
     );
   }
 }

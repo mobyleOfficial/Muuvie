@@ -35,7 +35,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
     return switch (result) {
       Success() => const Success(null),
-      Failure(:final error) => Failure(error),
+      Failure(:final error, :final code) => Failure(error, code: code),
     };
   }
 }

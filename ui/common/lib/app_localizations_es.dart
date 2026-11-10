@@ -417,7 +417,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get movieDetailUnmatched =>
-      'No encontramos esta película en nuestro catálogo. Los datos vienen de Filmow y pueden estar incompletos.';
+      'No encontramos esta película en nuestro catálogo. Los datos vienen de tu importación (Filmow o Letterboxd) y pueden estar incompletos.';
 
   @override
   String get movieDetailCast => 'Reparto';
@@ -1519,6 +1519,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get importFileEmpty => 'No encontramos películas en este archivo.';
 
   @override
+  String get importFilmowFileHowTo => 'Ver cómo';
+
+  @override
+  String get importLetterboxdFileHowTo => 'Abrir Letterboxd';
+
+  @override
+  String get importUploading => 'Enviando archivos…';
+
+  @override
+  String get importPreviewTagsHint =>
+      'Las etiquetas de Letterboxd se vuelven estantes solo si las marcas.';
+
+  @override
   String get importActionError => 'Algo salió mal. Inténtalo de nuevo.';
 
   @override
@@ -1603,9 +1616,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get importPreviewLists => 'Listas → estantes';
-
-  @override
-  String get importPreviewNoLists => 'No se encontraron listas en tu perfil.';
 
   @override
   String get importPreviewVisibility =>
@@ -1700,13 +1710,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get importUnmatchedEmpty => 'Todas las películas fueron encontradas.';
 
   @override
-  String get importFinishedSnack => 'Tu importación de Filmow terminó';
+  String importFinishedSnack(String source) =>
+      'Tu importación de $source terminó';
 
   @override
   String get importSeeReport => 'Ver informe';
 
   @override
-  String get watchedEmptyImport => '¿Ya usas Filmow? Trae tu historial';
+  String get watchedEmptyImport =>
+      '¿Ya usas Filmow o Letterboxd? Trae tu historial';
 
   @override
   String get locadoraNew => 'Nueva locadora';
@@ -3592,10 +3604,10 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get onboardingImportText =>
-      'Importa desde Filmow lo que viste, lo que quieres ver y tus listas. Nada de lo que hiciste aquí se sobrescribe.';
+      'Importa desde Filmow o Letterboxd lo que viste, lo que quieres ver y tus listas. Nada de lo que hiciste aquí se sobrescribe.';
 
   @override
-  String get onboardingImportFilmow => 'Importar desde Filmow';
+  String get onboardingImportFilmow => 'Importar mi historial';
 
   @override
   String get onboardingSuggestionsTitle => 'En cartelera';
@@ -3633,7 +3645,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsImportHint =>
-      'Desde Filmow, sin sobrescribir lo que hiciste aquí';
+      'Desde Filmow o Letterboxd, sin sobrescribir lo que hiciste aquí';
 
   @override
   String get settingsNotifications => 'Notificaciones';

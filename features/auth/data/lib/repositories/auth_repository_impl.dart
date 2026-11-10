@@ -91,7 +91,7 @@ class AuthRepositoryImpl implements AuthRepository {
             (data.expiresAt.isAfter(DateTime.now()) ||
                 data.refreshToken != null),
       ),
-      Failure(:final error) => Failure(error),
+      Failure(:final error, :final code) => Failure(error, code: code),
     };
   }
 

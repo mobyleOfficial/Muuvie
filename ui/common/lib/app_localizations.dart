@@ -823,7 +823,7 @@ abstract class AppLocalizations {
   /// Notice on an imported movie the backend could not match with TMDB
   ///
   /// In en, this message translates to:
-  /// **'We couldn\'t find this movie in our catalog. The details come from Filmow and may be incomplete.'**
+  /// **'We couldn't find this movie in our catalog. The details come from your import (Filmow or Letterboxd) and may be incomplete.'**
   String get movieDetailUnmatched;
 
   /// Section title for movie cast
@@ -2800,6 +2800,30 @@ abstract class AppLocalizations {
   /// **'We found no movies in this file.'**
   String get importFileEmpty;
 
+  /// Opens the filmow_to_letterboxd page from the Filmow file dialog
+  ///
+  /// In en, this message translates to:
+  /// **'See how'**
+  String get importFilmowFileHowTo;
+
+  /// Opens Letterboxd's data export page from the Letterboxd file dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Open Letterboxd'**
+  String get importLetterboxdFileHowTo;
+
+  /// Shown with the progress bar while the import files upload
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading files…'**
+  String get importUploading;
+
+  /// Hint on the preview when it lists Letterboxd tags
+  ///
+  /// In en, this message translates to:
+  /// **'Letterboxd tags become shelves only if you check them.'**
+  String get importPreviewTagsHint;
+
   /// Snackbar when confirming or cancelling fails
   ///
   /// In en, this message translates to:
@@ -2865,12 +2889,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Lists → shelves'**
   String get importPreviewLists;
-
-  /// Preview without lists
-  ///
-  /// In en, this message translates to:
-  /// **'No lists found on your profile.'**
-  String get importPreviewNoLists;
 
   /// Visibility selector on the preview
   ///
@@ -2998,11 +3016,11 @@ abstract class AppLocalizations {
   /// **'Every movie was matched.'**
   String get importUnmatchedEmpty;
 
-  /// Snackbar when an import finishes in the background
+  /// Snackbar when an import finishes in the background; source is Filmow or Letterboxd
   ///
   /// In en, this message translates to:
-  /// **'Your Filmow import is done'**
-  String get importFinishedSnack;
+  /// **'Your {source} import is done'**
+  String importFinishedSnack(String source);
 
   /// Snackbar action that opens the import report
   ///
@@ -3013,7 +3031,7 @@ abstract class AppLocalizations {
   /// Call to action on the empty Watched shelf
   ///
   /// In en, this message translates to:
-  /// **'Already use Filmow? Bring your history'**
+  /// **'Already use Filmow or Letterboxd? Bring your history'**
   String get watchedEmptyImport;
 
   /// Tooltip of the create locadora button
@@ -6073,13 +6091,13 @@ abstract class AppLocalizations {
   /// Onboarding panel
   ///
   /// In en, this message translates to:
-  /// **'Import what you watched, your watchlist and your lists from Filmow. Nothing you made here is overwritten.'**
+  /// **'Import what you watched, your watchlist and your lists from Filmow or Letterboxd. Nothing you made here is overwritten.'**
   String get onboardingImportText;
 
   /// Onboarding import button
   ///
   /// In en, this message translates to:
-  /// **'Import from Filmow'**
+  /// **'Import my history'**
   String get onboardingImportFilmow;
 
   /// Onboarding suggestions
@@ -6145,7 +6163,7 @@ abstract class AppLocalizations {
   /// Settings import hint
   ///
   /// In en, this message translates to:
-  /// **'From Filmow, without overwriting what you made here'**
+  /// **'From Filmow or Letterboxd, without overwriting what you made here'**
   String get settingsImportHint;
 
   /// Settings section
