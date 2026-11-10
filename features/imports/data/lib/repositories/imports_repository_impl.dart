@@ -18,6 +18,12 @@ class ImportsRepositoryImpl implements ImportsRepository {
   }) => _remoteDataSource.startImport(source, username, cookies);
 
   @override
+  Future<Result<ImportJob>> startFileImport({
+    required ImportSource source,
+    required List<ImportUploadFile> files,
+  }) => _remoteDataSource.startFileImport(source, files);
+
+  @override
   Future<Result<ImportJob>> getImport(int jobId) =>
       _remoteDataSource.getImport(jobId);
 

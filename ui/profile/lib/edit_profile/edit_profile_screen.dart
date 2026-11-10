@@ -11,14 +11,14 @@ class EditProfileScreen extends StatefulWidget {
   final EditProfileCubit cubit;
   final ProfileDetails profile;
 
-  /// Opens the import flow (F3.6). Letterboxd is hidden until F3.3 ships.
-  final VoidCallback onImportFilmow;
+  /// Opens the import flow (F3.6), where the user picks Filmow or Letterboxd.
+  final VoidCallback onImport;
 
   const EditProfileScreen({
     super.key,
     required this.cubit,
     required this.profile,
-    required this.onImportFilmow,
+    required this.onImport,
   });
 
   @override
@@ -262,9 +262,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               _SectionTitle(l10n?.editProfileImportSection ?? ''),
               OutlinedButton.icon(
-                onPressed: state.isScraping ? null : widget.onImportFilmow,
+                onPressed: state.isScraping ? null : widget.onImport,
                 icon: const Icon(Icons.download),
                 label: Text(l10n?.editProfileImportFilmow ?? ''),
+              ),
+              OutlinedButton.icon(
+                onPressed: state.isScraping ? null : widget.onImport,
+                icon: const Icon(Icons.download),
+                label: Text(l10n?.editProfileImportLetterboxd ?? ''),
               ),
               const SizedBox(height: 32),
               TextButton.icon(

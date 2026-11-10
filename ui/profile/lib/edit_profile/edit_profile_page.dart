@@ -37,6 +37,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) => EditProfileScreen(
     cubit: _cubit,
     profile: widget.profile,
-    onImportFilmow: () => context.router.root.push(const ImportStartRoute()),
+    onImport: () => context.router.root.push(const ImportStartRoute()),
   );
 }

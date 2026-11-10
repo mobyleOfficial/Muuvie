@@ -1450,7 +1450,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get importIntro =>
-      'Traga seu histórico do Filmow: os filmes vistos vão para Já assisti, o quero ver para Quero ver e suas listas viram estantes. Nada é gravado antes de você confirmar.';
+      'Traga seu histórico do Filmow ou do Letterboxd: os filmes vistos vão para Já assisti, o quero ver para Quero ver e suas listas viram estantes. Nada é gravado antes de você confirmar.';
 
   @override
   String get importStartFilmow => 'Entrar no Filmow e importar';
@@ -1474,6 +1474,37 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get importStartError =>
       'Não deu para começar a importação. Tente de novo.';
+
+  @override
+  String get importStartFilmowFile => 'Enviar arquivo do Filmow';
+
+  @override
+  String get importStartLetterboxdFile => 'Enviar arquivo do Letterboxd';
+
+  @override
+  String get importFilmowFileTitle => 'Arquivo do Filmow';
+
+  @override
+  String get importFilmowFileMessage =>
+      'Gere o CSV com o filmow_to_letterboxd (github.com/yanari/filmow_to_letterboxd) e envie aqui. Perfis grandes geram mais de um arquivo: escolha todos.';
+
+  @override
+  String get importLetterboxdFileTitle => 'Arquivo do Letterboxd';
+
+  @override
+  String get importLetterboxdFileMessage =>
+      'No Letterboxd, vá em Settings › Data › Export your data (letterboxd.com/settings/data) e envie o .zip que ele baixar. CSVs no formato de importação do Letterboxd também servem.';
+
+  @override
+  String get importChooseFile => 'Escolher arquivo';
+
+  @override
+  String get importFileUnreadable =>
+      'Não conseguimos ler esse arquivo. Confira se é o arquivo certo e a origem certa.';
+
+  @override
+  String get importFileTooLarge =>
+      'Os arquivos são grandes demais. Envie no máximo 10 arquivos, até 10 MB no total.';
 
   @override
   String get importActionError => 'Algo deu errado. Tente de novo.';

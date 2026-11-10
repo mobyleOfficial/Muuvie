@@ -8,6 +8,12 @@ enum ImportSource {
 
   const ImportSource(this.wireValue);
 
+  /// The service's name, the same in every language.
+  String get displayName => switch (this) {
+    ImportSource.filmow => 'Filmow',
+    ImportSource.letterboxd => 'Letterboxd',
+  };
+
   static ImportSource? fromWireValue(String? value) =>
       values.where((source) => source.wireValue == value).firstOrNull;
 }

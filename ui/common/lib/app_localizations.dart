@@ -2689,7 +2689,7 @@ abstract class AppLocalizations {
   /// Explanation on the import start screen
   ///
   /// In en, this message translates to:
-  /// **'Bring your Filmow history: watched movies go to Watched, your watchlist to Want to watch and your lists become shelves. Nothing is saved before you confirm.'**
+  /// **'Bring your Filmow or Letterboxd history: watched movies go to Watched, your watchlist to Want to watch and your lists become shelves. Nothing is saved before you confirm.'**
   String get importIntro;
 
   /// Button that opens the Filmow login and starts the import
@@ -2733,6 +2733,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t start the import. Try again.'**
   String get importStartError;
+
+  /// Button that imports the CSV made by filmow_to_letterboxd
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a Filmow file'**
+  String get importStartFilmowFile;
+
+  /// Button that imports Letterboxd's export or a Letterboxd CSV
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a Letterboxd file'**
+  String get importStartLetterboxdFile;
+
+  /// Title of the dialog explaining how to get the Filmow CSV
+  ///
+  /// In en, this message translates to:
+  /// **'Filmow file'**
+  String get importFilmowFileTitle;
+
+  /// How to get the Filmow CSV, shown before the file picker
+  ///
+  /// In en, this message translates to:
+  /// **'Create the CSV with filmow_to_letterboxd (github.com/yanari/filmow_to_letterboxd) and upload it here. Big profiles produce more than one file: pick all of them.'**
+  String get importFilmowFileMessage;
+
+  /// Title of the dialog explaining how to get Letterboxd's export
+  ///
+  /// In en, this message translates to:
+  /// **'Letterboxd file'**
+  String get importLetterboxdFileTitle;
+
+  /// How to get Letterboxd's export, shown before the file picker
+  ///
+  /// In en, this message translates to:
+  /// **'On Letterboxd, go to Settings › Data › Export your data (letterboxd.com/settings/data) and upload the .zip you get. CSVs in Letterboxd\'s import format work too.'**
+  String get importLetterboxdFileMessage;
+
+  /// Confirms the dialog and opens the file picker
+  ///
+  /// In en, this message translates to:
+  /// **'Choose file'**
+  String get importChooseFile;
+
+  /// Snackbar when the server refuses an uploaded import file
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t read this file. Check that it\'s the right file and the right origin.'**
+  String get importFileUnreadable;
+
+  /// Snackbar when the uploaded import files are over the size limit
+  ///
+  /// In en, this message translates to:
+  /// **'The files are too big. Upload at most 10 files, up to 10 MB in total.'**
+  String get importFileTooLarge;
 
   /// Snackbar when confirming or cancelling fails
   ///

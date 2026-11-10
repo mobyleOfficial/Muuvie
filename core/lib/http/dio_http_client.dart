@@ -72,6 +72,7 @@ class DioHttpClient implements HttpClient {
     403 => AppError.forbidden,
     404 => AppError.notFound,
     409 => AppError.conflict,
+    413 => AppError.payloadTooLarge,
     429 => AppError.tooManyRequests,
     _ when statusCode != null && statusCode >= 500 => AppError.server,
     _ => AppError.unknown,

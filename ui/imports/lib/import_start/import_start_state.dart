@@ -15,7 +15,16 @@ class ImportStartError extends ImportStartState {
 }
 
 /// Why starting failed, for the snackbar.
-enum ImportStartFailure { inProgress, other }
+enum ImportStartFailure {
+  inProgress,
+
+  /// The server could not read an uploaded file (wrong file or wrong origin).
+  unreadableFile,
+
+  /// The uploaded files are over the server's limits.
+  tooLarge,
+  other,
+}
 
 class ImportStartSuccess extends ImportStartState {
   /// Earlier imports, newest first (F3.6).

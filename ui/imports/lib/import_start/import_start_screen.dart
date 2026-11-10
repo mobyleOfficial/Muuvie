@@ -9,12 +9,14 @@ import 'package:imports_ui/widgets/import_status_label.dart';
 class ImportStartScreen extends StatelessWidget {
   final ImportStartCubit cubit;
   final VoidCallback onStartFilmow;
+  final ValueChanged<ImportSource> onStartFromFile;
   final ValueChanged<ImportJob> onOpenJob;
 
   const ImportStartScreen({
     super.key,
     required this.cubit,
     required this.onStartFilmow,
+    required this.onStartFromFile,
     required this.onOpenJob,
   });
 
@@ -40,6 +42,7 @@ class ImportStartScreen extends StatelessWidget {
           ImportStartSuccess() => _StartContent(
             state: state,
             onStartFilmow: onStartFilmow,
+            onStartFromFile: onStartFromFile,
             onOpenJob: onOpenJob,
           ),
         },
@@ -51,11 +54,13 @@ class ImportStartScreen extends StatelessWidget {
 class _StartContent extends StatelessWidget {
   final ImportStartSuccess state;
   final VoidCallback onStartFilmow;
+  final ValueChanged<ImportSource> onStartFromFile;
   final ValueChanged<ImportJob> onOpenJob;
 
   const _StartContent({
     required this.state,
     required this.onStartFilmow,
+    required this.onStartFromFile,
     required this.onOpenJob,
   });
 
@@ -95,6 +100,28 @@ class _StartContent extends StatelessWidget {
                   ),
           ),
         ),
+        const SizedBox(height: 12),
+        // The server allows one active import per source and answers 409 for a
+        // second one, which the page reports.
+        for (final source in ImportSource.values)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: state.starting ? null : () => onStartFromFile(source),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48),
+                ),
+                icon: const Icon(Icons.upload_file),
+                label: Text(switch (source) {
+                  ImportSource.filmow => l10n?.importStartFilmowFile ?? '',
+                  ImportSource.letterboxd =>
+                    l10n?.importStartLetterboxdFile ?? '',
+                }),
+              ),
+            ),
+          ),
         if (state.history.isNotEmpty) ...[
           const SizedBox(height: 32),
           Text(
@@ -108,7 +135,7 @@ class _StartContent extends StatelessWidget {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.history),
-              title: Text('Filmow · ${job.inputRef}'),
+              title: Text('${job.source.displayName} · ${job.inputRef}'),
               subtitle: Text(
                 MaterialLocalizations.of(
                   context,
