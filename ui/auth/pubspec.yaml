@@ -20,7 +20,9 @@ dependencies:
     path: ../common
   core:
     path: ../../core
-  auto_route: ^11.1.0
+  # 11.2 builds routes with material_ui, whose Theme this app does not provide:
+  # pages then fall back to its default light theme and flash white in dark mode.
+  auto_route: ">=11.1.0 <11.2.0"
   get_it: ^8.0.3
 
 dev_dependencies:
