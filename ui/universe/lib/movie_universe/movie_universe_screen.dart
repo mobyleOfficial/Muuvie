@@ -288,7 +288,7 @@ class _PlanetCard extends StatelessWidget {
     final movie = planet.movie;
     final year = movie.year;
     final status = movie.me?.status;
-    final inCommon = _inCommon(planet.similar);
+    final inCommon = _inCommon(context, planet.similar);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -373,9 +373,17 @@ class _PlanetCard extends StatelessWidget {
 
 /// Up to four of the genres and keywords a planet shares with its star,
 /// comma-separated; null when it shares none or they are unknown.
-String? _inCommon(SimilarMovie similar) {
+///
+/// TMDB keywords exist only in English, so they are listed only when the app
+/// is in English; in other languages they still weigh in the score, but the
+/// text names the genres alone instead of mixing two languages.
+String? _inCommon(BuildContext context, SimilarMovie similar) {
   const shown = 4;
-  final shared = [...similar.sharedGenres, ...similar.sharedKeywords];
+  final inEnglish = Localizations.localeOf(context).languageCode == 'en';
+  final shared = [
+    ...similar.sharedGenres,
+    if (inEnglish) ...similar.sharedKeywords,
+  ];
   if (shared.isEmpty) return null;
   final listed = shared.take(shown).join(', ');
   return shared.length > shown ? '$listed…' : listed;
@@ -681,7 +689,7 @@ class _UniverseList extends StatelessWidget {
             leading: _Poster(movie: planet.movie, width: 40),
             title: Text(planet.movie.displayTitle),
             subtitle: _PlanetSubtitle(planet: planet),
-            isThreeLine: _inCommon(planet.similar) != null,
+            isThreeLine: _inCommon(context, planet.similar) != null,
             onTap: () => onOpenMovie(planet.movie),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
@@ -738,7 +746,7 @@ class _PlanetSubtitle extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final year = planet.movie.year;
     final status = planet.movie.me?.status;
-    final inCommon = _inCommon(planet.similar);
+    final inCommon = _inCommon(context, planet.similar);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,

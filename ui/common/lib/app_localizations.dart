@@ -6685,7 +6685,7 @@ abstract class AppLocalizations {
   /// Universe: the shared text of a route; path is the titles joined by arrows
   ///
   /// In en, this message translates to:
-  /// **'I went from {origin} to {destination} in {hops, plural, =1{1 jump} other{{hops} jumps}} in Muuvie\'s Movie Universe: {path}'**
+  /// **'I went from {origin} to {destination} in {hops, plural, =0{0 jumps} =1{1 jump} other{{hops} jumps}} in Muuvie\'s Movie Universe: {path}'**
   String universeShareRouteText(
     String origin,
     String destination,

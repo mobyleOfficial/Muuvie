@@ -1116,7 +1116,7 @@
   "petAstronauta": "Astronauta",
   "petRuleUniverse": "Visita {count} sistemas en el Universo de Películas",
   "universeShareRoute": "Compartir ruta",
-  "universeShareRouteText": "Fui de {origin} a {destination} en {hops, plural, =1{1 salto} other{{hops} saltos}} en el Universo de Películas de Muuvie: {path}",
+  "universeShareRouteText": "Fui de {origin} a {destination} en {hops, plural, =0{0 saltos} =1{1 salto} other{{hops} saltos}} en el Universo de Películas de Muuvie: {path}",
   "universeConstellations": "Constelaciones",
   "universeConstellationsHelp": "Estantes públicas con {title}. Sus películas se encienden y se unen en el mapa.",
   "universeConstellationsEmpty": "Ninguna estante pública tiene {title} todavía.",

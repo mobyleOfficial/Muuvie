@@ -2266,7 +2266,7 @@
   "@petRuleUniverse": {"description": "Unlock rule", "placeholders": {"count": {"type": "int"}}},
   "universeShareRoute": "Share route",
   "@universeShareRoute": {"description": "Universe: shares the route from the origin to the system in focus"},
-  "universeShareRouteText": "I went from {origin} to {destination} in {hops, plural, =1{1 jump} other{{hops} jumps}} in Muuvie's Movie Universe: {path}",
+  "universeShareRouteText": "I went from {origin} to {destination} in {hops, plural, =0{0 jumps} =1{1 jump} other{{hops} jumps}} in Muuvie's Movie Universe: {path}",
   "@universeShareRouteText": {"description": "Universe: the shared text of a route; path is the titles joined by arrows", "placeholders": {"origin": {"type": "String"}, "destination": {"type": "String"}, "hops": {"type": "int"}, "path": {"type": "String"}}},
   "universeConstellations": "Constellations",
   "@universeConstellations": {"description": "Universe filter: public shelves section"},

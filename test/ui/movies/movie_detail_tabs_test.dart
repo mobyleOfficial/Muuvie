@@ -142,6 +142,7 @@ void main() {
     String? overviewLanguage,
     bool overviewTranslated = false,
     Locale locale = const Locale('pt'),
+    bool inTab = false,
   }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(412, 860);
@@ -166,7 +167,15 @@ void main() {
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: AppLocalizations.supportedLocales,
-        home: MovieDetailScreen(cubit: cubit, onAddToShelves: (_, _) {}),
+        home: inTab
+            ? TabIndexScope(
+                tabIndex: 0,
+                child: MovieDetailScreen(
+                  cubit: cubit,
+                  onAddToShelves: (_, _) {},
+                ),
+              )
+            : MovieDetailScreen(cubit: cubit, onAddToShelves: (_, _) {}),
       ),
     );
     await tester.pumpAndSettle();
@@ -210,6 +219,15 @@ void main() {
 
     expect(find.text('Explorar universo'), findsNothing);
     expect(find.text('Criar CineClube com este filme'), findsOneWidget);
+  });
+
+  testWidgets('over the shell, as from a universe, the detail has its own '
+      'app bar; inside a tab the shell draws it', (tester) async {
+    await pumpDetail(tester);
+    expect(find.byType(AppBar), findsOneWidget);
+
+    await pumpDetail(tester, inTab: true);
+    expect(find.byType(AppBar), findsNothing);
   });
 
   testWidgets('a machine translated synopsis says so', (tester) async {

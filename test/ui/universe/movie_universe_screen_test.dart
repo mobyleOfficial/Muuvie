@@ -143,7 +143,8 @@ void main() {
       await _pumpList(tester, theme: theme);
 
       expect(find.text('Já assisti'), findsOneWidget);
-      expect(find.text('Em comum: Terror, bruxa'), findsOneWidget);
+      // Keywords are English only on TMDB: in Portuguese the genres alone.
+      expect(find.text('Em comum: Terror'), findsOneWidget);
       expect(find.byTooltip('Mais ações para Inferno'), findsOneWidget);
       expect(find.byTooltip('Viajar até Tenebre'), findsOneWidget);
       await _expectAccessible(tester);

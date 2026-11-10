@@ -3996,6 +3996,7 @@ class AppLocalizationsPt extends AppLocalizations {
       locale: localeName,
       other: '$hops saltos',
       one: '1 salto',
+      zero: '0 saltos',
     );
     return 'Fui de $origin até $destination em $_temp0 no Universo de Filmes do Muuvie: $path';
   }
