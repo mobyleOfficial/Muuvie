@@ -421,7 +421,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get movieDetailUnmatched =>
-      'Não encontramos este filme no nosso catálogo. Os dados vêm do Filmow e podem estar incompletos.';
+      'Não encontramos este filme no nosso catálogo. Os dados vêm da sua importação (Filmow ou Letterboxd) e podem estar incompletos.';
 
   @override
   String get movieDetailCast => 'Elenco';
@@ -1450,7 +1450,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get importIntro =>
-      'Traga seu histórico do Filmow: os filmes vistos vão para Já assisti, o quero ver para Quero ver e suas listas viram estantes. Nada é gravado antes de você confirmar.';
+      'Traga seu histórico do Filmow ou do Letterboxd: os filmes vistos vão para Já assisti, o quero ver para Quero ver e suas listas viram estantes. Nada é gravado antes de você confirmar.';
 
   @override
   String get importStartFilmow => 'Entrar no Filmow e importar';
@@ -1474,6 +1474,57 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get importStartError =>
       'Não deu para começar a importação. Tente de novo.';
+
+  @override
+  String get importStartFilmowFile => 'Enviar arquivo do Filmow';
+
+  @override
+  String get importStartLetterboxdFile => 'Enviar arquivo do Letterboxd';
+
+  @override
+  String get importFilmowFileTitle => 'Arquivo do Filmow';
+
+  @override
+  String get importFilmowFileMessage =>
+      'Gere o CSV com o filmow_to_letterboxd (github.com/yanari/filmow_to_letterboxd) e envie aqui. Perfis grandes geram mais de um arquivo: escolha todos.';
+
+  @override
+  String get importLetterboxdFileTitle => 'Arquivo do Letterboxd';
+
+  @override
+  String get importLetterboxdFileMessage =>
+      'No Letterboxd, vá em Settings › Data › Export your data (letterboxd.com/settings/data) e envie o .zip que ele baixar. CSVs no formato de importação do Letterboxd também servem.';
+
+  @override
+  String get importChooseFile => 'Escolher arquivo';
+
+  @override
+  String get importFileUnreadable =>
+      'Não conseguimos ler esse arquivo. Confira se é o arquivo certo e a origem certa.';
+
+  @override
+  String get importFileTooLarge =>
+      'Os arquivos são grandes demais. Envie no máximo 10 arquivos, até 10 MB no total.';
+
+  @override
+  String get importFileAmbiguous =>
+      'Não dá para saber se esse CSV é dos filmes vistos ou do quero ver. Renomeie para watched.csv ou watchlist.csv, ou envie o .zip do export.';
+
+  @override
+  String get importFileEmpty => 'Não encontramos filmes nesse arquivo.';
+
+  @override
+  String get importFilmowFileHowTo => 'Ver como gerar';
+
+  @override
+  String get importLetterboxdFileHowTo => 'Abrir o Letterboxd';
+
+  @override
+  String get importUploading => 'Enviando arquivos…';
+
+  @override
+  String get importPreviewTagsHint =>
+      'As tags do Letterboxd só viram estantes se você marcar.';
 
   @override
   String get importActionError => 'Algo deu errado. Tente de novo.';
@@ -1552,10 +1603,19 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get importPreviewLists => 'Listas → estantes';
+  String importPreviewReviews(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count resenhas',
+      one: '1 resenha',
+      zero: '0 resenhas',
+    );
+    return '$_temp0';
+  }
 
   @override
-  String get importPreviewNoLists => 'Nenhuma lista encontrada no seu perfil.';
+  String get importPreviewLists => 'Listas → estantes';
 
   @override
   String get importPreviewVisibility => 'Quem vê as estantes e sessões novas';
@@ -1652,13 +1712,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get importUnmatchedEmpty => 'Todos os filmes foram encontrados.';
 
   @override
-  String get importFinishedSnack => 'Sua importação do Filmow terminou';
+  String importFinishedSnack(String source) {
+    return 'Sua importação do $source terminou';
+  }
 
   @override
   String get importSeeReport => 'Ver relatório';
 
   @override
-  String get watchedEmptyImport => 'Já usa o Filmow? Traga seu histórico';
+  String get watchedEmptyImport =>
+      'Já usa o Filmow ou o Letterboxd? Traga seu histórico';
 
   @override
   String get locadoraNew => 'Nova locadora';
@@ -3561,10 +3624,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get onboardingImportText =>
-      'Importe do Filmow o que você assistiu, o que quer ver e suas listas. Nada do que você fez aqui é sobrescrito.';
+      'Importe do Filmow ou do Letterboxd o que você assistiu, o que quer ver e suas listas. Nada do que você fez aqui é sobrescrito.';
 
   @override
-  String get onboardingImportFilmow => 'Importar do Filmow';
+  String get onboardingImportFilmow => 'Importar meu histórico';
 
   @override
   String get onboardingSuggestionsTitle => 'Em cartaz';
@@ -3602,7 +3665,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get settingsImportHint =>
-      'Do Filmow, sem sobrescrever o que você fez aqui';
+      'Do Filmow ou do Letterboxd, sem sobrescrever o que você fez aqui';
 
   @override
   String get settingsNotifications => 'Notificações';

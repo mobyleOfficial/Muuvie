@@ -157,7 +157,7 @@ void main() {
       await tester.tap(find.text('Próximo'));
       await tester.pumpAndSettle();
     }
-    await tester.tap(find.text('Importar do Filmow'));
+    await tester.tap(find.text('Importar meu histórico'));
     expect(imported, isTrue);
 
     await tester.tap(find.text('Próximo'));
@@ -234,28 +234,31 @@ void main() {
     expect(settings.state, isA<SettingsLoggedOut>());
   });
 
-  test('settings warn when push is blocked and register once allowed', () async {
-    final social = FakeSocialNetworkRepository();
-    final push = FakePushMessaging();
-    final settings = SettingsCubit(
-      getPrefs: GetNotificationPrefs(social),
-      savePrefs: SaveNotificationPrefs(social),
-      resetOnboarding: ResetOnboarding(onboarding),
-      logout: Logout(_FakeAuth()),
-      push: push,
-      registerPushDevice: RegisterPushDevice(social, push),
-    );
-    addTearDown(settings.close);
-    addTearDown(push.dispose);
+  test(
+    'settings warn when push is blocked and register once allowed',
+    () async {
+      final social = FakeSocialNetworkRepository();
+      final push = FakePushMessaging();
+      final settings = SettingsCubit(
+        getPrefs: GetNotificationPrefs(social),
+        savePrefs: SaveNotificationPrefs(social),
+        resetOnboarding: ResetOnboarding(onboarding),
+        logout: Logout(_FakeAuth()),
+        push: push,
+        registerPushDevice: RegisterPushDevice(social, push),
+      );
+      addTearDown(settings.close);
+      addTearDown(push.dispose);
 
-    await settings.load();
-    expect((settings.state as SettingsReady).pushBlocked, isTrue);
+      await settings.load();
+      expect((settings.state as SettingsReady).pushBlocked, isTrue);
 
-    await settings.allowPush();
+      await settings.allowPush();
 
-    expect((settings.state as SettingsReady).pushBlocked, isFalse);
-    expect(social.calls.single, startsWith('registerDevice:android:token-1'));
-  });
+      expect((settings.state as SettingsReady).pushBlocked, isFalse);
+      expect(social.calls.single, startsWith('registerDevice:android:token-1'));
+    },
+  );
 
   test('every string exists in the three languages (F11.4)', () {
     Map<String, dynamic> read(String lang) =>

@@ -1,5 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:common/common.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -9,9 +11,11 @@ import 'package:imports_ui/import_start/import_start_screen.dart';
 import 'package:imports_ui/import_start/import_start_state.dart';
 import 'package:imports_ui/imports_router.dart';
 import 'package:imports_ui/widgets/filmow_login_webview.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Entry of the import flow (F3.6): from the edit profile and the empty
-/// "Já assisti". Letterboxd joins when F3.3 ships.
+/// "Já assisti". Filmow comes from its login or from the CSV of
+/// filmow_to_letterboxd; Letterboxd from its export (zip or CSVs).
 @RoutePage()
 class ImportStartPage extends StatefulWidget {
   const ImportStartPage({super.key});
@@ -24,6 +28,7 @@ class _ImportStartPageState extends State<ImportStartPage> {
   late final ImportStartCubit _cubit = ImportStartCubit(
     getImports: GetIt.I<GetImports>(),
     startImport: GetIt.I<StartImport>(),
+    startFileImport: GetIt.I<StartFileImport>(),
   );
 
   @override
@@ -48,6 +53,88 @@ class _ImportStartPageState extends State<ImportStartPage> {
     await _cubit.startFilmow(username: login.username, cookies: login.cookies);
   }
 
+  /// Explains where the file comes from, then opens the picker. The bytes are
+  /// read in memory (`withData`), which works the same on mobile and web.
+  Future<void> _startFromFile(ImportSource source) async {
+    final l10n = AppLocalizations.of(context);
+    final isFilmow = source == ImportSource.filmow;
+    final choose = await showAdaptiveDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog.adaptive(
+        title: Text(
+          isFilmow
+              ? l10n?.importFilmowFileTitle ?? ''
+              : l10n?.importLetterboxdFileTitle ?? '',
+        ),
+        content: Text(
+          isFilmow
+              ? l10n?.importFilmowFileMessage ?? ''
+              : l10n?.importLetterboxdFileMessage ?? '',
+        ),
+        actions: [
+          // Opens the instructions without closing: the user comes back to pick the file.
+          _adaptiveAction(
+            context: dialogContext,
+            onPressed: () => launchUrl(
+              isFilmow ? _filmowToolUrl : _letterboxdExportUrl,
+              mode: LaunchMode.externalApplication,
+            ),
+            child: Text(
+              isFilmow
+                  ? l10n?.importFilmowFileHowTo ?? ''
+                  : l10n?.importLetterboxdFileHowTo ?? '',
+            ),
+          ),
+          _adaptiveAction(
+            context: dialogContext,
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n?.cancel ?? ''),
+          ),
+          _adaptiveAction(
+            context: dialogContext,
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n?.importChooseFile ?? 'OK'),
+          ),
+        ],
+      ),
+    );
+    if (choose != true || !mounted) return;
+    final picked = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: isFilmow ? const ['csv'] : const ['csv', 'zip'],
+      withData: true,
+    );
+    if (picked == null || !mounted) return;
+    final files = [
+      for (final file in picked.files)
+        if (file.bytes case final bytes?)
+          ImportUploadFile(name: file.name, bytes: bytes),
+    ];
+    if (files.isEmpty) return;
+    await _cubit.startFromFiles(source: source, files: files);
+  }
+
+  static final _filmowToolUrl = Uri.parse(
+    'https://github.com/yanari/filmow_to_letterboxd',
+  );
+  static final _letterboxdExportUrl = Uri.parse(
+    'https://letterboxd.com/settings/data/',
+  );
+
+  /// A dialog action in the platform's style.
+  Widget _adaptiveAction({
+    required BuildContext context,
+    required VoidCallback onPressed,
+    required Widget child,
+  }) => switch (Theme.of(context).platform) {
+    TargetPlatform.iOS || TargetPlatform.macOS => CupertinoDialogAction(
+      onPressed: onPressed,
+      child: child,
+    ),
+    _ => TextButton(onPressed: onPressed, child: child),
+  };
+
   void _openJob(ImportJob job) =>
       context.router.replace(ImportJobRoute(jobId: job.id));
 
@@ -67,11 +154,16 @@ class _ImportStartPageState extends State<ImportStartPage> {
           final l10n = AppLocalizations.of(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                failure == ImportStartFailure.inProgress
-                    ? l10n?.importInProgress ?? ''
-                    : l10n?.importStartError ?? '',
-              ),
+              content: Text(switch (failure) {
+                ImportStartFailure.inProgress => l10n?.importInProgress ?? '',
+                ImportStartFailure.unreadableFile =>
+                  l10n?.importFileUnreadable ?? '',
+                ImportStartFailure.ambiguousFile =>
+                  l10n?.importFileAmbiguous ?? '',
+                ImportStartFailure.emptyFile => l10n?.importFileEmpty ?? '',
+                ImportStartFailure.tooLarge => l10n?.importFileTooLarge ?? '',
+                ImportStartFailure.other => l10n?.importStartError ?? '',
+              }),
             ),
           );
           if (failure == ImportStartFailure.inProgress) _cubit.load();
@@ -79,6 +171,7 @@ class _ImportStartPageState extends State<ImportStartPage> {
         child: ImportStartScreen(
           cubit: _cubit,
           onStartFilmow: _startFilmow,
+          onStartFromFile: _startFromFile,
           onOpenJob: _openJob,
         ),
       );

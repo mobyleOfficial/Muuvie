@@ -241,11 +241,11 @@ class ShelvesRemoteDataSourceImpl implements ShelvesRemoteDataSource {
     T Function(Map<String, dynamic>) fromJson,
   ) => switch (result) {
     Success(:final data) => Success(fromJson(data)),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 
   Result<void> _ignoreBody(Result<dynamic> result) => switch (result) {
     Success() => const Success(null),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 }

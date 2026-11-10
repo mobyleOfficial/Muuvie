@@ -11,6 +11,15 @@ abstract interface class ImportsRepository {
     required String cookies,
   });
 
+  /// Uploads [files] for [source]. The server reads them right away, so the
+  /// job comes back waiting on its preview; an unreadable file is a badRequest.
+  /// [onProgress] goes from 0 to 1 while the files upload.
+  Future<Result<ImportJob>> startFileImport({
+    required ImportSource source,
+    required List<ImportUploadFile> files,
+    void Function(double progress)? onProgress,
+  });
+
   Future<Result<ImportJob>> getImport(int jobId);
 
   Future<Result<ImportJobPage>> getImports({required int page});

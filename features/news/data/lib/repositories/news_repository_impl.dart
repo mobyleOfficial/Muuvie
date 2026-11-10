@@ -19,7 +19,7 @@ class NewsRepositoryImpl implements NewsRepository {
 
     return switch (result) {
       Success(:final data) => Success(data.toDomain()),
-      Failure(:final error) => Failure(error),
+      Failure(:final error, :final code) => Failure(error, code: code),
     };
   }
 
@@ -29,7 +29,7 @@ class NewsRepositoryImpl implements NewsRepository {
 
     return switch (result) {
       Success(:final data) => Success(data.toDomain()),
-      Failure(:final error) => Failure(error),
+      Failure(:final error, :final code) => Failure(error, code: code),
     };
   }
 

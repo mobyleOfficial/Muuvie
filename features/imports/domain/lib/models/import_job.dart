@@ -8,6 +8,12 @@ enum ImportSource {
 
   const ImportSource(this.wireValue);
 
+  /// The service's name, the same in every language.
+  String get displayName => switch (this) {
+    ImportSource.filmow => 'Filmow',
+    ImportSource.letterboxd => 'Letterboxd',
+  };
+
   static ImportSource? fromWireValue(String? value) =>
       values.where((source) => source.wireValue == value).firstOrNull;
 }
@@ -48,11 +54,15 @@ class ImportPreviewList {
   final int movieCount;
   final String? coverUrl;
 
+  /// Unchecked at first: a Letterboxd tag, which becomes a shelf only if chosen.
+  final bool optional;
+
   const ImportPreviewList({
     required this.externalId,
     required this.title,
     required this.movieCount,
     this.coverUrl,
+    this.optional = false,
   });
 }
 
@@ -64,12 +74,16 @@ class ImportPreview {
   final int logs;
   final List<ImportPreviewList> lists;
 
+  /// Reviews that become the review of the movie's rating.
+  final int reviews;
+
   const ImportPreview({
     required this.watched,
     required this.watchlist,
     required this.favorites,
     required this.logs,
     this.lists = const [],
+    this.reviews = 0,
   });
 }
 
@@ -86,6 +100,7 @@ class ImportCounts {
 
   /// Movies the user already had in the Muuvie, left as they were.
   final int keptFromMuuvie;
+  final int reviews;
 
   const ImportCounts({
     this.watched = 0,
@@ -95,6 +110,7 @@ class ImportCounts {
     this.logs = 0,
     this.unmatched = 0,
     this.keptFromMuuvie = 0,
+    this.reviews = 0,
   });
 }
 
@@ -146,6 +162,11 @@ class ImportJobPage {
 class ImportProgress {
   final int jobId;
   final ImportStatus status;
+  final ImportSource source;
 
-  const ImportProgress({required this.jobId, required this.status});
+  const ImportProgress({
+    required this.jobId,
+    required this.status,
+    this.source = ImportSource.filmow,
+  });
 }

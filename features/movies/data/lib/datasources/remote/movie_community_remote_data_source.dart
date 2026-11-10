@@ -48,7 +48,7 @@ class MovieCommunityRemoteDataSource {
     );
     return switch (result) {
       Success(:final data) => Success(parse(data)),
-      Failure(:final error) => Failure(error),
+      Failure(:final error, :final code) => Failure(error, code: code),
     };
   }
 

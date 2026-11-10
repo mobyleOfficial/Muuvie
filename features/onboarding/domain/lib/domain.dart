@@ -19,7 +19,7 @@ class ShouldShowOnboarding extends UseCase<void, Result<bool>> {
   Future<Result<bool>> call([void params]) async =>
       switch (_repository.hasSeen()) {
         Success(:final data) => Success(!data),
-        Failure(:final error) => Failure(error),
+        Failure(:final error, :final code) => Failure(error, code: code),
       };
 }
 

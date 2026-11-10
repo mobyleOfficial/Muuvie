@@ -179,7 +179,7 @@ class WatchLogsRemoteDataSourceImpl implements WatchLogsRemoteDataSource {
       Success(:final data) => Success(
         data is Map<String, dynamic> ? RemoteWatchLogs.watchingNow(data) : null,
       ),
-      Failure(:final error) => Failure(error),
+      Failure(:final error, :final code) => Failure(error, code: code),
     };
   }
 
@@ -189,7 +189,7 @@ class WatchLogsRemoteDataSourceImpl implements WatchLogsRemoteDataSource {
         '$_base/users/me/emotions/recent',
       )) {
         Success(:final data) => Success(RemoteWatchLogs.emotions(data)),
-        Failure(:final error) => Failure(error),
+        Failure(:final error, :final code) => Failure(error, code: code),
       };
 
   @override
@@ -198,7 +198,7 @@ class WatchLogsRemoteDataSourceImpl implements WatchLogsRemoteDataSource {
     Success(:final data) => Success(
       data.cast<Map<String, dynamic>>().map(RemoteWatchLogs.gif).toList(),
     ),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 
   @override
@@ -260,11 +260,11 @@ class WatchLogsRemoteDataSourceImpl implements WatchLogsRemoteDataSource {
     T Function(Map<String, dynamic>) fromJson,
   ) => switch (result) {
     Success(:final data) => Success(fromJson(data)),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 
   Result<void> _ignoreBody(Result<dynamic> result) => switch (result) {
     Success() => const Success(null),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 }

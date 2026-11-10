@@ -73,7 +73,9 @@ class _MainScreenState extends State<MainScreen> {
     final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(l10n?.importFinishedSnack ?? ''),
+        content: Text(
+          l10n?.importFinishedSnack(progress.source.displayName) ?? '',
+        ),
         action: SnackBarAction(
           label: l10n?.importSeeReport ?? '',
           onPressed: () =>

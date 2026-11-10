@@ -22,7 +22,7 @@ class ProfilesRepositoryImpl implements ProfilesRepository {
   Future<Result<HandleAvailability>> checkHandle(String handle) async =>
       switch (await _remoteDataSource.checkHandle(handle)) {
         Success(:final data) => Success(data.toDomain()),
-        Failure(:final error) => Failure(error),
+        Failure(:final error, :final code) => Failure(error, code: code),
       };
 
   @override
@@ -43,13 +43,13 @@ class ProfilesRepositoryImpl implements ProfilesRepository {
     page: page,
   )) {
     Success(:final data) => Success(data.toDomain((card) => card.toDomain())),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 
   Result<ProfileDetails> _profile(Result<RemoteProfileDetails> result) =>
       switch (result) {
         Success(:final data) => Success(data.toDomain()),
-        Failure(:final error) => Failure(error),
+        Failure(:final error, :final code) => Failure(error, code: code),
       };
 
   Result<List<ProfileHighlight>> _highlights(
@@ -58,6 +58,6 @@ class ProfilesRepositoryImpl implements ProfilesRepository {
     Success(:final data) => Success(
       data.map((e) => e.toDomain()).whereType<ProfileHighlight>().toList(),
     ),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 }
