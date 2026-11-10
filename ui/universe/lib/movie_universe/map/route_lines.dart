@@ -31,7 +31,8 @@ class RouteLines extends Component with HasGameReference<UniverseGame> {
   void render(Canvas canvas) {
     if (_routes.isEmpty) return;
     final zoom = game.zoom;
-    if (_mesh == null || (zoom - _meshZoom).abs() > _meshZoom * 0.02) {
+    if (_mesh == null ||
+        (zoom - _meshZoom).abs() > _meshZoom * game.meshTolerance) {
       _discardMesh();
       _mesh = _buildMesh(_screenWidth / zoom / 2);
       _meshZoom = zoom;

@@ -18,17 +18,29 @@ class OrbitRings extends Component with HasGameReference<UniverseGame> {
   static const _segments = 128;
 
   final List<OrbitSlot> slots;
+  final Color color;
   final Paint _paint;
   Vertices? _mesh;
   double _meshZoom = 0;
+  double _reveal = 1;
 
-  OrbitRings({required this.slots, required Color color})
+  OrbitRings({required this.slots, required this.color})
     : _paint = Paint()..color = color;
+
+  /// From 0, hidden, to 1, fully drawn: the orbits fade in as a system
+  /// arrives.
+  set reveal(double value) {
+    if (value == _reveal) return;
+    _reveal = value;
+    _paint.color = color.withValues(alpha: color.a * value);
+  }
 
   @override
   void render(Canvas canvas) {
+    if (_reveal <= 0) return;
     final zoom = game.zoom;
-    if (_mesh == null || (zoom - _meshZoom).abs() > _meshZoom * 0.02) {
+    if (_mesh == null ||
+        (zoom - _meshZoom).abs() > _meshZoom * game.meshTolerance) {
       _mesh?.dispose();
       _mesh = _buildMesh(_screenWidth / zoom / 2);
       _meshZoom = zoom;

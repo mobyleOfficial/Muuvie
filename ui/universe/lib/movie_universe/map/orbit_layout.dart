@@ -61,7 +61,9 @@ abstract final class OrbitLayout {
   static OrbitSlot _slot(int rank, double radius) => OrbitSlot(
     radius: radius,
     startAngle: startAngle(rank),
-    angularSpeed: 0.18 / math.sqrt(radius / 100),
+    // Slow: the closest orbit takes about a minute and a half, the farthest
+    // over three minutes.
+    angularSpeed: 0.07 / math.sqrt(radius / 100),
     planetRadius: math.max(_smallestPlanet, _largestPlanet - rank * 1.2),
   );
 

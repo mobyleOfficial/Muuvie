@@ -13,6 +13,7 @@ import 'package:universe_ui/movie_universe/map/poster_image_loader.dart';
 import 'package:universe_ui/movie_universe/map/route_lines.dart';
 import 'package:universe_ui/movie_universe/map/star_field.dart';
 import 'package:universe_ui/movie_universe/map/system_component.dart';
+import 'package:universe_ui/movie_universe/map/travel_flight.dart';
 import 'package:universe_ui/movie_universe/map/universe_palette.dart';
 import 'package:universe_ui/movie_universe/streaming/poster_cache.dart';
 import 'package:universe_ui/movie_universe/streaming/system_streaming.dart';
@@ -50,7 +51,6 @@ class UniverseGame extends FlameGame {
   /// target never gets below 48x48 however far the user zooms out.
   static const _minimumTouchRadius = 24.0;
   static const _margin = 16.0;
-  static const _focusSpeed = 4.0;
   static const _streamingInterval = 0.2;
 
   final UniversePalette palette;
@@ -61,13 +61,18 @@ class UniverseGame extends FlameGame {
   final SystemStreaming _streaming = const SystemStreaming();
   final PosterCache posters = PosterCache(fetch: PosterImageLoader.load);
   late final RouteLines _routes;
-  Vector2? _focusPosition;
-  double? _focusZoom;
+  TravelFlight? _flight;
+  Vector2 _flightDirection = Vector2.zero();
+
+  /// Where the planets that just became systems were, by their movie id:
+  /// each new star sets off from there when its system loads.
+  final Map<int, (Vector2, double)> _departures = {};
   int? _selectedMovieId;
   UniverseFilter _filter;
   UniverseGraph? _syncedGraph;
   Map<int, Rect> _systemAreas = const {};
   double _sinceStreaming = 0;
+  Vector2? _laidOutSize;
 
   UniverseGame({
     required UniverseGraph graph,
@@ -83,6 +88,19 @@ class UniverseGame extends FlameGame {
   Color backgroundColor() => palette.space;
 
   double get zoom => camera.viewfinder.zoom;
+
+  /// From 0 at rest to 1 at the fastest point of a flight between systems.
+  double get rush => _flight?.rush ?? 0;
+
+  /// How far the zoom may drift, as a share, before a line mesh drawn at
+  /// a fixed screen width (orbits, routes) is rebuilt. A flight changes the
+  /// zoom every frame: rebuilding every system's orbits each time was most of
+  /// the cost of a flight on a moto g9 plus, and lines a little thicker or
+  /// thinner for a second are not seen.
+  double get meshTolerance => _flight == null ? 0.02 : 0.3;
+
+  /// The way the camera flies, as a unit vector on screen; zero at rest.
+  Vector2 get flightDirection => _flightDirection;
 
   @override
   Future<void> onLoad() async {
@@ -109,8 +127,13 @@ class UniverseGame extends FlameGame {
 
   @override
   void onGameResize(Vector2 size) {
+    // Flame calls this on every layout of the GameWidget, so on every state
+    // the screen rebuilds with, even when nothing changed size: refocusing
+    // then would cut every flight short.
+    final resized = _laidOutSize != size;
+    _laidOutSize = size.clone();
     super.onGameResize(size);
-    if (isLoaded) focusSystem(_focusedStarId, animated: false);
+    if (isLoaded && resized) focusSystem(_focusedStarId, animated: false);
   }
 
   /// Adds the systems new in [graph], drops the planets that left their
@@ -131,6 +154,7 @@ class UniverseGame extends FlameGame {
     // only moves systems in and out.
     final graphChanged = !identical(_graph, _syncedGraph);
     if (graphChanged) {
+      if (animate) _noteDepartures(_syncedGraph);
       _syncedGraph = _graph;
       for (final MapEntry(key: starId, value: component) in _systems.entries) {
         final system = _graph.systemOf(starId);
@@ -153,17 +177,23 @@ class UniverseGame extends FlameGame {
       systemAreas: _systemAreas,
       loaded: _systems.keys.toSet(),
       view: camera.visibleWorldRect,
-      // The system in focus stays even while the camera glides away.
+      // The system in focus stays even while the camera flies away.
       pinned: {_focusedStarId},
     );
     for (final starId in change.toUnload) {
       _systems.remove(starId)?.removeFromParent();
     }
     for (final starId in change.toLoad) {
+      final departure = _departures.remove(starId);
+      final system = _graph.systemOf(starId)!;
       final component = SystemComponent(
-        system: _graph.systemOf(starId)!,
+        system: system,
         palette: palette,
         animate: animate,
+        arrivingFrom: departure == null
+            ? null
+            : departure.$1 - Vector2(system.center.dx, system.center.dy),
+        arrivingRadius: departure?.$2,
       );
       for (final body in component.planets) {
         body.selected = body.movie.id == _selectedMovieId;
@@ -174,8 +204,26 @@ class UniverseGame extends FlameGame {
     }
   }
 
+  /// Remembers where each planet that became a system was, so its star sets
+  /// off from that spot instead of popping up at its new place.
+  void _noteDepartures(UniverseGraph? previous) {
+    _departures.clear();
+    for (final component in _systems.values) {
+      for (final body in component.planets) {
+        final starId = body.movie.id;
+        if (_graph.systemOf(starId) == null) continue;
+        if (previous?.systemOf(starId) != null) continue;
+        _departures[starId] = (
+          body.absolutePosition.clone(),
+          body.slot.planetRadius,
+        );
+      }
+    }
+  }
+
   /// Centers the camera on a system and zooms so it fits the screen. The
-  /// camera glides there unless [animated] is false or motion is reduced.
+  /// camera flies there (see [TravelFlight]) unless [animated] is false or
+  /// motion is reduced; a star that just left its orbit flies with it.
   void focusSystem(int starId, {bool animated = true}) {
     final system = _graph.systemOf(starId);
     if (system == null) return;
@@ -187,14 +235,33 @@ class UniverseGame extends FlameGame {
       maxZoom,
     );
     final targetPosition = Vector2(system.center.dx, system.center.dy);
+    // A system out of sight is not in the world yet: bring it now, so a new
+    // star leaves with the camera.
+    if (isMounted && !_systems.containsKey(starId)) _syncSystems();
     if (animated && animate) {
-      _focusPosition = targetPosition;
-      _focusZoom = targetZoom;
+      final viewfinder = camera.viewfinder;
+      final flight = TravelFlight(
+        from: viewfinder.position,
+        to: targetPosition,
+        fromZoom: viewfinder.zoom,
+        toZoom: targetZoom,
+        screenWidth: size.x,
+      );
+      _flight = flight;
+      final heading = targetPosition - viewfinder.position;
+      _flightDirection = heading.length2 == 0
+          ? Vector2.zero()
+          : heading.normalized();
+      _systems[starId]?.arriveIn(flight.duration);
     } else {
+      _endFlight();
+      _systems[starId]?.arriveIn(0);
       camera.viewfinder
         ..zoom = targetZoom
         ..position = targetPosition;
     }
+    // A departure not used by now would play later, out of context.
+    _departures.clear();
   }
 
   @override
@@ -202,26 +269,24 @@ class UniverseGame extends FlameGame {
     super.update(dt);
     _sinceStreaming += dt;
     if (_sinceStreaming >= _streamingInterval) _syncSystems();
-    final target = _focusPosition;
-    final targetZoom = _focusZoom;
-    if (target == null || targetZoom == null) return;
-    final viewfinder = camera.viewfinder;
-    final step = math.min(1.0, dt * _focusSpeed);
-    viewfinder
-      ..position = viewfinder.position + (target - viewfinder.position) * step
-      ..zoom = viewfinder.zoom + (targetZoom - viewfinder.zoom) * step;
-    if (viewfinder.position.distanceTo(target) < 1 &&
-        (viewfinder.zoom - targetZoom).abs() < 0.001) {
-      _focusPosition = null;
-      _focusZoom = null;
-    }
+    final flight = _flight;
+    if (flight == null) return;
+    flight.advance(dt);
+    camera.viewfinder
+      ..position = flight.position
+      ..zoom = flight.zoom;
+    if (flight.isOver) _endFlight();
+  }
+
+  void _endFlight() {
+    _flight = null;
+    _flightDirection = Vector2.zero();
   }
 
   /// Pans by [screenDelta] logical pixels and zooms to [zoom]. A gesture
-  /// stops any glide towards a system.
+  /// stops any flight towards a system.
   void moveCamera({required Offset screenDelta, required double zoom}) {
-    _focusPosition = null;
-    _focusZoom = null;
+    _endFlight();
     final viewfinder = camera.viewfinder;
     viewfinder.zoom = zoom.clamp(minZoom, maxZoom);
     // The camera cannot wander past the explored universe. The getter
@@ -260,7 +325,7 @@ class UniverseGame extends FlameGame {
         OrbitLayout.starRadius,
       );
       for (final body in system.planets) {
-        if (body.dimmed) continue;
+        if (body.dimmed || !body.isOut) continue;
         consider(
           PlanetHit(body.movie),
           body.absolutePosition,

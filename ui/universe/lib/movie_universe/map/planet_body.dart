@@ -9,6 +9,7 @@ import 'package:universe_ui/movie_universe/map/orbit_layout.dart';
 import 'package:universe_ui/movie_universe/map/poster_detail.dart';
 import 'package:universe_ui/movie_universe/map/poster_disc.dart';
 import 'package:universe_ui/movie_universe/map/status_badge.dart';
+import 'package:universe_ui/movie_universe/map/travel_flight.dart';
 import 'package:universe_ui/movie_universe/map/universe_game.dart';
 import 'package:universe_ui/movie_universe/map/universe_palette.dart';
 
@@ -16,6 +17,10 @@ import 'package:universe_ui/movie_universe/map/universe_palette.dart';
 /// (w92) from afar and the medium one (w185) up close.
 class PlanetBody extends PositionComponent with HasGameReference<UniverseGame> {
   static const _selectedScale = 1.25;
+
+  /// Seconds a planet takes to come out to its orbit when its system
+  /// arrives.
+  static const _comingOutDuration = 0.7;
 
   /// On-screen radius, in logical pixels, past which w92 looks blurry.
   static const _largePosterRadius = 40.0;
@@ -31,6 +36,11 @@ class PlanetBody extends PositionComponent with HasGameReference<UniverseGame> {
   /// Left out by the filter: faded, and taps go through it.
   bool dimmed = false;
   double _angle;
+
+  /// From 0, still inside the star, to 1, on its orbit.
+  double _out = 1;
+  double _outDelay = 0;
+  bool _waitingToComeOut = false;
   final PosterDisc _disc;
   final PosterDetail _poster;
   final Paint _ring;
@@ -91,7 +101,30 @@ class PlanetBody extends PositionComponent with HasGameReference<UniverseGame> {
 
   /// The radius on screen, bigger while selected.
   double get visibleRadius =>
-      slot.planetRadius * (selected ? _selectedScale : 1);
+      slot.planetRadius * (selected ? _selectedScale : 1) * _size;
+
+  /// On its orbit, or on its way there: a planet still inside its arriving
+  /// star cannot be tapped.
+  bool get isOut => _out > 0;
+
+  /// Keeps the planet inside the star until [comeOut].
+  void hide() {
+    _out = 0;
+    _waitingToComeOut = true;
+    _moveToAngle();
+  }
+
+  /// Sends the planet out to its orbit after [delay] seconds, overshooting
+  /// it a little before it settles; [instantly] puts it there.
+  void comeOut({double delay = 0, bool instantly = false}) {
+    _waitingToComeOut = false;
+    _outDelay = delay;
+    _out = instantly ? 1 : math.max(_out, 0.0001);
+    _moveToAngle();
+  }
+
+  /// The planet grows to full size in the first part of the way out.
+  double get _size => (_out * 1.8).clamp(0.0, 1.0);
 
   @override
   void update(double dt) {
@@ -99,20 +132,48 @@ class PlanetBody extends PositionComponent with HasGameReference<UniverseGame> {
       screenRadius: visibleRadius * game.zoom,
       cache: game.posters,
     );
+    final comingOut = !_waitingToComeOut && _out < 1;
+    if (comingOut) {
+      if (_outDelay > 0) {
+        _outDelay -= dt;
+      } else {
+        _out = math.min(1.0, _out + dt / _comingOutDuration);
+      }
+    }
     // The selected planet holds still, so its card points at it.
-    if (!animate || selected) return;
-    _angle = (_angle + slot.angularSpeed * dt) % (2 * math.pi);
-    _moveToAngle();
+    if (animate && !selected) {
+      _angle = (_angle + slot.angularSpeed * dt) % (2 * math.pi);
+    }
+    if (comingOut || (animate && !selected)) _moveToAngle();
   }
 
-  void _moveToAngle() => position.setValues(
-    slot.radius * math.cos(_angle),
-    slot.radius * math.sin(_angle),
-  );
+  void _moveToAngle() {
+    final distance = _out >= 1
+        ? slot.radius
+        : slot.radius * TravelFlight.easeOutBack(_out);
+    position.setValues(
+      distance * math.cos(_angle),
+      distance * math.sin(_angle),
+    );
+  }
 
   @override
   void render(Canvas canvas) {
-    final radius = visibleRadius;
+    if (_out <= 0) return;
+    final size = _size;
+    if (size < 1) {
+      // Scaled rather than drawn smaller, so the poster shader is kept.
+      canvas
+        ..save()
+        ..scale(size);
+      _paintBody(canvas, slot.planetRadius * (selected ? _selectedScale : 1));
+      canvas.restore();
+      return;
+    }
+    _paintBody(canvas, visibleRadius);
+  }
+
+  void _paintBody(Canvas canvas, double radius) {
     if (selected) canvas.drawCircle(Offset.zero, radius + 8, _selectedHalo);
     _disc.paint(canvas, radius);
     canvas.drawCircle(Offset.zero, radius, selected ? _selectedRing : _ring);
