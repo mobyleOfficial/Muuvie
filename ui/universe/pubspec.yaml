@@ -1,0 +1,43 @@
+name: universe_ui
+description: Universo de Filmes — a movie as a star, its similar movies as planets around it
+publish_to: none
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_bloc: ^9.1.1
+  bloc: ^9.2.0
+  # 11.2 builds routes with material_ui, whose Theme this app does not provide:
+  # pages then fall back to its default light theme and flash white in dark mode.
+  auto_route: ">=11.1.0 <11.2.0"
+  get_it: ^8.0.3
+  cached_network_image: any
+  common:
+    path: ../common
+  auth:
+    path: ../../features/auth
+  core:
+    path: ../../core
+  movies:
+    path: ../../features/movies
+  movies_ui:
+    path: ../movies_ui
+  shelves:
+    path: ../../features/shelves
+  shelves_ui:
+    path: ../shelves
+  watch_logs:
+    path: ../../features/watch_logs
+  gamification:
+    path: ../../features/gamification
+  gamification_ui:
+    path: ../gamification
+  share_plus: ^11.0.0
+  flame: ^1.38.2
+
+dev_dependencies:
+  auto_route_generator: ^10.5.0
+  build_runner: ^2.13.1

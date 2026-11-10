@@ -3837,4 +3837,190 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get savedShelvesEmpty =>
       'Las estantes que guardes de otras personas aparecen aquí.';
+
+  @override
+  String get universeAction => 'Explorar universo';
+
+  @override
+  String universeTitle(String title) {
+    return 'Universo de $title';
+  }
+
+  @override
+  String get universeShowList => 'Ver como lista';
+
+  @override
+  String get universeShowMap => 'Ver como universo';
+
+  @override
+  String get universeEmpty => 'Aún no hay películas parecidas por aquí.';
+
+  @override
+  String get universeError => 'No se pudo cargar este universo.';
+
+  @override
+  String get universeOpenDetails => 'Ver detalles';
+
+  @override
+  String universeMapLabel(int count, String title) {
+    return 'Mapa con $count películas parecidas a $title. Usa el modo lista para recorrerlas.';
+  }
+
+  @override
+  String get universeCenterLabel => 'El centro de este universo';
+
+  @override
+  String get universeTravel => 'Viajar';
+
+  @override
+  String universeTravelTo(String title) {
+    return 'Viajar a $title';
+  }
+
+  @override
+  String universeTravelError(String title) {
+    return 'No se pudo viajar a $title.';
+  }
+
+  @override
+  String universeHops(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count saltos del origen',
+      one: '1 salto del origen',
+      zero: 'En el origen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get universeBackToOrigin => 'Volver al origen';
+
+  @override
+  String get universeWantToWatch => 'Quiero ver';
+
+  @override
+  String universeAddedToWatchlist(String title) {
+    return '$title está en Quiero ver.';
+  }
+
+  @override
+  String get universeWantToWatchError =>
+      'No se pudo agregar a Quiero ver. Inténtalo de nuevo.';
+
+  @override
+  String get universeAddToShelf => 'Agregar a estante';
+
+  @override
+  String universeMoreActions(String title) {
+    return 'Más acciones para $title';
+  }
+
+  @override
+  String universeInCommon(String items) {
+    return 'En común: $items';
+  }
+
+  @override
+  String get universeFilter => 'Filtrar planetas';
+
+  @override
+  String get universeFilterOnlyUnwatched => 'Solo las que no vi';
+
+  @override
+  String get universeFilterDecade => 'Década';
+
+  @override
+  String universeFilterDecadeValue(int decade) {
+    return 'Años $decade';
+  }
+
+  @override
+  String get universeFilterGenre => 'Género';
+
+  @override
+  String get universeFilterAny => 'Cualquiera';
+
+  @override
+  String get universeFilterClear => 'Limpiar filtros';
+
+  @override
+  String universeFilterSummary(int count, int total) {
+    return '$count de $total planetas coinciden';
+  }
+
+  @override
+  String get universeFilterNoMatch =>
+      'Ningún planeta de este sistema coincide con los filtros.';
+
+  @override
+  String get petFoguete => 'Cohete';
+
+  @override
+  String get petAstronauta => 'Astronauta';
+
+  @override
+  String petRuleUniverse(int count) {
+    return 'Visita $count sistemas en el Universo de Películas';
+  }
+
+  @override
+  String get universeShareRoute => 'Compartir ruta';
+
+  @override
+  String universeShareRouteText(
+    String origin,
+    String destination,
+    int hops,
+    String path,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hops,
+      locale: localeName,
+      other: '$hops saltos',
+      one: '1 salto',
+      zero: '0 saltos',
+    );
+    return 'Fui de $origin a $destination en $_temp0 en el Universo de Películas de Muuvie: $path';
+  }
+
+  @override
+  String get universeConstellations => 'Constelaciones';
+
+  @override
+  String universeConstellationsHelp(String title) {
+    return 'Estantes públicas con $title. Sus películas se encienden y se unen en el mapa.';
+  }
+
+  @override
+  String universeConstellationsEmpty(String title) {
+    return 'Ninguna estante pública tiene $title todavía.';
+  }
+
+  @override
+  String get universeConstellationsError =>
+      'No se pudieron cargar las estantes.';
+
+  @override
+  String universeConstellationLabel(String name, String owner) {
+    return '$name · de $owner';
+  }
+
+  @override
+  String get universeConstellationError =>
+      'No se pudo armar esta constelación.';
+
+  @override
+  String universeConstellationSummary(String name, int count, int total) {
+    return '$name: $count de $total planetas';
+  }
+
+  @override
+  String universeUnlockedPet(String name) {
+    return '¡Desbloqueaste la vaquinha $name explorando el universo!';
+  }
+
+  @override
+  String get universeSeePet => 'Ver';
 }

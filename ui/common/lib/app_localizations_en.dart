@@ -3803,4 +3803,188 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get savedShelvesEmpty =>
       'Shelves you save from other people show up here.';
+
+  @override
+  String get universeAction => 'Explore universe';
+
+  @override
+  String universeTitle(String title) {
+    return 'Universe of $title';
+  }
+
+  @override
+  String get universeShowList => 'Show as list';
+
+  @override
+  String get universeShowMap => 'Show as universe';
+
+  @override
+  String get universeEmpty => 'No similar movies around here yet.';
+
+  @override
+  String get universeError => 'Couldn\'t load this universe.';
+
+  @override
+  String get universeOpenDetails => 'See details';
+
+  @override
+  String universeMapLabel(int count, String title) {
+    return 'Map of $count movies similar to $title. Use the list mode to go through them.';
+  }
+
+  @override
+  String get universeCenterLabel => 'The center of this universe';
+
+  @override
+  String get universeTravel => 'Travel';
+
+  @override
+  String universeTravelTo(String title) {
+    return 'Travel to $title';
+  }
+
+  @override
+  String universeTravelError(String title) {
+    return 'Couldn\'t travel to $title.';
+  }
+
+  @override
+  String universeHops(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count jumps from the origin',
+      one: '1 jump from the origin',
+      zero: 'At the origin',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get universeBackToOrigin => 'Back to the origin';
+
+  @override
+  String get universeWantToWatch => 'Want to watch';
+
+  @override
+  String universeAddedToWatchlist(String title) {
+    return '$title is in Want to watch.';
+  }
+
+  @override
+  String get universeWantToWatchError =>
+      'Couldn\'t add it to Want to watch. Try again.';
+
+  @override
+  String get universeAddToShelf => 'Add to shelf';
+
+  @override
+  String universeMoreActions(String title) {
+    return 'More actions for $title';
+  }
+
+  @override
+  String universeInCommon(String items) {
+    return 'In common: $items';
+  }
+
+  @override
+  String get universeFilter => 'Filter planets';
+
+  @override
+  String get universeFilterOnlyUnwatched => 'Only the ones I haven\'t watched';
+
+  @override
+  String get universeFilterDecade => 'Decade';
+
+  @override
+  String universeFilterDecadeValue(int decade) {
+    return '${decade}s';
+  }
+
+  @override
+  String get universeFilterGenre => 'Genre';
+
+  @override
+  String get universeFilterAny => 'Any';
+
+  @override
+  String get universeFilterClear => 'Clear filters';
+
+  @override
+  String universeFilterSummary(int count, int total) {
+    return '$count of $total planets match';
+  }
+
+  @override
+  String get universeFilterNoMatch =>
+      'No planet of this system matches the filters.';
+
+  @override
+  String get petFoguete => 'Rocket';
+
+  @override
+  String get petAstronauta => 'Astronaut';
+
+  @override
+  String petRuleUniverse(int count) {
+    return 'Visit $count systems in the Movie Universe';
+  }
+
+  @override
+  String get universeShareRoute => 'Share route';
+
+  @override
+  String universeShareRouteText(
+    String origin,
+    String destination,
+    int hops,
+    String path,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hops,
+      locale: localeName,
+      other: '$hops jumps',
+      one: '1 jump',
+      zero: '0 jumps',
+    );
+    return 'I went from $origin to $destination in $_temp0 in Muuvie\'s Movie Universe: $path';
+  }
+
+  @override
+  String get universeConstellations => 'Constellations';
+
+  @override
+  String universeConstellationsHelp(String title) {
+    return 'Public shelves with $title. Their movies light up and join on the map.';
+  }
+
+  @override
+  String universeConstellationsEmpty(String title) {
+    return 'No public shelf has $title yet.';
+  }
+
+  @override
+  String get universeConstellationsError => 'Couldn\'t load the shelves.';
+
+  @override
+  String universeConstellationLabel(String name, String owner) {
+    return '$name · by $owner';
+  }
+
+  @override
+  String get universeConstellationError => 'Couldn\'t draw this constellation.';
+
+  @override
+  String universeConstellationSummary(String name, int count, int total) {
+    return '$name: $count of $total planets';
+  }
+
+  @override
+  String universeUnlockedPet(String name) {
+    return 'You unlocked the $name vaquinha exploring the universe!';
+  }
+
+  @override
+  String get universeSeePet => 'See';
 }

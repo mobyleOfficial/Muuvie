@@ -6483,6 +6483,269 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Shelves you save from other people show up here.'**
   String get savedShelvesEmpty;
+
+  /// Movie actions: opens the universe of similar movies
+  ///
+  /// In en, this message translates to:
+  /// **'Explore universe'**
+  String get universeAction;
+
+  /// Title of the universe screen
+  ///
+  /// In en, this message translates to:
+  /// **'Universe of {title}'**
+  String universeTitle(String title);
+
+  /// Universe: switches to the accessible list of the movies
+  ///
+  /// In en, this message translates to:
+  /// **'Show as list'**
+  String get universeShowList;
+
+  /// Universe: switches back to the star map
+  ///
+  /// In en, this message translates to:
+  /// **'Show as universe'**
+  String get universeShowMap;
+
+  /// Universe with no similar movies
+  ///
+  /// In en, this message translates to:
+  /// **'No similar movies around here yet.'**
+  String get universeEmpty;
+
+  /// Universe failed to load
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this universe.'**
+  String get universeError;
+
+  /// Universe: opens the detail of the selected planet
+  ///
+  /// In en, this message translates to:
+  /// **'See details'**
+  String get universeOpenDetails;
+
+  /// Screen reader label of the star map
+  ///
+  /// In en, this message translates to:
+  /// **'Map of {count} movies similar to {title}. Use the list mode to go through them.'**
+  String universeMapLabel(int count, String title);
+
+  /// Universe list: marks the movie at the center
+  ///
+  /// In en, this message translates to:
+  /// **'The center of this universe'**
+  String get universeCenterLabel;
+
+  /// Universe card: turns the selected planet into a star system and flies there
+  ///
+  /// In en, this message translates to:
+  /// **'Travel'**
+  String get universeTravel;
+
+  /// Universe list: travel button of a planet
+  ///
+  /// In en, this message translates to:
+  /// **'Travel to {title}'**
+  String universeTravelTo(String title);
+
+  /// Universe: a jump to a planet failed
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t travel to {title}.'**
+  String universeTravelError(String title);
+
+  /// Universe: how many jumps the system in focus is from the first movie
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{At the origin} =1{1 jump from the origin} other{{count} jumps from the origin}}'**
+  String universeHops(int count);
+
+  /// Universe: flies back to the first movie's system
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the origin'**
+  String get universeBackToOrigin;
+
+  /// Universe card: adds the planet to the Quero ver shelf
+  ///
+  /// In en, this message translates to:
+  /// **'Want to watch'**
+  String get universeWantToWatch;
+
+  /// Universe: the planet was added to Quero ver
+  ///
+  /// In en, this message translates to:
+  /// **'{title} is in Want to watch.'**
+  String universeAddedToWatchlist(String title);
+
+  /// Universe: adding to Quero ver failed
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t add it to Want to watch. Try again.'**
+  String get universeWantToWatchError;
+
+  /// Universe card: opens the add-to-shelves screen for the planet
+  ///
+  /// In en, this message translates to:
+  /// **'Add to shelf'**
+  String get universeAddToShelf;
+
+  /// Universe list: menu with the actions of a planet
+  ///
+  /// In en, this message translates to:
+  /// **'More actions for {title}'**
+  String universeMoreActions(String title);
+
+  /// Universe: the genres and keywords a planet shares with its star, comma-separated
+  ///
+  /// In en, this message translates to:
+  /// **'In common: {items}'**
+  String universeInCommon(String items);
+
+  /// Universe: opens the planet filters
+  ///
+  /// In en, this message translates to:
+  /// **'Filter planets'**
+  String get universeFilter;
+
+  /// Universe filter: hides watched movies
+  ///
+  /// In en, this message translates to:
+  /// **'Only the ones I haven\'t watched'**
+  String get universeFilterOnlyUnwatched;
+
+  /// Universe filter: decade section
+  ///
+  /// In en, this message translates to:
+  /// **'Decade'**
+  String get universeFilterDecade;
+
+  /// Universe filter: one decade
+  ///
+  /// In en, this message translates to:
+  /// **'{decade}s'**
+  String universeFilterDecadeValue(int decade);
+
+  /// Universe filter: genre section
+  ///
+  /// In en, this message translates to:
+  /// **'Genre'**
+  String get universeFilterGenre;
+
+  /// Universe filter: no decade or genre picked
+  ///
+  /// In en, this message translates to:
+  /// **'Any'**
+  String get universeFilterAny;
+
+  /// Universe filter: removes every filter
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get universeFilterClear;
+
+  /// Universe: how many planets of the system in focus match the filters
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total} planets match'**
+  String universeFilterSummary(int count, int total);
+
+  /// Universe list: no planet matches the filters
+  ///
+  /// In en, this message translates to:
+  /// **'No planet of this system matches the filters.'**
+  String get universeFilterNoMatch;
+
+  /// Vaquinha name
+  ///
+  /// In en, this message translates to:
+  /// **'Rocket'**
+  String get petFoguete;
+
+  /// Vaquinha name
+  ///
+  /// In en, this message translates to:
+  /// **'Astronaut'**
+  String get petAstronauta;
+
+  /// Unlock rule
+  ///
+  /// In en, this message translates to:
+  /// **'Visit {count} systems in the Movie Universe'**
+  String petRuleUniverse(int count);
+
+  /// Universe: shares the route from the origin to the system in focus
+  ///
+  /// In en, this message translates to:
+  /// **'Share route'**
+  String get universeShareRoute;
+
+  /// Universe: the shared text of a route; path is the titles joined by arrows
+  ///
+  /// In en, this message translates to:
+  /// **'I went from {origin} to {destination} in {hops, plural, =0{0 jumps} =1{1 jump} other{{hops} jumps}} in Muuvie\'s Movie Universe: {path}'**
+  String universeShareRouteText(
+    String origin,
+    String destination,
+    int hops,
+    String path,
+  );
+
+  /// Universe filter: public shelves section
+  ///
+  /// In en, this message translates to:
+  /// **'Constellations'**
+  String get universeConstellations;
+
+  /// Universe filter: explains constellations
+  ///
+  /// In en, this message translates to:
+  /// **'Public shelves with {title}. Their movies light up and join on the map.'**
+  String universeConstellationsHelp(String title);
+
+  /// Universe filter: no public shelf holds the star
+  ///
+  /// In en, this message translates to:
+  /// **'No public shelf has {title} yet.'**
+  String universeConstellationsEmpty(String title);
+
+  /// Universe filter: public shelves failed to load
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the shelves.'**
+  String get universeConstellationsError;
+
+  /// Universe filter: one public shelf
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · by {owner}'**
+  String universeConstellationLabel(String name, String owner);
+
+  /// Universe: a shelf's movies failed to load
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t draw this constellation.'**
+  String get universeConstellationError;
+
+  /// Universe: the constellation shown and how many planets of the system are in it
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {count} of {total} planets'**
+  String universeConstellationSummary(String name, int count, int total);
+
+  /// Universe: an explorer bichinho was unlocked
+  ///
+  /// In en, this message translates to:
+  /// **'You unlocked the {name} vaquinha exploring the universe!'**
+  String universeUnlockedPet(String name);
+
+  /// Universe: opens the shelter after an unlock
+  ///
+  /// In en, this message translates to:
+  /// **'See'**
+  String get universeSeePet;
 }
 
 class _AppLocalizationsDelegate

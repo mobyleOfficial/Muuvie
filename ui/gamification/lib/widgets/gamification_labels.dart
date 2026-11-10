@@ -14,6 +14,8 @@ abstract final class PetArt {
     'fantasminha',
     'robozinho',
     'lanterninha',
+    'foguete',
+    'astronauta',
     'rolo-de-filme',
     'dinossauro',
     'coruja',
@@ -124,6 +126,8 @@ String petName(AppLocalizations? l10n, String slug) =>
       'fantasminha' => l10n?.petFantasminha,
       'robozinho' => l10n?.petRobozinho,
       'lanterninha' => l10n?.petLanterninha,
+      'foguete' => l10n?.petFoguete,
+      'astronauta' => l10n?.petAstronauta,
       'rolo-de-filme' => l10n?.petRoloDeFilme,
       'dinossauro' => l10n?.petDinossauro,
       'coruja' => l10n?.petCoruja,
@@ -171,6 +175,7 @@ String petRule(AppLocalizations? l10n, PetRule rule) =>
       PetRuleType.maratonasFinished => l10n?.petRuleMaratonas(rule.target),
       PetRuleType.cineclubesJoined => l10n?.petRuleCineclubes(rule.target),
       PetRuleType.missions => l10n?.petRuleMissions(rule.target),
+      PetRuleType.universeSystems => l10n?.petRuleUniverse(rule.target),
     } ??
     '';
 

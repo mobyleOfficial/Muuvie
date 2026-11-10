@@ -60,6 +60,10 @@ abstract class MoviesModule {
       GetMovieDetail(repository);
 
   @injectable
+  GetSimilarMovies getSimilarMovies(MoviesRepository repository) =>
+      GetSimilarMovies(repository);
+
+  @injectable
   DiscoverMovies discoverMovies(MoviesRepository repository) =>
       DiscoverMovies(repository);
 

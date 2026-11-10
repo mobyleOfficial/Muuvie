@@ -13,3 +13,4 @@ export 'country.dart';
 export 'language.dart';
 export 'person_detail.dart';
 export 'movie_community.dart';
+export 'similar_movie.dart';

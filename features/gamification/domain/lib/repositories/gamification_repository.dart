@@ -14,6 +14,9 @@ abstract interface class GamificationRepository {
 
   Future<Result<PetShelter>> pin(String slug);
 
+  /// Records star systems opened in the Universo de Filmes, by movie id.
+  Future<Result<UniverseVisits>> recordUniverseVisits(List<int> movieIds);
+
   Future<Result<MissionWeek>> getMissions();
 
   Future<Result<DiaryDay>> getDiaryDay(DateTime date);
