@@ -33,8 +33,9 @@ void _showActionsSheet(
       leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
       title: Text(
         label,
-        style: Theme.of(context).textTheme.bodyLarge
-            ?.copyWith(fontWeight: FontWeight.w500),
+        style: Theme.of(
+          context,
+        ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
       ),
       onTap: () async {
         Navigator.of(sheetContext).pop();
@@ -75,13 +76,15 @@ void _showActionsSheet(
               () => onAddToShelves(detail.id, detail.title),
             ),
           if (links != null) ...[
-            // The universe is public: no login needed to explore it.
-            action(
-              Icons.blur_circular_outlined,
-              l10n?.universeAction ?? '',
-              () => links.openUniverse(context, detail),
-              requiresLogin: false,
-            ),
+            // The universe is public: no login needed to explore it. Only one
+            // at a time: not offered over a universe already open.
+            if (links.canOpenUniverse(context))
+              action(
+                Icons.blur_circular_outlined,
+                l10n?.universeAction ?? '',
+                () => links.openUniverse(context, detail),
+                requiresLogin: false,
+              ),
             action(
               Icons.groups_outlined,
               l10n?.movieDetailCreateCineClube ?? '',
@@ -746,8 +749,9 @@ class _GenrePill extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelMedium
-            ?.copyWith(color: colorScheme.onSurfaceVariant),
+        style: Theme.of(
+          context,
+        ).textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
       ),
     );
   }

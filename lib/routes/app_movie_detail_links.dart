@@ -41,6 +41,11 @@ class AppMovieDetailLinks implements MovieDetailLinks {
   void startWatchParty(BuildContext context, Movie movie) => context.router.root
       .push(WatchPartyRoute(movieId: movie.id, movieTitle: movie.displayTitle));
 
+  /// The universe and every detail opened from it are on the root router.
+  @override
+  bool canOpenUniverse(BuildContext context) => !context.router.root.stackData
+      .any((route) => route.name == MovieUniverseRoute.name);
+
   @override
   void openUniverse(BuildContext context, Movie movie) =>
       context.router.root.push(
