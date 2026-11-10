@@ -15,6 +15,8 @@ dependencies:
   cached_network_image: any
   common:
     path: ../common
+  auth:
+    path: ../../features/auth
   core:
     path: ../../core
   movies:
@@ -25,6 +27,8 @@ dependencies:
     path: ../../features/shelves
   shelves_ui:
     path: ../shelves
+  watch_logs:
+    path: ../../features/watch_logs
   flame: ^1.38.2
 
 dev_dependencies:

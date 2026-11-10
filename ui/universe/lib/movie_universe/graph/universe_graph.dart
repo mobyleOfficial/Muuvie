@@ -84,6 +84,25 @@ class UniverseGraph {
     });
   }
 
+  /// Every planet whose id is in [states] gets that state; the others keep
+  /// theirs. How a fresh look at the viewer's shelves (after a login)
+  /// reaches the whole universe at once.
+  UniverseGraph withMovieStates(Map<int, MovieListState?> states) {
+    if (states.isEmpty) return this;
+    final systems = <int, StarSystem>{};
+    for (final MapEntry(key: starId, value: system) in _systems.entries) {
+      var updated = system;
+      for (final planet in system.planets) {
+        if (!states.containsKey(planet.movie.id)) continue;
+        updated = updated.withMovie(
+          planet.movie.withMe(states[planet.movie.id]),
+        );
+      }
+      systems[starId] = updated;
+    }
+    return UniverseGraph._(originId, systems);
+  }
+
   bool contains(int movieId) =>
       _systems.containsKey(movieId) || orbitedBy(movieId) != null;
 

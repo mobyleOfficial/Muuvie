@@ -5,6 +5,7 @@ import 'package:movies/movies.dart';
 import 'package:shelves/shelves.dart';
 import 'package:universe_ui/movie_universe/filter/universe_filter.dart';
 import 'package:universe_ui/universe_ui.dart';
+import 'package:watch_logs/watch_logs.dart';
 
 /// Answers the similar movies set for each id (empty otherwise), or
 /// [failure] for the ids in [failingIds], and records every id asked for.
@@ -13,6 +14,10 @@ class _FakeMoviesRepository implements MoviesRepository {
   final Set<int> failingIds;
   final Map<int, List<String>> genresById;
   final askedIds = <int>[];
+
+  /// The viewer's states the server answers with; changing it stands for a
+  /// login.
+  final Map<int, MovieListState> statesById = {};
 
   _FakeMoviesRepository(
     this.similarById, {
@@ -30,7 +35,9 @@ class _FakeMoviesRepository implements MoviesRepository {
     return Success([
       for (var rank = 0; rank < movies.length; rank++)
         SimilarMovie(
-          movie: movies[rank],
+          movie: statesById.containsKey(movies[rank].id)
+              ? movies[rank].withMe(statesById[movies[rank].id])
+              : movies[rank],
           score: SimilarMovie.neutralScore(rank, movies.length),
           genres: genresById[movies[rank].id] ?? const [],
         ),
@@ -90,6 +97,19 @@ class _FakeShelvesRepository implements ShelvesRepository {
       throw UnimplementedError('${invocation.memberName}');
 }
 
+/// Answers [state] for any movie.
+class _FakeWatchLogsRepository implements WatchLogsRepository {
+  MovieUserState state = const MovieUserState();
+
+  @override
+  Future<Result<MovieUserState>> getMovieState(int movieId) async =>
+      Success(state);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw UnimplementedError('${invocation.memberName}');
+}
+
 const _suspiria = Movie(id: 7, title: 'Suspiria', posterPath: '/s.jpg');
 const _inferno = Movie(id: 8, title: 'Inferno', posterPath: '/i.jpg');
 const _tenebre = Movie(
@@ -113,9 +133,13 @@ MovieUniverseCubit _cubit(
   _FakeMoviesRepository repository, {
   int prefetchedPlanets = 0,
   _FakeShelvesRepository? shelves,
+  _FakeWatchLogsRepository? watchLogs,
 }) => MovieUniverseCubit(
   getSimilarMovies: GetSimilarMovies(repository),
   addMovieToWatchlist: AddMovieToWatchlist(shelves ?? _FakeShelvesRepository()),
+  getMovieWatchState: GetMovieWatchState(
+    watchLogs ?? _FakeWatchLogsRepository(),
+  ),
   origin: _suspiria,
   prefetchedPlanets: prefetchedPlanets,
 );
@@ -430,5 +454,76 @@ void main() {
       expect((cubit.state as MovieUniverseExploring).selected, _inferno);
       await cubit.close();
     });
+
+    test('a planet asks its state again after a shelf changed it', () async {
+      final watchLogs = _FakeWatchLogsRepository()
+        ..state = const MovieUserState(status: WatchStatus.watched);
+      final cubit = _cubit(
+        _FakeMoviesRepository(_universe),
+        watchLogs: watchLogs,
+      );
+      await cubit.load();
+
+      await cubit.refreshMovieState(8);
+
+      expect(statusOf(cubit, 8), WatchStatus.watched);
+      await cubit.close();
+    });
+
+    test('a login fills every planet with its state, in place', () async {
+      final repository = _FakeMoviesRepository(_universe);
+      final cubit = _cubit(repository);
+      await cubit.load();
+      await cubit.travelTo(_inferno);
+      final before = (cubit.state as MovieUniverseExploring).graph;
+      repository.statesById
+        ..[10] = const MovieListState(status: WatchStatus.watched)
+        ..[9] = const MovieListState(status: WatchStatus.wantToWatch);
+
+      final refreshing = cubit.refreshStates();
+      // "Quero ver" on a planet while the refresh is asking: the change made
+      // here is newer than what the refresh brings.
+      final adding = cubit.addToWatchlist(_phenomena);
+      await refreshing;
+      await adding;
+
+      final after = (cubit.state as MovieUniverseExploring).graph;
+      expect(statusOf(cubit, 10), WatchStatus.wantToWatch);
+      expect(statusOf(cubit, 9), WatchStatus.wantToWatch);
+      expect(after.systemOf(8)!.center, before.systemOf(8)!.center);
+      expect(
+        repository.askedIds.where((id) => id == 7 || id == 8),
+        hasLength(4),
+        reason: 'each system once on the way in and once on the refresh',
+      );
+      await cubit.close();
+    });
+
+    test('a screen reader found after the load switches to the list, '
+        'unless the user picked a view', () async {
+      final cubit = _cubit(_FakeMoviesRepository(_universe));
+      final loading = cubit.load();
+      cubit.useScreenReader(); // while loading
+      await loading;
+      expect((cubit.state as MovieUniverseExploring).showAsList, isTrue);
+
+      cubit.toggleView(); // the user wants the map
+      cubit.useScreenReader();
+      expect((cubit.state as MovieUniverseExploring).showAsList, isFalse);
+      await cubit.close();
+    });
+
+    test(
+      'a screen reader found once the map is open switches to the list',
+      () async {
+        final cubit = _cubit(_FakeMoviesRepository(_universe));
+        await cubit.load();
+
+        cubit.useScreenReader();
+
+        expect((cubit.state as MovieUniverseExploring).showAsList, isTrue);
+        await cubit.close();
+      },
+    );
   });
 }

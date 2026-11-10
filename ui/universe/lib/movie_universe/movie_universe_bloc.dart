@@ -2,6 +2,7 @@ import 'package:core/core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies/movies.dart';
 import 'package:shelves/shelves.dart' show AddMovieToWatchlist;
+import 'package:watch_logs/watch_logs.dart' show GetMovieWatchState;
 import 'package:universe_ui/movie_universe/filter/universe_filter.dart';
 import 'package:universe_ui/movie_universe/graph/universe_graph.dart';
 import 'package:universe_ui/movie_universe/movie_universe_state.dart';
@@ -20,6 +21,11 @@ import 'package:universe_ui/movie_universe/movie_universe_state.dart';
 class MovieUniverseCubit extends Cubit<MovieUniverseState> {
   final GetSimilarMovies _getSimilarMovies;
   final AddMovieToWatchlist _addMovieToWatchlist;
+  final GetMovieWatchState _getMovieWatchState;
+
+  /// Systems whose similar movies are asked again at a time when the
+  /// viewer's states are refreshed.
+  static const _refreshBatch = 4;
   final Movie origin;
   final int prefetchedPlanets;
 
@@ -27,22 +33,35 @@ class MovieUniverseCubit extends Cubit<MovieUniverseState> {
   /// so the jump itself asks again.
   final Map<int, Future<Result<List<SimilarMovie>>>> _prefetches = {};
 
+  /// Movies whose state changed here while [refreshStates] was asking: the
+  /// change made here is newer than what the refresh brings.
+  final Set<int> _changedDuringRefresh = {};
+
+  /// A screen reader is on: the universe starts on the list.
+  bool _screenReader = false;
+
+  /// The user picked map or list: nothing switches it for them any more.
+  bool _viewPicked = false;
+
   MovieUniverseCubit({
     required GetSimilarMovies getSimilarMovies,
     required AddMovieToWatchlist addMovieToWatchlist,
+    required GetMovieWatchState getMovieWatchState,
     required this.origin,
     this.prefetchedPlanets = 3,
   }) : _getSimilarMovies = getSimilarMovies,
        _addMovieToWatchlist = addMovieToWatchlist,
+       _getMovieWatchState = getMovieWatchState,
        super(const MovieUniverseLoading());
 
   /// [startAsList] opens the list rather than the map, for screen reader
   /// users. A reload keeps the view and the filter the user picked.
   Future<void> load({bool startAsList = false}) async {
     final current = state;
-    final showAsList = current is MovieUniverseExploring
+    if (startAsList) _screenReader = true;
+    final keptView = current is MovieUniverseExploring
         ? current.showAsList
-        : startAsList;
+        : null;
     final filter = current is MovieUniverseExploring
         ? current.filter
         : UniverseFilter.none;
@@ -54,7 +73,8 @@ class MovieUniverseCubit extends Cubit<MovieUniverseState> {
       Success(:final data) => MovieUniverseExploring(
         graph: UniverseGraph.origin(origin, data),
         currentStarId: origin.id,
-        showAsList: showAsList,
+        // Read now: a screen reader may have been found during the load.
+        showAsList: keptView ?? _screenReader,
         filter: filter,
       ),
       Failure() => const MovieUniverseFailure(),
@@ -164,7 +184,58 @@ class MovieUniverseCubit extends Cubit<MovieUniverseState> {
     return true;
   }
 
+  /// Asks the viewer's state of one movie again, after something outside
+  /// the universe changed it (say, a shelf). A failure keeps the old one.
+  Future<void> refreshMovieState(int movieId) async {
+    final result = await _getMovieWatchState(movieId);
+    if (isClosed) return;
+    if (result case Success(:final data)) {
+      final rating = data.rating?.rating;
+      _setMovieState(
+        movieId,
+        data.status == null && rating == null
+            ? null
+            : MovieListState(status: data.status, rating: rating),
+      );
+    }
+  }
+
+  /// The viewer just logged in: every planet was loaded without their
+  /// states. The similar movies of every system are asked again, a few at a
+  /// time, and only the states are taken from them, so nothing moves. Loads
+  /// started ahead are dropped, since they came without states too.
+  Future<void> refreshStates() async {
+    final current = state;
+    if (current is! MovieUniverseExploring) return;
+    _prefetches.clear();
+    _changedDuringRefresh.clear();
+    final starIds = [
+      for (final system in current.graph.systems) system.star.id,
+    ];
+    final states = <int, MovieListState?>{};
+    for (var start = 0; start < starIds.length; start += _refreshBatch) {
+      final results = await Future.wait([
+        for (final starId in starIds.skip(start).take(_refreshBatch))
+          _getSimilarMovies(starId),
+      ]);
+      if (isClosed) return;
+      for (final result in results) {
+        if (result case Success(:final data)) {
+          for (final similar in data) {
+            states[similar.movie.id] = similar.movie.me;
+          }
+        }
+      }
+    }
+    states.removeWhere((movieId, _) => _changedDuringRefresh.contains(movieId));
+    final latest = state;
+    if (latest is! MovieUniverseExploring) return;
+    emit(latest.copyWith(graph: latest.graph.withMovieStates(states)));
+    _prefetchAroundFocus();
+  }
+
   void _setMovieState(int movieId, MovieListState? me) {
+    _changedDuringRefresh.add(movieId);
     final current = state;
     if (current is! MovieUniverseExploring) return;
     emit(current.copyWith(graph: current.graph.withMovieState(movieId, me)));
@@ -173,9 +244,21 @@ class MovieUniverseCubit extends Cubit<MovieUniverseState> {
   static Movie? _movieIn(UniverseGraph graph, int movieId) =>
       graph.systemOf(movieId)?.star ?? graph.planetOf(movieId)?.movie;
 
+  /// A screen reader turned out to be on after the load started: Android
+  /// only reports it a frame or two after the app starts. Switches to the
+  /// list unless the user already picked a view.
+  void useScreenReader() {
+    _screenReader = true;
+    final current = state;
+    if (_viewPicked || current is! MovieUniverseExploring) return;
+    if (current.showAsList) return;
+    emit(current.copyWith(showAsList: true, selected: () => null));
+  }
+
   void toggleView() {
     final current = state;
     if (current is! MovieUniverseExploring) return;
+    _viewPicked = true;
     emit(
       current.copyWith(showAsList: !current.showAsList, selected: () => null),
     );
