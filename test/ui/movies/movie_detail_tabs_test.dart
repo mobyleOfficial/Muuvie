@@ -96,6 +96,12 @@ class _Shelves implements ShelvesRepository {
 }
 
 class _Links implements MovieDetailLinks {
+  /// As if this detail were opened from a universe.
+  bool universeOpen = false;
+
+  @override
+  bool canOpenUniverse(BuildContext context) => !universeOpen;
+
   @override
   Widget activities(
     int movieId, {
@@ -107,7 +113,10 @@ class _Links implements MovieDetailLinks {
 }
 
 void main() {
+  late _Links links;
+
   setUp(() {
+    links = _Links();
     final social = FakeSocialNetworkRepository();
     final watchLogs = _WatchLogs();
     final community = _Community();
@@ -124,7 +133,7 @@ void main() {
       ..registerFactory(() => LogWatchSession(watchLogs))
       ..registerFactory(() => StartRewatch(watchLogs))
       ..registerFactory(() => SetWatchingNow(watchLogs))
-      ..registerSingleton<MovieDetailLinks>(_Links());
+      ..registerSingleton<MovieDetailLinks>(links);
   });
   tearDown(() => GetIt.I.reset());
 
@@ -133,6 +142,7 @@ void main() {
     String? overviewLanguage,
     bool overviewTranslated = false,
     Locale locale = const Locale('pt'),
+    bool inTab = false,
   }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(412, 860);
@@ -157,7 +167,15 @@ void main() {
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: AppLocalizations.supportedLocales,
-        home: MovieDetailScreen(cubit: cubit, onAddToShelves: (_, _) {}),
+        home: inTab
+            ? TabIndexScope(
+                tabIndex: 0,
+                child: MovieDetailScreen(
+                  cubit: cubit,
+                  onAddToShelves: (_, _) {},
+                ),
+              )
+            : MovieDetailScreen(cubit: cubit, onAddToShelves: (_, _) {}),
       ),
     );
     await tester.pumpAndSettle();
@@ -179,6 +197,37 @@ void main() {
     );
     expect(find.text('Synopsis available only in English'), findsNothing);
     expect(find.text('Overview'), findsOneWidget);
+  });
+
+  Future<void> openActions(WidgetTester tester) async {
+    await tester.tap(find.byTooltip('Ações'));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('the actions offer the universe of the movie', (tester) async {
+    await pumpDetail(tester);
+    await openActions(tester);
+
+    expect(find.text('Explorar universo'), findsOneWidget);
+  });
+
+  testWidgets('only one universe at a time: a detail opened from one does not '
+      'offer another', (tester) async {
+    links.universeOpen = true;
+    await pumpDetail(tester);
+    await openActions(tester);
+
+    expect(find.text('Explorar universo'), findsNothing);
+    expect(find.text('Criar CineClube com este filme'), findsOneWidget);
+  });
+
+  testWidgets('over the shell, as from a universe, the detail has its own '
+      'app bar; inside a tab the shell draws it', (tester) async {
+    await pumpDetail(tester);
+    expect(find.byType(AppBar), findsOneWidget);
+
+    await pumpDetail(tester, inTab: true);
+    expect(find.byType(AppBar), findsNothing);
   });
 
   testWidgets('a machine translated synopsis says so', (tester) async {

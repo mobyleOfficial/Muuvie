@@ -24,6 +24,10 @@ class GamificationRepositoryImpl implements GamificationRepository {
   Future<Result<PetShelter>> pin(String slug) => _remoteDataSource.pin(slug);
 
   @override
+  Future<Result<UniverseVisits>> recordUniverseVisits(List<int> movieIds) =>
+      _remoteDataSource.recordUniverseVisits(movieIds);
+
+  @override
   Future<Result<MissionWeek>> getMissions() => _remoteDataSource.getMissions();
 
   @override

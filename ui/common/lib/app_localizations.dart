@@ -823,7 +823,7 @@ abstract class AppLocalizations {
   /// Notice on an imported movie the backend could not match with TMDB
   ///
   /// In en, this message translates to:
-  /// **'We couldn\'t find this movie in our catalog. The details come from Filmow and may be incomplete.'**
+  /// **'We couldn\'t find this movie in our catalog. The details come from your import (Filmow or Letterboxd) and may be incomplete.'**
   String get movieDetailUnmatched;
 
   /// Section title for movie cast
@@ -2689,7 +2689,7 @@ abstract class AppLocalizations {
   /// Explanation on the import start screen
   ///
   /// In en, this message translates to:
-  /// **'Bring your Filmow history: watched movies go to Watched, your watchlist to Want to watch and your lists become shelves. Nothing is saved before you confirm.'**
+  /// **'Bring your Filmow or Letterboxd history: watched movies go to Watched, your watchlist to Want to watch and your lists become shelves. Nothing is saved before you confirm.'**
   String get importIntro;
 
   /// Button that opens the Filmow login and starts the import
@@ -2733,6 +2733,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t start the import. Try again.'**
   String get importStartError;
+
+  /// Button that imports the CSV made by filmow_to_letterboxd
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a Filmow file'**
+  String get importStartFilmowFile;
+
+  /// Button that imports Letterboxd's export or a Letterboxd CSV
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a Letterboxd file'**
+  String get importStartLetterboxdFile;
+
+  /// Title of the dialog explaining how to get the Filmow CSV
+  ///
+  /// In en, this message translates to:
+  /// **'Filmow file'**
+  String get importFilmowFileTitle;
+
+  /// How to get the Filmow CSV, shown before the file picker
+  ///
+  /// In en, this message translates to:
+  /// **'Create the CSV with filmow_to_letterboxd (github.com/yanari/filmow_to_letterboxd) and upload it here. Big profiles produce more than one file: pick all of them.'**
+  String get importFilmowFileMessage;
+
+  /// Title of the dialog explaining how to get Letterboxd's export
+  ///
+  /// In en, this message translates to:
+  /// **'Letterboxd file'**
+  String get importLetterboxdFileTitle;
+
+  /// How to get Letterboxd's export, shown before the file picker
+  ///
+  /// In en, this message translates to:
+  /// **'On Letterboxd, go to Settings › Data › Export your data (letterboxd.com/settings/data) and upload the .zip you get. CSVs in Letterboxd\'s import format work too.'**
+  String get importLetterboxdFileMessage;
+
+  /// Confirms the dialog and opens the file picker
+  ///
+  /// In en, this message translates to:
+  /// **'Choose file'**
+  String get importChooseFile;
+
+  /// Snackbar when the server refuses an uploaded import file
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t read this file. Check that it\'s the right file and the right origin.'**
+  String get importFileUnreadable;
+
+  /// Snackbar when the uploaded import files are over the size limit
+  ///
+  /// In en, this message translates to:
+  /// **'The files are too big. Upload at most 10 files, up to 10 MB in total.'**
+  String get importFileTooLarge;
+
+  /// Snackbar when a loose Letterboxd CSV could be watched or watchlist
+  ///
+  /// In en, this message translates to:
+  /// **'We can\'t tell whether this CSV is your watched movies or your watchlist. Rename it to watched.csv or watchlist.csv, or upload the export .zip.'**
+  String get importFileAmbiguous;
+
+  /// Snackbar when the uploaded import files have no movies
+  ///
+  /// In en, this message translates to:
+  /// **'We found no movies in this file.'**
+  String get importFileEmpty;
+
+  /// Opens the filmow_to_letterboxd page from the Filmow file dialog
+  ///
+  /// In en, this message translates to:
+  /// **'See how'**
+  String get importFilmowFileHowTo;
+
+  /// Opens Letterboxd's data export page from the Letterboxd file dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Open Letterboxd'**
+  String get importLetterboxdFileHowTo;
+
+  /// Shown with the progress bar while the import files upload
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading files…'**
+  String get importUploading;
+
+  /// Hint on the preview when it lists Letterboxd tags
+  ///
+  /// In en, this message translates to:
+  /// **'Letterboxd tags become shelves only if you check them.'**
+  String get importPreviewTagsHint;
 
   /// Snackbar when confirming or cancelling fails
   ///
@@ -2788,17 +2878,17 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 dated session} other{{count} dated sessions}}'**
   String importPreviewLogs(int count);
 
+  /// Import preview and report count of imported reviews (on the rating, or on a session without one)
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 review} other{{count} reviews}}'**
+  String importPreviewReviews(int count);
+
   /// Header of the lists to choose on the preview
   ///
   /// In en, this message translates to:
   /// **'Lists → shelves'**
   String get importPreviewLists;
-
-  /// Preview without lists
-  ///
-  /// In en, this message translates to:
-  /// **'No lists found on your profile.'**
-  String get importPreviewNoLists;
 
   /// Visibility selector on the preview
   ///
@@ -2926,11 +3016,11 @@ abstract class AppLocalizations {
   /// **'Every movie was matched.'**
   String get importUnmatchedEmpty;
 
-  /// Snackbar when an import finishes in the background
+  /// Snackbar when an import finishes in the background; source is Filmow or Letterboxd
   ///
   /// In en, this message translates to:
-  /// **'Your Filmow import is done'**
-  String get importFinishedSnack;
+  /// **'Your {source} import is done'**
+  String importFinishedSnack(String source);
 
   /// Snackbar action that opens the import report
   ///
@@ -2941,7 +3031,7 @@ abstract class AppLocalizations {
   /// Call to action on the empty Watched shelf
   ///
   /// In en, this message translates to:
-  /// **'Already use Filmow? Bring your history'**
+  /// **'Already use Filmow or Letterboxd? Bring your history'**
   String get watchedEmptyImport;
 
   /// Tooltip of the create locadora button
@@ -6001,13 +6091,13 @@ abstract class AppLocalizations {
   /// Onboarding panel
   ///
   /// In en, this message translates to:
-  /// **'Import what you watched, your watchlist and your lists from Filmow. Nothing you made here is overwritten.'**
+  /// **'Import what you watched, your watchlist and your lists from Filmow or Letterboxd. Nothing you made here is overwritten.'**
   String get onboardingImportText;
 
   /// Onboarding import button
   ///
   /// In en, this message translates to:
-  /// **'Import from Filmow'**
+  /// **'Import my history'**
   String get onboardingImportFilmow;
 
   /// Onboarding suggestions
@@ -6073,7 +6163,7 @@ abstract class AppLocalizations {
   /// Settings import hint
   ///
   /// In en, this message translates to:
-  /// **'From Filmow, without overwriting what you made here'**
+  /// **'From Filmow or Letterboxd, without overwriting what you made here'**
   String get settingsImportHint;
 
   /// Settings section
@@ -6483,6 +6573,269 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Shelves you save from other people show up here.'**
   String get savedShelvesEmpty;
+
+  /// Movie actions: opens the universe of similar movies
+  ///
+  /// In en, this message translates to:
+  /// **'Explore universe'**
+  String get universeAction;
+
+  /// Title of the universe screen
+  ///
+  /// In en, this message translates to:
+  /// **'Universe of {title}'**
+  String universeTitle(String title);
+
+  /// Universe: switches to the accessible list of the movies
+  ///
+  /// In en, this message translates to:
+  /// **'Show as list'**
+  String get universeShowList;
+
+  /// Universe: switches back to the star map
+  ///
+  /// In en, this message translates to:
+  /// **'Show as universe'**
+  String get universeShowMap;
+
+  /// Universe with no similar movies
+  ///
+  /// In en, this message translates to:
+  /// **'No similar movies around here yet.'**
+  String get universeEmpty;
+
+  /// Universe failed to load
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this universe.'**
+  String get universeError;
+
+  /// Universe: opens the detail of the selected planet
+  ///
+  /// In en, this message translates to:
+  /// **'See details'**
+  String get universeOpenDetails;
+
+  /// Screen reader label of the star map
+  ///
+  /// In en, this message translates to:
+  /// **'Map of {count} movies similar to {title}. Use the list mode to go through them.'**
+  String universeMapLabel(int count, String title);
+
+  /// Universe list: marks the movie at the center
+  ///
+  /// In en, this message translates to:
+  /// **'The center of this universe'**
+  String get universeCenterLabel;
+
+  /// Universe card: turns the selected planet into a star system and flies there
+  ///
+  /// In en, this message translates to:
+  /// **'Travel'**
+  String get universeTravel;
+
+  /// Universe list: travel button of a planet
+  ///
+  /// In en, this message translates to:
+  /// **'Travel to {title}'**
+  String universeTravelTo(String title);
+
+  /// Universe: a jump to a planet failed
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t travel to {title}.'**
+  String universeTravelError(String title);
+
+  /// Universe: how many jumps the system in focus is from the first movie
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{At the origin} =1{1 jump from the origin} other{{count} jumps from the origin}}'**
+  String universeHops(int count);
+
+  /// Universe: flies back to the first movie's system
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the origin'**
+  String get universeBackToOrigin;
+
+  /// Universe card: adds the planet to the Quero ver shelf
+  ///
+  /// In en, this message translates to:
+  /// **'Want to watch'**
+  String get universeWantToWatch;
+
+  /// Universe: the planet was added to Quero ver
+  ///
+  /// In en, this message translates to:
+  /// **'{title} is in Want to watch.'**
+  String universeAddedToWatchlist(String title);
+
+  /// Universe: adding to Quero ver failed
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t add it to Want to watch. Try again.'**
+  String get universeWantToWatchError;
+
+  /// Universe card: opens the add-to-shelves screen for the planet
+  ///
+  /// In en, this message translates to:
+  /// **'Add to shelf'**
+  String get universeAddToShelf;
+
+  /// Universe list: menu with the actions of a planet
+  ///
+  /// In en, this message translates to:
+  /// **'More actions for {title}'**
+  String universeMoreActions(String title);
+
+  /// Universe: the genres and keywords a planet shares with its star, comma-separated
+  ///
+  /// In en, this message translates to:
+  /// **'In common: {items}'**
+  String universeInCommon(String items);
+
+  /// Universe: opens the planet filters
+  ///
+  /// In en, this message translates to:
+  /// **'Filter planets'**
+  String get universeFilter;
+
+  /// Universe filter: hides watched movies
+  ///
+  /// In en, this message translates to:
+  /// **'Only the ones I haven\'t watched'**
+  String get universeFilterOnlyUnwatched;
+
+  /// Universe filter: decade section
+  ///
+  /// In en, this message translates to:
+  /// **'Decade'**
+  String get universeFilterDecade;
+
+  /// Universe filter: one decade
+  ///
+  /// In en, this message translates to:
+  /// **'{decade}s'**
+  String universeFilterDecadeValue(int decade);
+
+  /// Universe filter: genre section
+  ///
+  /// In en, this message translates to:
+  /// **'Genre'**
+  String get universeFilterGenre;
+
+  /// Universe filter: no decade or genre picked
+  ///
+  /// In en, this message translates to:
+  /// **'Any'**
+  String get universeFilterAny;
+
+  /// Universe filter: removes every filter
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get universeFilterClear;
+
+  /// Universe: how many planets of the system in focus match the filters
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total} planets match'**
+  String universeFilterSummary(int count, int total);
+
+  /// Universe list: no planet matches the filters
+  ///
+  /// In en, this message translates to:
+  /// **'No planet of this system matches the filters.'**
+  String get universeFilterNoMatch;
+
+  /// Vaquinha name
+  ///
+  /// In en, this message translates to:
+  /// **'Rocket'**
+  String get petFoguete;
+
+  /// Vaquinha name
+  ///
+  /// In en, this message translates to:
+  /// **'Astronaut'**
+  String get petAstronauta;
+
+  /// Unlock rule
+  ///
+  /// In en, this message translates to:
+  /// **'Visit {count} systems in the Movie Universe'**
+  String petRuleUniverse(int count);
+
+  /// Universe: shares the route from the origin to the system in focus
+  ///
+  /// In en, this message translates to:
+  /// **'Share route'**
+  String get universeShareRoute;
+
+  /// Universe: the shared text of a route; path is the titles joined by arrows
+  ///
+  /// In en, this message translates to:
+  /// **'I went from {origin} to {destination} in {hops, plural, =0{0 jumps} =1{1 jump} other{{hops} jumps}} in Muuvie\'s Movie Universe: {path}'**
+  String universeShareRouteText(
+    String origin,
+    String destination,
+    int hops,
+    String path,
+  );
+
+  /// Universe filter: public shelves section
+  ///
+  /// In en, this message translates to:
+  /// **'Constellations'**
+  String get universeConstellations;
+
+  /// Universe filter: explains constellations
+  ///
+  /// In en, this message translates to:
+  /// **'Public shelves with {title}. Their movies light up and join on the map.'**
+  String universeConstellationsHelp(String title);
+
+  /// Universe filter: no public shelf holds the star
+  ///
+  /// In en, this message translates to:
+  /// **'No public shelf has {title} yet.'**
+  String universeConstellationsEmpty(String title);
+
+  /// Universe filter: public shelves failed to load
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the shelves.'**
+  String get universeConstellationsError;
+
+  /// Universe filter: one public shelf
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · by {owner}'**
+  String universeConstellationLabel(String name, String owner);
+
+  /// Universe: a shelf's movies failed to load
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t draw this constellation.'**
+  String get universeConstellationError;
+
+  /// Universe: the constellation shown and how many planets of the system are in it
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {count} of {total} planets'**
+  String universeConstellationSummary(String name, int count, int total);
+
+  /// Universe: an explorer bichinho was unlocked
+  ///
+  /// In en, this message translates to:
+  /// **'You unlocked the {name} vaquinha exploring the universe!'**
+  String universeUnlockedPet(String name);
+
+  /// Universe: opens the shelter after an unlock
+  ///
+  /// In en, this message translates to:
+  /// **'See'**
+  String get universeSeePet;
 }
 
 class _AppLocalizationsDelegate

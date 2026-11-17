@@ -24,6 +24,11 @@ abstract class GamificationModule {
       GetProfilePets(repository);
 
   @injectable
+  RecordUniverseVisits recordUniverseVisits(
+    GamificationRepository repository,
+  ) => RecordUniverseVisits(repository);
+
+  @injectable
   ChooseStarterPet chooseStarterPet(GamificationRepository repository) =>
       ChooseStarterPet(repository);
 

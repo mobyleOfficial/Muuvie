@@ -17,7 +17,7 @@ class PersonsRemoteDataSource {
     final result = await _httpClient.get<Map<String, dynamic>>(path);
     return switch (result) {
       Success(:final data) => Success(_detail(data)),
-      Failure(:final error) => Failure(error),
+      Failure(:final error, :final code) => Failure(error, code: code),
     };
   }
 

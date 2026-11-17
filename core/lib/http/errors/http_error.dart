@@ -7,6 +7,7 @@ enum AppError {
   notFound('Resource not found'),
   conflict('Resource already exists'),
   tooManyRequests('Too many requests'),
+  payloadTooLarge('Request too large'),
   server('Server error'),
   unknown('An unknown error occurred');
 

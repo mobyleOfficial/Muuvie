@@ -23,7 +23,8 @@ enum PetRuleType {
   oldMovies('old_movies'),
   maratonasFinished('maratonas_finished'),
   cineclubesJoined('cineclubes_joined'),
-  missions('missions');
+  missions('missions'),
+  universeSystems('universe_systems');
 
   final String wireValue;
 
@@ -96,6 +97,18 @@ class PetShelter {
     this.starterChosen = false,
     this.pets = const [],
     this.pinned,
+  });
+}
+
+/// The star systems the user opened in the Universo de Filmes, and the
+/// explorer bichinhos the last visit unlocked.
+class UniverseVisits {
+  final int systemsVisited;
+  final List<String> unlockedPets;
+
+  const UniverseVisits({
+    required this.systemsVisited,
+    this.unlockedPets = const [],
   });
 }
 

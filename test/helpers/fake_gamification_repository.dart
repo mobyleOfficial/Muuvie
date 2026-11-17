@@ -107,5 +107,26 @@ class FakeGamificationRepository implements GamificationRepository {
   @override
   Future<Result<PosterRound>> getPosterRound() async => Success(round!);
 
+  /// The movie ids of every [recordUniverseVisits] call, in order.
+  final universeVisits = <List<int>>[];
+
+  /// Answered as unlocked by the next [recordUniverseVisits], then cleared.
+  List<String> unlockOnNextVisit = const [];
+
+  @override
+  Future<Result<UniverseVisits>> recordUniverseVisits(
+    List<int> movieIds,
+  ) async {
+    universeVisits.add(movieIds);
+    final unlocked = unlockOnNextVisit;
+    unlockOnNextVisit = const [];
+    return Success(
+      UniverseVisits(
+        systemsVisited: universeVisits.expand((ids) => ids).toSet().length,
+        unlockedPets: unlocked,
+      ),
+    );
+  }
+
   Future<void> dispose() => events.close();
 }

@@ -10,6 +10,7 @@ import 'package:movies_ui/movie_detail/movie_detail_links.dart';
 import 'package:profile_ui/profile_router.dart';
 import 'package:social/feed/movie_activities_feed.dart';
 import 'package:social_network/social_network.dart' show MovieActivityKind;
+import 'package:universe_ui/universe_router.dart';
 
 /// The movie detail's links to the modules that depend on movies_ui (F12).
 class AppMovieDetailLinks implements MovieDetailLinks {
@@ -39,6 +40,21 @@ class AppMovieDetailLinks implements MovieDetailLinks {
   @override
   void startWatchParty(BuildContext context, Movie movie) => context.router.root
       .push(WatchPartyRoute(movieId: movie.id, movieTitle: movie.displayTitle));
+
+  /// The universe and every detail opened from it are on the root router.
+  @override
+  bool canOpenUniverse(BuildContext context) => !context.router.root.stackData
+      .any((route) => route.name == MovieUniverseRoute.name);
+
+  @override
+  void openUniverse(BuildContext context, Movie movie) =>
+      context.router.root.push(
+        MovieUniverseRoute(
+          movieId: movie.id,
+          movieTitle: movie.displayTitle,
+          posterPath: movie.posterPath,
+        ),
+      );
 
   @override
   Widget activities(

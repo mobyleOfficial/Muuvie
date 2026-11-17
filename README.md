@@ -51,9 +51,10 @@ dart run build_runner build --delete-conflicting-outputs
 bundle exec fastlane setup_ide
 
 # 7. Run the app
-flutter run                              # production flavor
-flutter run -t lib/main_dev.dart        # dev flavor
-flutter run -t lib/main_staging.dart    # staging flavor
+# Every flavor runs lib/main.dart; the flavor comes from --flavor and --dart-define=FLAVOR.
+flutter run --flavor prod --dart-define=FLAVOR=prod --dart-define-from-file=secrets/.env
+flutter run --flavor dev --dart-define=FLAVOR=dev --dart-define-from-file=secrets/.env
+flutter run --flavor staging --dart-define=FLAVOR=staging --dart-define-from-file=secrets/.env
 ```
 
 ---
@@ -96,8 +97,8 @@ The app runs without Firebase: crash reports, analytics and push simply stay off
 | Flavor | Entry point | App name | Launcher icon & splash |
 |--------|-------------|----------|------------------------|
 | `prod` | `lib/main.dart` | Moovie | White cow on black |
-| `staging` | `lib/main_staging.dart` | Moovie[Stg] | White cow on pink |
-| `dev` | `lib/main_dev.dart` | Moovie[Dev] | Black cow on white |
+| `staging` | `lib/main.dart` | Moovie[Stg] | White cow on pink |
+| `dev` | `lib/main.dart` | Moovie[Dev] | Black cow on white |
 
 Flavor-specific configuration lives in `lib/config/app_config.dart`.
 
@@ -120,9 +121,7 @@ Each vaquinha of the Vaquinha da Bombonière is the cow in a costume. Their roun
 ```
 moovie/
 ├── lib/                        # Main app (entry points, routing, DI)
-│   ├── main.dart               # Production entry point
-│   ├── main_dev.dart
-│   ├── main_staging.dart
+│   ├── main.dart               # The entry point of every flavor (FLAVOR dart-define)
 │   ├── config/
 │   │   └── app_config.dart     # Flavor configuration
 │   ├── di/
@@ -333,7 +332,7 @@ flutter gen-l10n                                                   # After ARB c
 dart format .                                                      # Format code
 bundle exec fastlane lint                                          # Lint
 bundle exec fastlane test                                          # Run tests
-flutter run -t lib/main_dev.dart                                   # Run dev flavor
+flutter run --flavor dev --dart-define=FLAVOR=dev --dart-define-from-file=secrets/.env  # Run dev flavor
 ```
 
 ### Fastlane commands

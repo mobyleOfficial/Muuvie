@@ -97,12 +97,12 @@ class SetYearlyGoal extends UseCase<SetYearlyGoalParams, Result<YearlyGoal?>> {
     if (target == null) {
       return switch (await _repository.removeGoal(value.year)) {
         Success() => const Success(null),
-        Failure(:final error) => Failure(error),
+        Failure(:final error, :final code) => Failure(error, code: code),
       };
     }
     return switch (await _repository.setGoal(value.year, target)) {
       Success(:final data) => Success(data),
-      Failure(:final error) => Failure(error),
+      Failure(:final error, :final code) => Failure(error, code: code),
     };
   }
 }

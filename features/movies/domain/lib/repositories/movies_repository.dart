@@ -6,9 +6,14 @@ import 'package:movies_domain/models/country.dart';
 import 'package:movies_domain/models/genre.dart';
 import 'package:movies_domain/models/language.dart';
 import 'package:movies_domain/models/movie_listing.dart';
+import 'package:movies_domain/models/similar_movie.dart';
 
 abstract interface class MoviesRepository {
   Future<Result<Movie>> getMovieDetail({required int movieId});
+
+  /// The similar movies of [movieId] (database id), with the viewer's state
+  /// when logged in. Empty when the movie has none.
+  Future<Result<List<SimilarMovie>>> getSimilarMovies({required int movieId});
   Future<Result<MovieListing>> searchMovies({
     required String query,
     required int page,

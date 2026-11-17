@@ -20,6 +20,7 @@ import 'package:gamification_ui/gamification_router.dart';
 import 'package:onboarding_ui/onboarding_router.dart';
 import 'package:maratonas_ui/maratonas_router.dart';
 import 'package:whispers/whispers_router.dart';
+import 'package:universe_ui/universe_router.dart';
 
 part 'app_router.gr.dart';
 
@@ -150,6 +151,7 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: SavedShelvesRoute.page),
     AutoRoute(page: MovieDetailRoute.page),
     AutoRoute(page: PersonDetailRoute.page),
+    AutoRoute(page: MovieUniverseRoute.page),
     CustomRoute(
       page: HighlightsEditorRoute.page,
       transitionsBuilder: TransitionsBuilders.slideBottom,

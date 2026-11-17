@@ -11,6 +11,8 @@ abstract interface class GamificationRemoteDataSource {
 
   Future<Result<PetShelter>> pin(String slug);
 
+  Future<Result<UniverseVisits>> recordUniverseVisits(List<int> movieIds);
+
   Future<Result<MissionWeek>> getMissions();
 
   Future<Result<DiaryDay>> getDiaryDay(DateTime date);
@@ -113,7 +115,7 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
     },
   )) {
     Success(:final data) => Success(RemoteGamification.diaryMonth(data)),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 
   @override
@@ -146,7 +148,7 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
         '${_partyPath(code)}/members/me',
       )) {
         Success() => const Success(null),
-        Failure(:final error) => Failure(error),
+        Failure(:final error, :final code) => Failure(error, code: code),
       };
 
   @override
@@ -181,11 +183,22 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
     return _map(result, (json) => RemoteGamification.party(json, received));
   }
 
+  @override
+  Future<Result<UniverseVisits>> recordUniverseVisits(
+    List<int> movieIds,
+  ) async => _map(
+    await _httpClient.post<Map<String, dynamic>>(
+      '$_me/universe/visits',
+      body: {'movieIds': movieIds},
+    ),
+    RemoteGamification.universeVisits,
+  );
+
   Result<T> _map<T>(
     Result<Map<String, dynamic>> result,
     T Function(Map<String, dynamic>) fromJson,
   ) => switch (result) {
     Success(:final data) => Success(fromJson(data)),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 }

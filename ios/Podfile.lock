@@ -2,25 +2,15 @@ PODS:
   - Flutter (1.0.0)
   - flutter_secure_storage (6.0.0):
     - Flutter
-  - ObjectBox (5.3.0-beta.4)
+  - ObjectBox (5.3.0)
   - objectbox_flutter_libs (0.0.1):
     - Flutter
-    - ObjectBox (= 5.3.0-beta.4)
-  - share_plus (0.0.1):
-    - Flutter
-  - sqflite_darwin (0.0.4):
-    - Flutter
-    - FlutterMacOS
-  - workmanager_apple (0.0.1):
-    - Flutter
+    - ObjectBox (= 5.3.0)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - objectbox_flutter_libs (from `.symlinks/plugins/objectbox_flutter_libs/ios`)
-  - share_plus (from `.symlinks/plugins/share_plus/ios`)
-  - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
-  - workmanager_apple (from `.symlinks/plugins/workmanager_apple/ios`)
 
 SPEC REPOS:
   trunk:
@@ -33,21 +23,12 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
   objectbox_flutter_libs:
     :path: ".symlinks/plugins/objectbox_flutter_libs/ios"
-  share_plus:
-    :path: ".symlinks/plugins/share_plus/ios"
-  sqflite_darwin:
-    :path: ".symlinks/plugins/sqflite_darwin/darwin"
-  workmanager_apple:
-    :path: ".symlinks/plugins/workmanager_apple/ios"
 
 SPEC CHECKSUMS:
-  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
   flutter_secure_storage: 1ed9476fba7e7a782b22888f956cce43e2c62f13
-  ObjectBox: eccb95ea2054c39d81dfa2d4ccc5f1e31187228a
-  objectbox_flutter_libs: ed1510f71602e4a0d3f2a721324e468d066fdbb9
-  share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
-  sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
-  workmanager_apple: 904529ae31e97fc5be632cf628507652294a0778
+  ObjectBox: 2aae8ad350012cb53c6e7848064307cf68617f73
+  objectbox_flutter_libs: 42b57158b8c4869b731487f220e07d6edc6616e0
 
 PODFILE CHECKSUM: cb5262ee78678c606f8d7e5c534b656a06f048d0
 

@@ -37,6 +37,16 @@ class Movie {
     info: info ?? this.info,
     me: me,
   );
+
+  /// The same movie with the viewer's state [me]; null clears it.
+  Movie withMe(MovieListState? me) => Movie(
+    id: id,
+    title: title,
+    localTitle: localTitle,
+    posterPath: posterPath,
+    info: info,
+    me: me,
+  );
 }
 
 /// Já assisti or Quero ver, and the rating label, of the viewer for a movie.

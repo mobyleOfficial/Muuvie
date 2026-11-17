@@ -52,7 +52,7 @@ class _ShelfDetailPageState extends State<ShelfDetailPage> {
           Success(:final data) => Success(
             data.map((g) => GenreOption(g.id, g.name)).toList(),
           ),
-          Failure(:final error) => Failure(error),
+          Failure(:final error, :final code) => Failure(error, code: code),
         },
       );
 

@@ -147,7 +147,7 @@ class MaratonasRemoteDataSourceImpl implements MaratonasRemoteDataSource {
         '${_path(slug)}/challenges',
       )) {
         Success(:final data) => Success(RemoteMaratonas.categories(data)),
-        Failure(:final error) => Failure(error),
+        Failure(:final error, :final code) => Failure(error, code: code),
       };
 
   @override
@@ -204,7 +204,7 @@ class MaratonasRemoteDataSourceImpl implements MaratonasRemoteDataSource {
         '$_base/maratona-templates',
       )) {
         Success(:final data) => Success(RemoteMaratonas.templates(data)),
-        Failure(:final error) => Failure(error),
+        Failure(:final error, :final code) => Failure(error, code: code),
       };
 
   @override
@@ -232,12 +232,12 @@ class MaratonasRemoteDataSourceImpl implements MaratonasRemoteDataSource {
     T Function(Map<String, dynamic>) fromJson,
   ) => switch (result) {
     Success(:final data) => Success(fromJson(data)),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 
   Result<void> _ignoreBody(Result<dynamic> result) => switch (result) {
     Success() => const Success(null),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 }
 

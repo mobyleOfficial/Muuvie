@@ -3,6 +3,7 @@ library;
 
 export 'add_recent_search.dart';
 export 'get_movie_detail.dart';
+export 'get_similar_movies.dart';
 export 'search_movies.dart';
 export 'observe_recent_searches.dart';
 export 'remove_recent_searches.dart';

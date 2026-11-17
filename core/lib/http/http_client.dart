@@ -3,10 +3,12 @@ import 'package:core/http/result/result.dart';
 abstract interface class HttpClient {
   Future<Result<T>> get<T>(String path, {Map<String, dynamic>? queryParams});
 
+  /// [onSendProgress] reports the bytes of [body] sent so far, for uploads.
   Future<Result<T>> post<T>(
     String path, {
     Map<String, dynamic>? queryParams,
     Object? body,
+    void Function(int sent, int total)? onSendProgress,
   });
 
   Future<Result<T>> put<T>(

@@ -421,7 +421,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get movieDetailUnmatched =>
-      'Não encontramos este filme no nosso catálogo. Os dados vêm do Filmow e podem estar incompletos.';
+      'Não encontramos este filme no nosso catálogo. Os dados vêm da sua importação (Filmow ou Letterboxd) e podem estar incompletos.';
 
   @override
   String get movieDetailCast => 'Elenco';
@@ -1450,7 +1450,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get importIntro =>
-      'Traga seu histórico do Filmow: os filmes vistos vão para Já assisti, o quero ver para Quero ver e suas listas viram estantes. Nada é gravado antes de você confirmar.';
+      'Traga seu histórico do Filmow ou do Letterboxd: os filmes vistos vão para Já assisti, o quero ver para Quero ver e suas listas viram estantes. Nada é gravado antes de você confirmar.';
 
   @override
   String get importStartFilmow => 'Entrar no Filmow e importar';
@@ -1474,6 +1474,57 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get importStartError =>
       'Não deu para começar a importação. Tente de novo.';
+
+  @override
+  String get importStartFilmowFile => 'Enviar arquivo do Filmow';
+
+  @override
+  String get importStartLetterboxdFile => 'Enviar arquivo do Letterboxd';
+
+  @override
+  String get importFilmowFileTitle => 'Arquivo do Filmow';
+
+  @override
+  String get importFilmowFileMessage =>
+      'Gere o CSV com o filmow_to_letterboxd (github.com/yanari/filmow_to_letterboxd) e envie aqui. Perfis grandes geram mais de um arquivo: escolha todos.';
+
+  @override
+  String get importLetterboxdFileTitle => 'Arquivo do Letterboxd';
+
+  @override
+  String get importLetterboxdFileMessage =>
+      'No Letterboxd, vá em Settings › Data › Export your data (letterboxd.com/settings/data) e envie o .zip que ele baixar. CSVs no formato de importação do Letterboxd também servem.';
+
+  @override
+  String get importChooseFile => 'Escolher arquivo';
+
+  @override
+  String get importFileUnreadable =>
+      'Não conseguimos ler esse arquivo. Confira se é o arquivo certo e a origem certa.';
+
+  @override
+  String get importFileTooLarge =>
+      'Os arquivos são grandes demais. Envie no máximo 10 arquivos, até 10 MB no total.';
+
+  @override
+  String get importFileAmbiguous =>
+      'Não dá para saber se esse CSV é dos filmes vistos ou do quero ver. Renomeie para watched.csv ou watchlist.csv, ou envie o .zip do export.';
+
+  @override
+  String get importFileEmpty => 'Não encontramos filmes nesse arquivo.';
+
+  @override
+  String get importFilmowFileHowTo => 'Ver como gerar';
+
+  @override
+  String get importLetterboxdFileHowTo => 'Abrir o Letterboxd';
+
+  @override
+  String get importUploading => 'Enviando arquivos…';
+
+  @override
+  String get importPreviewTagsHint =>
+      'As tags do Letterboxd só viram estantes se você marcar.';
 
   @override
   String get importActionError => 'Algo deu errado. Tente de novo.';
@@ -1552,10 +1603,19 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get importPreviewLists => 'Listas → estantes';
+  String importPreviewReviews(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count resenhas',
+      one: '1 resenha',
+      zero: '0 resenhas',
+    );
+    return '$_temp0';
+  }
 
   @override
-  String get importPreviewNoLists => 'Nenhuma lista encontrada no seu perfil.';
+  String get importPreviewLists => 'Listas → estantes';
 
   @override
   String get importPreviewVisibility => 'Quem vê as estantes e sessões novas';
@@ -1652,13 +1712,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get importUnmatchedEmpty => 'Todos os filmes foram encontrados.';
 
   @override
-  String get importFinishedSnack => 'Sua importação do Filmow terminou';
+  String importFinishedSnack(String source) {
+    return 'Sua importação do $source terminou';
+  }
 
   @override
   String get importSeeReport => 'Ver relatório';
 
   @override
-  String get watchedEmptyImport => 'Já usa o Filmow? Traga seu histórico';
+  String get watchedEmptyImport =>
+      'Já usa o Filmow ou o Letterboxd? Traga seu histórico';
 
   @override
   String get locadoraNew => 'Nova locadora';
@@ -3561,10 +3624,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get onboardingImportText =>
-      'Importe do Filmow o que você assistiu, o que quer ver e suas listas. Nada do que você fez aqui é sobrescrito.';
+      'Importe do Filmow ou do Letterboxd o que você assistiu, o que quer ver e suas listas. Nada do que você fez aqui é sobrescrito.';
 
   @override
-  String get onboardingImportFilmow => 'Importar do Filmow';
+  String get onboardingImportFilmow => 'Importar meu histórico';
 
   @override
   String get onboardingSuggestionsTitle => 'Em cartaz';
@@ -3602,7 +3665,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get settingsImportHint =>
-      'Do Filmow, sem sobrescrever o que você fez aqui';
+      'Do Filmow ou do Letterboxd, sem sobrescrever o que você fez aqui';
 
   @override
   String get settingsNotifications => 'Notificações';
@@ -3853,4 +3916,190 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get savedShelvesEmpty =>
       'As estantes que você salvar de outras pessoas aparecem aqui.';
+
+  @override
+  String get universeAction => 'Explorar universo';
+
+  @override
+  String universeTitle(String title) {
+    return 'Universo de $title';
+  }
+
+  @override
+  String get universeShowList => 'Ver como lista';
+
+  @override
+  String get universeShowMap => 'Ver como universo';
+
+  @override
+  String get universeEmpty => 'Nenhum filme parecido por aqui ainda.';
+
+  @override
+  String get universeError => 'Não deu para carregar este universo.';
+
+  @override
+  String get universeOpenDetails => 'Ver detalhes';
+
+  @override
+  String universeMapLabel(int count, String title) {
+    return 'Mapa com $count filmes parecidos com $title. Use o modo lista para percorrer os filmes.';
+  }
+
+  @override
+  String get universeCenterLabel => 'O centro deste universo';
+
+  @override
+  String get universeTravel => 'Viajar';
+
+  @override
+  String universeTravelTo(String title) {
+    return 'Viajar até $title';
+  }
+
+  @override
+  String universeTravelError(String title) {
+    return 'Não deu para viajar até $title.';
+  }
+
+  @override
+  String universeHops(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count saltos da origem',
+      one: '1 salto da origem',
+      zero: 'Na origem',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get universeBackToOrigin => 'Voltar à origem';
+
+  @override
+  String get universeWantToWatch => 'Quero ver';
+
+  @override
+  String universeAddedToWatchlist(String title) {
+    return '$title está em Quero ver.';
+  }
+
+  @override
+  String get universeWantToWatchError =>
+      'Não deu para adicionar a Quero ver. Tente de novo.';
+
+  @override
+  String get universeAddToShelf => 'Adicionar à estante';
+
+  @override
+  String universeMoreActions(String title) {
+    return 'Mais ações para $title';
+  }
+
+  @override
+  String universeInCommon(String items) {
+    return 'Em comum: $items';
+  }
+
+  @override
+  String get universeFilter => 'Filtrar planetas';
+
+  @override
+  String get universeFilterOnlyUnwatched => 'Só os que não assisti';
+
+  @override
+  String get universeFilterDecade => 'Década';
+
+  @override
+  String universeFilterDecadeValue(int decade) {
+    return 'Anos $decade';
+  }
+
+  @override
+  String get universeFilterGenre => 'Gênero';
+
+  @override
+  String get universeFilterAny => 'Qualquer';
+
+  @override
+  String get universeFilterClear => 'Limpar filtros';
+
+  @override
+  String universeFilterSummary(int count, int total) {
+    return '$count de $total planetas combinam';
+  }
+
+  @override
+  String get universeFilterNoMatch =>
+      'Nenhum planeta deste sistema combina com os filtros.';
+
+  @override
+  String get petFoguete => 'Foguete';
+
+  @override
+  String get petAstronauta => 'Astronauta';
+
+  @override
+  String petRuleUniverse(int count) {
+    return 'Visite $count sistemas no Universo de Filmes';
+  }
+
+  @override
+  String get universeShareRoute => 'Compartilhar rota';
+
+  @override
+  String universeShareRouteText(
+    String origin,
+    String destination,
+    int hops,
+    String path,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hops,
+      locale: localeName,
+      other: '$hops saltos',
+      one: '1 salto',
+      zero: '0 saltos',
+    );
+    return 'Fui de $origin até $destination em $_temp0 no Universo de Filmes do Muuvie: $path';
+  }
+
+  @override
+  String get universeConstellations => 'Constelações';
+
+  @override
+  String universeConstellationsHelp(String title) {
+    return 'Estantes públicas com $title. Os filmes delas acendem e se ligam no mapa.';
+  }
+
+  @override
+  String universeConstellationsEmpty(String title) {
+    return 'Nenhuma estante pública tem $title ainda.';
+  }
+
+  @override
+  String get universeConstellationsError =>
+      'Não deu para carregar as estantes.';
+
+  @override
+  String universeConstellationLabel(String name, String owner) {
+    return '$name · de $owner';
+  }
+
+  @override
+  String get universeConstellationError =>
+      'Não deu para montar essa constelação.';
+
+  @override
+  String universeConstellationSummary(String name, int count, int total) {
+    return '$name: $count de $total planetas';
+  }
+
+  @override
+  String universeUnlockedPet(String name) {
+    return 'Você desbloqueou a vaquinha $name explorando o universo!';
+  }
+
+  @override
+  String get universeSeePet => 'Ver';
 }

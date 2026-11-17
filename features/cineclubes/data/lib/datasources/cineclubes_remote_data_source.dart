@@ -115,7 +115,7 @@ class CineClubesRemoteDataSourceImpl implements CineClubesRemoteDataSource {
   Future<Result<void>> leave(String slug) async => switch (await _httpClient
       .delete<dynamic>('${_path(slug)}/participation')) {
     Success() => const Success(null),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 
   @override
@@ -157,7 +157,7 @@ class CineClubesRemoteDataSourceImpl implements CineClubesRemoteDataSource {
     T Function(Map<String, dynamic>) fromJson,
   ) => switch (result) {
     Success(:final data) => Success(fromJson(data)),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 }
 

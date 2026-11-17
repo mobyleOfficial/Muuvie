@@ -18,7 +18,7 @@ class LocadorasRepositoryImpl implements LocadorasRepository {
     page: page,
   )) {
     Success(:final data) => Success(data.toDomain((l) => l.toDomain())),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 
   @override
@@ -30,7 +30,7 @@ class LocadorasRepositoryImpl implements LocadorasRepository {
     page: page,
   )) {
     Success(:final data) => Success(data.toDomain((l) => l.toDomain())),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 
   @override
@@ -61,7 +61,7 @@ class LocadorasRepositoryImpl implements LocadorasRepository {
     page: page,
   )) {
     Success(:final data) => Success(data.toDomain((s) => s.toDomain())),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 
   @override
@@ -93,6 +93,6 @@ class LocadorasRepositoryImpl implements LocadorasRepository {
 
   Result<Locadora> _locadora(Result<RemoteLocadora> result) => switch (result) {
     Success(:final data) => Success(data.toDomain()),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 }

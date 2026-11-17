@@ -18,7 +18,22 @@ class MoviesRepositoryImpl implements MoviesRepository {
 
     return switch (result) {
       Success(:final data) => Success(data.toDomain()),
-      Failure(:final error) => Failure(error),
+      Failure(:final error, :final code) => Failure(error, code: code),
+    };
+  }
+
+  @override
+  Future<Result<List<SimilarMovie>>> getSimilarMovies({
+    required int movieId,
+  }) async {
+    final result = await _dataSource.getSimilarMovies(movieId: movieId);
+
+    return switch (result) {
+      Success(:final data) => Success([
+        for (var rank = 0; rank < data.length; rank++)
+          data[rank].toDomain(rank: rank, count: data.length),
+      ]),
+      Failure(:final error, :final code) => Failure(error, code: code),
     };
   }
 
@@ -31,7 +46,7 @@ class MoviesRepositoryImpl implements MoviesRepository {
 
     return switch (result) {
       Success(:final data) => Success(data.toDomain()),
-      Failure(:final error) => Failure(error),
+      Failure(:final error, :final code) => Failure(error, code: code),
     };
   }
 
@@ -61,7 +76,7 @@ class MoviesRepositoryImpl implements MoviesRepository {
 
     return switch (result) {
       Success(:final data) => Success(data.toDomain()),
-      Failure(:final error) => Failure(error),
+      Failure(:final error, :final code) => Failure(error, code: code),
     };
   }
 
@@ -69,7 +84,7 @@ class MoviesRepositoryImpl implements MoviesRepository {
   Future<Result<MovieListing>> getTrendingOnMuuvie({required int page}) async =>
       switch (await _dataSource.getTrendingOnMuuvie(page: page)) {
         Success(:final data) => Success(data.toDomain()),
-        Failure(:final error) => Failure(error),
+        Failure(:final error, :final code) => Failure(error, code: code),
       };
 
   @override
@@ -77,7 +92,7 @@ class MoviesRepositoryImpl implements MoviesRepository {
     required int page,
   }) async => switch (await _dataSource.getMostLovedOnMuuvie(page: page)) {
     Success(:final data) => Success(data.toDomain()),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 
   @override
@@ -88,7 +103,7 @@ class MoviesRepositoryImpl implements MoviesRepository {
       Success(:final data) => Success(
         data.map((genre) => genre.toDomain()).toList(),
       ),
-      Failure(:final error) => Failure(error),
+      Failure(:final error, :final code) => Failure(error, code: code),
     };
   }
 
@@ -100,7 +115,7 @@ class MoviesRepositoryImpl implements MoviesRepository {
       Success(:final data) => Success(
         data.map((country) => country.toDomain()).toList(),
       ),
-      Failure(:final error) => Failure(error),
+      Failure(:final error, :final code) => Failure(error, code: code),
     };
   }
 
@@ -112,7 +127,7 @@ class MoviesRepositoryImpl implements MoviesRepository {
       Success(:final data) => Success(
         data.map((language) => language.toDomain()).toList(),
       ),
-      Failure(:final error) => Failure(error),
+      Failure(:final error, :final code) => Failure(error, code: code),
     };
   }
 

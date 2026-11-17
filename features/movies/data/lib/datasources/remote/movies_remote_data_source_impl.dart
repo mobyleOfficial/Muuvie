@@ -7,6 +7,7 @@ import 'package:movies_data/models/remote/remote_country.dart';
 import 'package:movies_data/models/remote/remote_genre.dart';
 import 'package:movies_data/models/remote/remote_language.dart';
 import 'package:movies_data/models/remote/remote_movie_listing.dart';
+import 'package:movies_data/models/remote/remote_similar_movie.dart';
 
 @injectable
 class MoviesRemoteDataSourceImpl implements MoviesRemoteDataSource {
@@ -30,6 +31,22 @@ class MoviesRemoteDataSourceImpl implements MoviesRemoteDataSource {
     return switch (result) {
       Success<Map<String, dynamic>>(:final data) => Success(
         RemoteMovieDetail.fromJson(data),
+      ),
+      Failure<Map<String, dynamic>>(:final error) => Failure(error),
+    };
+  }
+
+  @override
+  Future<Result<List<RemoteSimilarMovie>>> getSimilarMovies({
+    required int movieId,
+  }) async {
+    final result = await _httpClient.get<Map<String, dynamic>>(
+      '$_base/$movieId/similar',
+    );
+
+    return switch (result) {
+      Success<Map<String, dynamic>>(:final data) => Success(
+        RemoteSimilarMovie.listFromJson(data),
       ),
       Failure<Map<String, dynamic>>(:final error) => Failure(error),
     };

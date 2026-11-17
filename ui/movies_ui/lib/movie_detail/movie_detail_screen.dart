@@ -22,24 +22,28 @@ void _showActionsSheet(
   void Function(int, String)? onAddToShelves,
   MovieDetailLinks? links,
 ) {
-  Widget action(IconData icon, String label, VoidCallback onSelected) =>
-      Builder(
-        builder: (sheetContext) => ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24),
-          leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
-          title: Text(
-            label,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
-          ),
-          onTap: () async {
-            Navigator.of(sheetContext).pop();
-            final authenticated = await AuthGate.check(context);
-            if (authenticated && context.mounted) onSelected();
-          },
-        ),
-      );
+  Widget action(
+    IconData icon,
+    String label,
+    VoidCallback onSelected, {
+    bool requiresLogin = true,
+  }) => Builder(
+    builder: (sheetContext) => ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+      leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
+      title: Text(
+        label,
+        style: Theme.of(
+          context,
+        ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+      ),
+      onTap: () async {
+        Navigator.of(sheetContext).pop();
+        final authenticated = !requiresLogin || await AuthGate.check(context);
+        if (authenticated && context.mounted) onSelected();
+      },
+    ),
+  );
 
   final colorScheme = Theme.of(context).colorScheme;
   final textTheme = Theme.of(context).textTheme;
@@ -72,6 +76,15 @@ void _showActionsSheet(
               () => onAddToShelves(detail.id, detail.title),
             ),
           if (links != null) ...[
+            // The universe is public: no login needed to explore it. Only one
+            // at a time: not offered over a universe already open.
+            if (links.canOpenUniverse(context))
+              action(
+                Icons.blur_circular_outlined,
+                l10n?.universeAction ?? '',
+                () => links.openUniverse(context, detail),
+                requiresLogin: false,
+              ),
             action(
               Icons.groups_outlined,
               l10n?.movieDetailCreateCineClube ?? '',
@@ -100,6 +113,14 @@ class MovieDetailScreen extends StatelessWidget {
     this.onAddToShelves,
   });
 
+  /// Inside a tab the shell draws the app bar with the title and the back
+  /// arrow. Pushed over the shell, as from the Universo de Filmes or a
+  /// conversation, the detail draws its own.
+  static PreferredSizeWidget? _appBar(BuildContext context, String? title) =>
+      TabIndexScope.find(context) != null
+      ? null
+      : AppBar(title: title == null ? null : Text(title));
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -108,10 +129,12 @@ class MovieDetailScreen extends StatelessWidget {
       value: cubit,
       child: BlocBuilder<MovieDetailCubit, MovieDetailState>(
         builder: (context, state) => switch (state) {
-          MovieDetailLoading() => const Scaffold(
-            body: Center(child: MuuvieActivityIndicator()),
+          MovieDetailLoading() => Scaffold(
+            appBar: _appBar(context, null),
+            body: const Center(child: MuuvieActivityIndicator()),
           ),
           MovieDetailError(:final message) => Scaffold(
+            appBar: _appBar(context, null),
             body: MuuvieEmptyState(
               illustration: MuuvieIllustration.error,
               title: l10n?.emptyStateErrorTitle ?? '',
@@ -121,6 +144,7 @@ class MovieDetailScreen extends StatelessWidget {
             ),
           ),
           MovieDetailSuccess(:final detail) => Scaffold(
+            appBar: _appBar(context, detail.displayTitle),
             body: _MovieDetailBody(
               detail: detail,
               onAddToShelves: onAddToShelves,

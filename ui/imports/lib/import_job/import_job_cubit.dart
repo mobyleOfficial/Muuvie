@@ -114,9 +114,10 @@ class ImportJobCubit extends Cubit<ImportJobState> {
     }
   }
 
+  /// Every list starts checked except the optional ones (Letterboxd tags).
   Set<String> _allLists(ImportJob job) => {
     for (final list in job.preview?.lists ?? const <ImportPreviewList>[])
-      list.externalId,
+      if (!list.optional) list.externalId,
   };
 
   void _schedulePoll(ImportStatus status) {

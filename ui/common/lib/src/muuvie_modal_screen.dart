@@ -7,7 +7,7 @@ import 'package:common/src/muuvie_close_button.dart';
 /// Base scaffold for full-screen modal screens that hide the bottom navbar.
 ///
 /// Provides the standard modal layout:
-///   SafeArea → ColoredBox → Column [ MuuvieAnimatedAppBar, Expanded(body) ]
+///   SafeArea → Material → Column [ MuuvieAnimatedAppBar, Expanded(body) ]
 ///
 /// The [MuuvieCloseButton] leading widget is included by default;
 /// override [leading] to replace it or set it to `null` to remove it.
@@ -87,7 +87,9 @@ class MuuvieModalScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: backgroundColor,
         body: SafeArea(
-          child: ColoredBox(
+          // A Material, not a ColoredBox: list tiles paint their ink on the
+          // nearest Material, so a colored box in between hid their splashes.
+          child: Material(
             color: Theme.of(context).colorScheme.surface,
             child: Column(
               children: [

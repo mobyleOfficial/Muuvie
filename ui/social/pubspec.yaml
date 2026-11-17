@@ -10,7 +10,9 @@ dependencies:
     sdk: flutter
   flutter_bloc: ^9.1.1
   bloc: ^9.2.0
-  auto_route: ^11.1.0
+  # 11.2 builds routes with material_ui, whose Theme this app does not provide:
+  # pages then fall back to its default light theme and flash white in dark mode.
+  auto_route: ">=11.1.0 <11.2.0"
   common:
     path: ../common
   public_profile:
