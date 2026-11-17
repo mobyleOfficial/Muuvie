@@ -20,6 +20,10 @@ abstract class ImportsModule {
       StartImport(repository);
 
   @injectable
+  StartFileImport startFileImport(ImportsRepository repository) =>
+      StartFileImport(repository);
+
+  @injectable
   GetImport getImport(ImportsRepository repository) => GetImport(repository);
 
   @injectable

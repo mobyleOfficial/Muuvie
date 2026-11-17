@@ -1,4 +1,5 @@
 import 'package:core/core.dart';
+import 'package:dio/dio.dart';
 import 'package:imports_data/models/remote_imports.dart';
 import 'package:imports_domain/models/models.dart';
 
@@ -8,6 +9,12 @@ abstract interface class ImportsRemoteDataSource {
     String username,
     String cookies,
   );
+
+  Future<Result<ImportJob>> startFileImport(
+    ImportSource source,
+    List<ImportUploadFile> files, {
+    void Function(double progress)? onProgress,
+  });
 
   Future<Result<ImportJob>> getImport(int jobId);
 
@@ -52,6 +59,34 @@ class ImportsRemoteDataSourceImpl implements ImportsRemoteDataSource {
         'username': username,
         'cookies': cookies,
       },
+    ),
+    RemoteImports.job,
+  );
+
+  /// `multipart/form-data`: `source` and one `file` part per file.
+  @override
+  Future<Result<ImportJob>> startFileImport(
+    ImportSource source,
+    List<ImportUploadFile> files, {
+    void Function(double progress)? onProgress,
+  }) async => _map(
+    await _httpClient.post<Map<String, dynamic>>(
+      _base,
+      body: FormData()
+        ..fields.add(MapEntry('source', source.wireValue))
+        // One part per file, all named `file` (not `file[]`).
+        ..files.addAll([
+          for (final file in files)
+            MapEntry(
+              'file',
+              MultipartFile.fromBytes(file.bytes, filename: file.name),
+            ),
+        ]),
+      onSendProgress: onProgress == null
+          ? null
+          : (sent, total) {
+              if (total > 0) onProgress(sent / total);
+            },
     ),
     RemoteImports.job,
   );
@@ -120,6 +155,6 @@ class ImportsRemoteDataSourceImpl implements ImportsRemoteDataSource {
     T Function(Map<String, dynamic>) fromJson,
   ) => switch (result) {
     Success(:final data) => Success(fromJson(data)),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 }

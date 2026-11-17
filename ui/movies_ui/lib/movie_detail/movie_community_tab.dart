@@ -91,7 +91,10 @@ class _MovieCommunityTabState extends State<MovieCommunityTab>
                           items: data.items,
                           hasNext: data.hasNext,
                         )),
-                        Failure(:final error) => Failure(error),
+                        Failure(:final error, :final code) => Failure(
+                          error,
+                          code: code,
+                        ),
                       },
                   itemBuilder: (context, item) => _ShelfCard(
                     item: item,
@@ -143,7 +146,7 @@ class _MovieCommunityTabState extends State<MovieCommunityTab>
     MovieEventPageParams(movieId: movieId, page: page),
   )) {
     Success(:final data) => Success((items: data.items, hasNext: data.hasNext)),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 }
 

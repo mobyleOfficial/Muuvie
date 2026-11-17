@@ -149,14 +149,17 @@ class _Preview extends StatelessWidget {
       children: [
         Text(l10n?.importPreviewTitle ?? '', style: textTheme.titleLarge),
         const SizedBox(height: 16),
-        _CountRow(
-          icon: Icons.check_circle_outline,
-          text: l10n?.importPreviewWatched(preview.watched) ?? '',
-        ),
-        _CountRow(
-          icon: Icons.bookmark_border,
-          text: l10n?.importPreviewWatchlist(preview.watchlist) ?? '',
-        ),
+        // Only what the import brings: a Filmow CSV has no watchlist, favorites or lists.
+        if (preview.watched > 0)
+          _CountRow(
+            icon: Icons.check_circle_outline,
+            text: l10n?.importPreviewWatched(preview.watched) ?? '',
+          ),
+        if (preview.watchlist > 0)
+          _CountRow(
+            icon: Icons.bookmark_border,
+            text: l10n?.importPreviewWatchlist(preview.watchlist) ?? '',
+          ),
         if (preview.favorites > 0)
           _CountRow(
             icon: Icons.favorite_border,
@@ -167,21 +170,30 @@ class _Preview extends StatelessWidget {
             icon: Icons.event_outlined,
             text: l10n?.importPreviewLogs(preview.logs) ?? '',
           ),
-        const SizedBox(height: 24),
-        Text(
-          l10n?.importPreviewLists ?? '',
-          style: textTheme.labelLarge?.copyWith(
-            color: colorScheme.onSurfaceVariant,
+        if (preview.reviews > 0)
+          _CountRow(
+            icon: Icons.rate_review_outlined,
+            text: l10n?.importPreviewReviews(preview.reviews) ?? '',
           ),
-        ),
-        if (preview.lists.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Text(
-              l10n?.importPreviewNoLists ?? '',
-              style: textTheme.bodyMedium,
+        if (preview.lists.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          Text(
+            l10n?.importPreviewLists ?? '',
+            style: textTheme.labelLarge?.copyWith(
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
+          if (preview.lists.any((list) => list.optional))
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                l10n?.importPreviewTagsHint ?? '',
+                style: textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+        ],
         for (final list in preview.lists)
           CheckboxListTile(
             contentPadding: EdgeInsets.zero,
@@ -248,14 +260,16 @@ class _Report extends StatelessWidget {
       children: [
         Text(l10n?.importDoneTitle ?? '', style: textTheme.titleLarge),
         const SizedBox(height: 16),
-        _CountRow(
-          icon: Icons.check_circle_outline,
-          text: l10n?.importPreviewWatched(counts.watched) ?? '',
-        ),
-        _CountRow(
-          icon: Icons.bookmark_border,
-          text: l10n?.importPreviewWatchlist(counts.watchlist) ?? '',
-        ),
+        if (counts.watched > 0)
+          _CountRow(
+            icon: Icons.check_circle_outline,
+            text: l10n?.importPreviewWatched(counts.watched) ?? '',
+          ),
+        if (counts.watchlist > 0)
+          _CountRow(
+            icon: Icons.bookmark_border,
+            text: l10n?.importPreviewWatchlist(counts.watchlist) ?? '',
+          ),
         if (counts.favorites > 0)
           _CountRow(
             icon: Icons.favorite_border,
@@ -265,6 +279,11 @@ class _Report extends StatelessWidget {
           _CountRow(
             icon: Icons.event_outlined,
             text: l10n?.importPreviewLogs(counts.logs) ?? '',
+          ),
+        if (counts.reviews > 0)
+          _CountRow(
+            icon: Icons.rate_review_outlined,
+            text: l10n?.importPreviewReviews(counts.reviews) ?? '',
           ),
         if (counts.lists > 0)
           _CountRow(

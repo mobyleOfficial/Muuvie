@@ -75,7 +75,7 @@ class ShelvesRepositoryImpl implements ShelvesRepository {
     page: page,
   )) {
     Success(:final data) => Success(data.toDomain((movie) => movie.toDomain())),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 
   @override
@@ -148,7 +148,7 @@ class ShelvesRepositoryImpl implements ShelvesRepository {
     page: page,
   )) {
     Success(:final data) => Success(data.toDomain((item) => item.toDomain())),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 
   @override
@@ -167,17 +167,17 @@ class ShelvesRepositoryImpl implements ShelvesRepository {
         Success(:final data) => Success(
           data.toDomain((shelf) => shelf.toDomain()),
         ),
-        Failure(:final error) => Failure(error),
+        Failure(:final error, :final code) => Failure(error, code: code),
       };
 
   Result<Shelf> _shelf(Result<RemoteShelf> result) => switch (result) {
     Success(:final data) => Success(data.toDomain()),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 
   Result<MovieShelves> _movieShelves(Result<RemoteMovieShelves> result) =>
       switch (result) {
         Success(:final data) => Success(data.toDomain()),
-        Failure(:final error) => Failure(error),
+        Failure(:final error, :final code) => Failure(error, code: code),
       };
 }

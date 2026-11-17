@@ -48,7 +48,7 @@ class StatsRemoteDataSourceImpl implements StatsRemoteDataSource {
     '${_user(userId)}/stats/$year/calendar',
   )) {
     Success(:final data) => Success(RemoteStats.calendar(data)),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 
   @override
@@ -57,7 +57,7 @@ class StatsRemoteDataSourceImpl implements StatsRemoteDataSource {
         '$_base/me/retrospectives',
       )) {
         Success(:final data) => Success(RemoteStats.retrospectiveYears(data)),
-        Failure(:final error) => Failure(error),
+        Failure(:final error, :final code) => Failure(error, code: code),
       };
 
   @override
@@ -87,7 +87,7 @@ class StatsRemoteDataSourceImpl implements StatsRemoteDataSource {
   Future<Result<void>> removeGoal(int year) async =>
       switch (await _httpClient.delete<dynamic>('$_base/me/goals/$year')) {
         Success() => const Success(null),
-        Failure(:final error) => Failure(error),
+        Failure(:final error, :final code) => Failure(error, code: code),
       };
 
   String _user(String userId) => '$_base/${Uri.encodeComponent(userId)}';
@@ -97,6 +97,6 @@ class StatsRemoteDataSourceImpl implements StatsRemoteDataSource {
     T Function(Map<String, dynamic>) fromJson,
   ) => switch (result) {
     Success(:final data) => Success(fromJson(data)),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 }

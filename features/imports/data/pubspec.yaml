@@ -14,3 +14,4 @@ dependencies:
     path: ../domain
   core:
     path: ../../../core
+  dio: ^5.0.0

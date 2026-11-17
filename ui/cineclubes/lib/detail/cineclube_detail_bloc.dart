@@ -78,6 +78,10 @@ class CineClubeDetailCubit extends Cubit<CineClubeDetailState> {
     final result = await action();
     if (isClosed) return null;
     switch (result) {
+      // Joined already (another device, a double tap): the same as joining now.
+      case Failure(code: 'already_participating'):
+        await load();
+        return null;
       case Failure(:final error):
         emit(current.copyWith(busy: false));
         return error;

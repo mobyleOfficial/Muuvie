@@ -115,7 +115,7 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
     },
   )) {
     Success(:final data) => Success(RemoteGamification.diaryMonth(data)),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 
   @override
@@ -148,7 +148,7 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
         '${_partyPath(code)}/members/me',
       )) {
         Success() => const Success(null),
-        Failure(:final error) => Failure(error),
+        Failure(:final error, :final code) => Failure(error, code: code),
       };
 
   @override
@@ -199,6 +199,6 @@ class GamificationRemoteDataSourceImpl implements GamificationRemoteDataSource {
     T Function(Map<String, dynamic>) fromJson,
   ) => switch (result) {
     Success(:final data) => Success(fromJson(data)),
-    Failure(:final error) => Failure(error),
+    Failure(:final error, :final code) => Failure(error, code: code),
   };
 }

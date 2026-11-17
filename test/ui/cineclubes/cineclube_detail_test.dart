@@ -211,4 +211,30 @@ void main() {
     expect(error, AppError.forbidden);
     expect(repository.joins.single, 'errada');
   });
+
+  test('joining a CineClube the user is already in counts as joined', () async {
+    repository.joinResult = const Failure(
+      AppError.conflict,
+      code: 'already_participating',
+    );
+    final detail = cubit();
+    await detail.load();
+
+    final error = await detail.join();
+
+    expect(error, isNull);
+    await detail.close();
+  });
+
+  test('a closed CineClube is still an error', () async {
+    repository.joinResult = const Failure(
+      AppError.conflict,
+      code: 'cineclube_closed',
+    );
+    final detail = cubit();
+    await detail.load();
+
+    expect(await detail.join(), AppError.conflict);
+    await detail.close();
+  });
 }
