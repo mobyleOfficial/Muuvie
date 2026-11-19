@@ -74,3 +74,6 @@ testResults/
 
 # Local research notes
 tmdb_endpoints.txt
+
+# Golden test failure artifacts
+**/failures/
