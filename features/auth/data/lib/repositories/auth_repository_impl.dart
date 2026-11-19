@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:core/core.dart';
 import 'package:injectable/injectable.dart';
 import 'package:auth_domain/models/oauth_provider.dart';
@@ -13,6 +15,7 @@ class AuthRepositoryImpl implements AuthRepository {
   final SocialSignInDataSource _socialSignInDataSource;
   final AuthRemoteDataSource _authRemoteDataSource;
   final AuthLocalDataSource _localDataSource;
+  final _sessionStarted = StreamController<void>.broadcast();
 
   AuthRepositoryImpl(
     this._socialSignInDataSource,
@@ -42,6 +45,7 @@ class AuthRepositoryImpl implements AuthRepository {
         if (saved case Failure(:final error, :final code)) {
           return Failure(error, code: code);
         }
+        _sessionStarted.add(null);
         return Success(
           SignedIn(
             needsNickname: data.needsNickname,
@@ -88,6 +92,41 @@ class AuthRepositoryImpl implements AuthRepository {
     await _socialSignInDataSource.signOut();
     return _localDataSource.clearToken();
   }
+
+  @override
+  Future<Result<bool>> deleteAccount() async {
+    var result = await _authRemoteDataSource.deleteAccount();
+    if (result case Failure(code: 'apple_reauth_required')) {
+      if (await _socialSignInDataSource.isAppleAvailable()) {
+        switch (await _socialSignInDataSource.appleAuthorizationCode()) {
+          case Success(:final data) when data == null:
+            return const Success(false);
+          case Success(:final data):
+            result = await _authRemoteDataSource.deleteAccount(
+              appleAuthorizationCode: data,
+            );
+          case Failure(:final error, :final code):
+            return Failure(error, code: code);
+        }
+      } else {
+        result = await _authRemoteDataSource.deleteAccount(
+          skipAppleRevocation: true,
+        );
+      }
+    }
+    if (result case Failure(:final error, :final code)) {
+      return Failure(error, code: code);
+    }
+    await _socialSignInDataSource.signOut();
+    final cleared = await _localDataSource.clearToken();
+    return switch (cleared) {
+      Success() => const Success(true),
+      Failure(:final error, :final code) => Failure(error, code: code),
+    };
+  }
+
+  @override
+  Stream<void> observeSessionStarted() => _sessionStarted.stream;
 
   @override
   Stream<void> observeSessionEnded() => _localDataSource.observeTokenCleared();

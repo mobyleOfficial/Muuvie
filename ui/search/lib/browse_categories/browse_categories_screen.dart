@@ -33,10 +33,10 @@ class BrowseCategoriesScreen extends StatelessWidget {
             BrowseCategoriesLoading() => const Center(
               child: CircularProgressIndicator(),
             ),
-            BrowseCategoriesError(:final message) => MuuvieEmptyState(
+            BrowseCategoriesError() => MuuvieEmptyState(
               illustration: MuuvieIllustration.error,
               title: l10n?.emptyStateErrorTitle ?? '',
-              message: message,
+              message: l10n?.browseCategoriesError ?? '',
               action: cubit.reload,
               actionLabel: l10n?.emptyStateRetry ?? '',
             ),

@@ -58,6 +58,15 @@ abstract class AuthModule {
   ) => LogoutWithPush(repository, removePushDevice);
 
   @injectable
+  ObserveSessionStarted observeSessionStartedUseCase(
+    AuthRepository repository,
+  ) => ObserveSessionStarted(repository);
+
+  @injectable
+  DeleteAccount deleteAccountUseCase(AuthRepository repository) =>
+      DeleteAccount(repository);
+
+  @injectable
   ObserveSessionEnded observeSessionEndedUseCase(AuthRepository repository) =>
       ObserveSessionEnded(repository);
 

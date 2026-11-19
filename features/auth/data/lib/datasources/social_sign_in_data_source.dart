@@ -10,4 +10,12 @@ abstract interface class SocialSignInDataSource {
   /// Forgets the provider account picked on this device, so the next sign-in
   /// asks which account to use. Best effort.
   Future<void> signOut();
+
+  /// Whether Sign in with Apple can run on this device (iOS and macOS).
+  Future<bool> isAppleAvailable();
+
+  /// Asks Apple again for a fresh authorization code, so the server can revoke
+  /// the app's Apple token when the account is deleted. `Success(null)` when the
+  /// user closed the sheet.
+  Future<Result<String?>> appleAuthorizationCode();
 }

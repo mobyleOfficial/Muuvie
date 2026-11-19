@@ -6854,6 +6854,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'See'**
   String get universeSeePet;
+
+  /// No description provided for @moreOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get moreOptions;
+
+  /// No description provided for @commonCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get commonCancel;
+
+  /// No description provided for @commonActionError.
+  ///
+  /// In en, this message translates to:
+  /// **'That didn\'t work. Try again.'**
+  String get commonActionError;
+
+  /// No description provided for @reportAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get reportAction;
+
+  /// No description provided for @reportProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Report profile'**
+  String get reportProfile;
+
+  /// No description provided for @reportActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Report activity'**
+  String get reportActivity;
+
+  /// No description provided for @reportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why are you reporting this?'**
+  String get reportTitle;
+
+  /// No description provided for @reportReasonSpam.
+  ///
+  /// In en, this message translates to:
+  /// **'Spam or scam'**
+  String get reportReasonSpam;
+
+  /// No description provided for @reportReasonHarassment.
+  ///
+  /// In en, this message translates to:
+  /// **'Harassment or bullying'**
+  String get reportReasonHarassment;
+
+  /// No description provided for @reportReasonHate.
+  ///
+  /// In en, this message translates to:
+  /// **'Hate speech'**
+  String get reportReasonHate;
+
+  /// No description provided for @reportReasonSexual.
+  ///
+  /// In en, this message translates to:
+  /// **'Sexual content'**
+  String get reportReasonSexual;
+
+  /// No description provided for @reportReasonViolence.
+  ///
+  /// In en, this message translates to:
+  /// **'Violence or threats'**
+  String get reportReasonViolence;
+
+  /// No description provided for @reportReasonImpersonation.
+  ///
+  /// In en, this message translates to:
+  /// **'Pretending to be someone else'**
+  String get reportReasonImpersonation;
+
+  /// No description provided for @reportReasonSpoiler.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmarked spoiler'**
+  String get reportReasonSpoiler;
+
+  /// No description provided for @reportReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get reportReasonOther;
+
+  /// No description provided for @reportDetailsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us more (optional)'**
+  String get reportDetailsHint;
+
+  /// No description provided for @reportSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send report'**
+  String get reportSend;
+
+  /// No description provided for @reportSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Report sent. Our team reviews it within 24 hours.'**
+  String get reportSent;
+
+  /// No description provided for @reportError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not send the report. Try again.'**
+  String get reportError;
+
+  /// No description provided for @blockAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Block'**
+  String get blockAction;
+
+  /// No description provided for @unblockAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock'**
+  String get unblockAction;
+
+  /// No description provided for @blockConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Block {name}?'**
+  String blockConfirmTitle(String name);
+
+  /// No description provided for @blockConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You stop following each other, and neither of you sees the other\'s profile, activities, comments or whispers. They are not told.'**
+  String get blockConfirmMessage;
+
+  /// No description provided for @blockedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Account blocked.'**
+  String get blockedSnack;
+
+  /// No description provided for @unblockedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Account unblocked.'**
+  String get unblockedSnack;
+
+  /// No description provided for @profileBlockedBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You blocked this account.'**
+  String get profileBlockedBanner;
+
+  /// No description provided for @settingsBlockedAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked accounts'**
+  String get settingsBlockedAccounts;
+
+  /// No description provided for @blockedAccountsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t blocked anyone.'**
+  String get blockedAccountsEmpty;
+
+  /// No description provided for @settingsPrivacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get settingsPrivacyPolicy;
+
+  /// No description provided for @settingsTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of use'**
+  String get settingsTerms;
+
+  /// No description provided for @settingsSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact us'**
+  String get settingsSupport;
+
+  /// No description provided for @settingsDeleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get settingsDeleteAccount;
+
+  /// No description provided for @settingsDeleteAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your account?'**
+  String get settingsDeleteAccountTitle;
+
+  /// No description provided for @settingsDeleteAccountMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes your profile, logs, ratings, shelves, locadoras, whispers and everything you made on Muuvie. It can\'t be undone.'**
+  String get settingsDeleteAccountMessage;
+
+  /// No description provided for @settingsDeleteAccountConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete forever'**
+  String get settingsDeleteAccountConfirm;
+
+  /// No description provided for @settingsDeleteAccountDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account was deleted.'**
+  String get settingsDeleteAccountDone;
+
+  /// No description provided for @settingsDeleteAccountError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete your account. Try again.'**
+  String get settingsDeleteAccountError;
+
+  /// No description provided for @authLegalNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'By continuing, you agree to the Terms of use and the Privacy policy.'**
+  String get authLegalNotice;
+
+  /// No description provided for @importBannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Importing your history…'**
+  String get importBannerTitle;
+
+  /// No description provided for @importBannerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can keep using the app'**
+  String get importBannerHint;
+
+  /// No description provided for @releaseDateUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get releaseDateUpcoming;
+
+  /// No description provided for @releaseDateAnyYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Any year'**
+  String get releaseDateAnyYear;
+
+  /// No description provided for @releaseDateDecade.
+  ///
+  /// In en, this message translates to:
+  /// **'{decade}s'**
+  String releaseDateDecade(String decade);
+
+  /// No description provided for @browseCategoriesError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the categories'**
+  String get browseCategoriesError;
+
+  /// No description provided for @addMoviesSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search movies…'**
+  String get addMoviesSearchHint;
+
+  /// No description provided for @addMoviesDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done ({count})'**
+  String addMoviesDone(int count);
+
+  /// No description provided for @settingsTmdbAttribution.
+  ///
+  /// In en, this message translates to:
+  /// **'This product uses the TMDB API but is not endorsed or certified by TMDB.'**
+  String get settingsTmdbAttribution;
 }
 
 class _AppLocalizationsDelegate

@@ -16,7 +16,8 @@ import 'package:movies_ui/movie_detail/movie_detail_links.dart';
 import 'package:profile/profile.dart';
 import 'package:movies/movies.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:auth/auth.dart' show ObserveSessionEnded;
+import 'package:auth/auth.dart'
+    show ObserveSessionEnded, ObserveSessionStarted;
 import 'package:social_network/social_network.dart' show RegisterPushDevice;
 
 void main() {
@@ -39,6 +40,9 @@ Future<void> mainApp() async {
   final appInitializer = AppInitializer(
     webSocketClient: GetIt.I<WebSocketClient>(),
     getUserProfile: GetIt.I<ObserveUserProfile>(),
+    refreshUserProfile: GetIt.I<RefreshUserProfile>(),
+    sessionStarted: GetIt.I<ObserveSessionStarted>()(),
+    sessionEnded: GetIt.I<ObserveSessionEnded>()(),
     pushCoordinator: PushCoordinator(
       push: pushMessaging,
       registerDevice: GetIt.I<RegisterPushDevice>(),

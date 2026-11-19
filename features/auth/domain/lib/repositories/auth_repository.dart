@@ -11,5 +11,13 @@ abstract interface class AuthRepository {
   Future<Result<bool>> checkNicknameAvailability(String nickname);
   Future<Result<bool>> isUserAuthenticated();
   Future<Result<void>> logout();
+
+  /// Deletes the account and ends the session. An account that signs in with
+  /// Apple asks Apple again first (to revoke its token); `Success(false)` when
+  /// the user closed that sheet and nothing was deleted.
+  Future<Result<bool>> deleteAccount();
   Stream<void> observeSessionEnded();
+
+  /// Emits after each sign-in that saved a session.
+  Stream<void> observeSessionStarted();
 }

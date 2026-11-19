@@ -30,6 +30,9 @@ class ProfileHeader extends StatelessWidget {
   /// Opens the followers or following list from the counters (F6.3).
   final ValueChanged<FollowList>? onOpenFollows;
 
+  /// Report and block; only on someone else's profile.
+  final VoidCallback? onMore;
+
   const ProfileHeader({
     super.key,
     required this.profile,
@@ -40,6 +43,7 @@ class ProfileHeader extends StatelessWidget {
     this.onOpenSettings,
     this.onWhisper,
     this.onOpenFollows,
+    this.onMore,
   });
 
   /// The public link of a profile, or null until it has a handle.
@@ -103,6 +107,12 @@ class ProfileHeader extends StatelessWidget {
                         tooltip: l10n?.whisperAction,
                         icon: const Icon(Icons.mail_outline),
                         onPressed: onWhisper,
+                      ),
+                    if (onMore != null)
+                      IconButton(
+                        tooltip: l10n?.moreOptions,
+                        icon: const Icon(Icons.more_vert),
+                        onPressed: onMore,
                       ),
                     if (onPrimaryAction != null)
                       _PrimaryAction(
@@ -291,6 +301,12 @@ class _PrimaryAction extends StatelessWidget {
       return OutlinedButton(
         onPressed: onPressed,
         child: Text(l10n?.profileEditProfile ?? ''),
+      );
+    }
+    if (profile.blocked) {
+      return OutlinedButton(
+        onPressed: busy ? null : onPressed,
+        child: Text(l10n?.unblockAction ?? ''),
       );
     }
     return FollowButton(

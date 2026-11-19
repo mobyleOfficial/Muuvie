@@ -9,6 +9,7 @@ import 'package:auth_ui/widgets/auth_error_banner.dart';
 import 'package:auth_ui/widgets/auth_form_layout.dart';
 import 'package:auth_ui/widgets/auth_header.dart';
 import 'package:auth_ui/widgets/social_sign_in_button.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Sign in with Apple (on iOS) or Google. There is no e-mail and password:
 /// a new account is created on the first sign-in.
@@ -24,10 +25,8 @@ class LoginScreen extends StatelessWidget {
   static List<OAuthProvider> get platformProviders {
     if (kIsWeb) return const [];
     return switch (defaultTargetPlatform) {
-      TargetPlatform.iOS || TargetPlatform.macOS => const [
-        OAuthProvider.apple,
-        OAuthProvider.google,
-      ],
+      TargetPlatform.iOS ||
+      TargetPlatform.macOS => const [OAuthProvider.apple, OAuthProvider.google],
       _ => const [OAuthProvider.google],
     };
   }
@@ -70,6 +69,36 @@ class LoginScreen extends StatelessWidget {
         ],
         AuthErrorBanner(
           message: formState.loginError == null ? null : l10n.loginGenericError,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          l10n.authLegalNotice,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        Wrap(
+          alignment: WrapAlignment.center,
+          children: [
+            TextButton(
+              onPressed: () => launchUrl(
+                MuuvieLegalLinks.terms,
+                mode: LaunchMode.externalApplication,
+              ),
+              child: Text(l10n.settingsTerms, textAlign: TextAlign.center),
+            ),
+            TextButton(
+              onPressed: () => launchUrl(
+                MuuvieLegalLinks.privacyPolicy,
+                mode: LaunchMode.externalApplication,
+              ),
+              child: Text(
+                l10n.settingsPrivacyPolicy,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
         ),
       ],
     );

@@ -173,6 +173,7 @@ class AppRouter extends RootStackRouter {
         duration: _animationDuration,
         reverseDuration: _animationDuration,
       ),
+    AutoRoute(page: BlockedAccountsRoute.page),
     CustomRoute(
       page: RetrospectiveRoute.page,
       transitionsBuilder: TransitionsBuilders.slideBottom,

@@ -14,4 +14,13 @@ abstract interface class AuthRemoteDataSource {
 
   /// Revokes the access token (sent by the interceptor) and, if given, the refresh token.
   Future<Result<void>> logout(String? refreshToken);
+
+  /// `DELETE /api/v1/users/me`: deletes the account and everything it made.
+  /// An account that signs in with Apple fails with the code
+  /// `apple_reauth_required` until it sends a fresh [appleAuthorizationCode],
+  /// or [skipAppleRevocation] where Sign in with Apple is not available.
+  Future<Result<void>> deleteAccount({
+    String? appleAuthorizationCode,
+    bool skipAppleRevocation = false,
+  });
 }

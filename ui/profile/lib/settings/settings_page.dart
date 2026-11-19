@@ -1,4 +1,4 @@
-import 'package:auth/auth.dart' show Logout;
+import 'package:auth/auth.dart' show DeleteAccount, Logout;
 import 'package:auto_route/auto_route.dart';
 import 'package:core/core.dart';
 import 'package:common/common.dart';
@@ -14,6 +14,7 @@ import 'package:profile_ui/settings/settings_bloc.dart';
 import 'package:profile_ui/settings/settings_screen.dart';
 import 'package:profile_ui/settings/settings_state.dart';
 import 'package:social_network/social_network.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Perfil › Configurações (F11.1), over the whole screen: edit the profile,
 /// import, push preferences, the introduction again and logout.
@@ -33,6 +34,7 @@ class _SettingsPageState extends State<SettingsPage> {
     savePrefs: GetIt.I<SaveNotificationPrefs>(),
     resetOnboarding: GetIt.I<ResetOnboarding>(),
     logout: GetIt.I<Logout>(),
+    deleteAccount: GetIt.I<DeleteAccount>(),
     // Without Firebase there is no permission to warn about.
     push: switch (GetIt.I<PushMessaging>()) {
       NoopPushMessaging() => null,
@@ -63,7 +65,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            AppLocalizations.of(context)?.maratonaActionError ?? '',
+            AppLocalizations.of(context)?.commonActionError ?? '',
           ),
         ),
       );
@@ -82,18 +84,53 @@ class _SettingsPageState extends State<SettingsPage> {
       context: context,
       title: l10n?.settingsLogoutTitle ?? '',
       confirmText: l10n?.settingsLogout ?? '',
-      cancelText: l10n?.maratonaKeep ?? '',
+      cancelText: l10n?.commonCancel ?? '',
       onConfirm: () => confirmed = true,
     );
     if (confirmed) await _cubit.logout();
   }
+
+  Future<void> _deleteAccount() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    var confirmed = false;
+    await MuuvieDialog.show(
+      context: context,
+      title: l10n?.settingsDeleteAccountTitle ?? '',
+      content: l10n?.settingsDeleteAccountMessage,
+      confirmText: l10n?.settingsDeleteAccountConfirm ?? '',
+      cancelText: l10n?.commonCancel ?? '',
+      onConfirm: () => confirmed = true,
+    );
+    if (!confirmed) return;
+    final error = await _cubit.deleteAccount();
+    if (error != null) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n?.settingsDeleteAccountError ?? '')),
+      );
+    }
+  }
+
+  void _open(Uri uri) => launchUrl(uri, mode: LaunchMode.externalApplication);
 
   @override
   Widget build(BuildContext context) =>
       BlocListener<SettingsCubit, SettingsState>(
         bloc: _cubit,
         listener: (context, state) {
-          if (state is SettingsLoggedOut) context.router.maybePop(true);
+          if (state is SettingsLoggedOut) {
+            if (state.accountDeleted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    AppLocalizations.of(context)?.settingsDeleteAccountDone ??
+                        '',
+                  ),
+                ),
+              );
+            }
+            context.router.maybePop(true);
+          }
         },
         child: MuuvieModalScreen(
           title: AppLocalizations.of(context)?.settingsTitle,
@@ -108,6 +145,12 @@ class _SettingsPageState extends State<SettingsPage> {
             onAllowPush: _cubit.allowPush,
             onShowIntro: _showIntro,
             onLogout: _logout,
+            onBlockedAccounts: () =>
+                context.router.push(const BlockedAccountsRoute()),
+            onPrivacyPolicy: () => _open(MuuvieLegalLinks.privacyPolicy),
+            onTerms: () => _open(MuuvieLegalLinks.terms),
+            onSupport: () => _open(MuuvieLegalLinks.support),
+            onDeleteAccount: _deleteAccount,
           ),
         ),
       );

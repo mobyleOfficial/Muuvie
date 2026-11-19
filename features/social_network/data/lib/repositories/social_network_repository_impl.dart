@@ -64,6 +64,22 @@ class SocialNetworkRepositoryImpl implements SocialNetworkRepository {
       _remoteDataSource.getFollowStatus(userId);
 
   @override
+  Future<Result<bool>> setBlocked(String userId, bool blocked) =>
+      _remoteDataSource.setBlocked(userId, blocked);
+
+  @override
+  Future<Result<BlockedPage>> getBlockedUsers({int page = 1}) =>
+      _remoteDataSource.getBlockedUsers(page);
+
+  @override
+  Future<Result<void>> report(
+    ReportTarget target,
+    String targetId,
+    ReportReason reason,
+    String? details,
+  ) => _remoteDataSource.report(target, targetId, reason, details);
+
+  @override
   Future<Result<FollowPage>> getFollowers(String userId, {int page = 1}) =>
       _remoteDataSource.getFollowers(userId, page);
 

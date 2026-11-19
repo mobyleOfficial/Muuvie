@@ -49,7 +49,10 @@ class DioHttpClient implements HttpClient {
   Future<Result<T>> delete<T>(
     String path, {
     Map<String, dynamic>? queryParams,
-  }) => _request(() => _dio.delete(path, queryParameters: queryParams));
+    Object? body,
+  }) => _request(
+    () => _dio.delete(path, queryParameters: queryParams, data: body),
+  );
 
   Future<Result<T>> _request<T>(
     Future<Response<dynamic>> Function() call,

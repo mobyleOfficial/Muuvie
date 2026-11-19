@@ -762,7 +762,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get routeMostPopular => 'Mais Populares';
 
   @override
-  String get routeMostAnticipated => 'Mais Esperados';
+  String get routeMostAnticipated => 'Mais aguardados';
 
   @override
   String get routeFeaturedLists => 'Listas em Destaque';
@@ -4112,4 +4112,158 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get universeSeePet => 'Ver';
+
+  @override
+  String get moreOptions => 'Mais opções';
+
+  @override
+  String get commonCancel => 'Cancelar';
+
+  @override
+  String get commonActionError => 'Não deu certo. Tente de novo.';
+
+  @override
+  String get reportAction => 'Denunciar';
+
+  @override
+  String get reportProfile => 'Denunciar perfil';
+
+  @override
+  String get reportActivity => 'Denunciar atividade';
+
+  @override
+  String get reportTitle => 'Por que você está denunciando?';
+
+  @override
+  String get reportReasonSpam => 'Spam ou golpe';
+
+  @override
+  String get reportReasonHarassment => 'Assédio ou bullying';
+
+  @override
+  String get reportReasonHate => 'Discurso de ódio';
+
+  @override
+  String get reportReasonSexual => 'Conteúdo sexual';
+
+  @override
+  String get reportReasonViolence => 'Violência ou ameaça';
+
+  @override
+  String get reportReasonImpersonation => 'Se passando por outra pessoa';
+
+  @override
+  String get reportReasonSpoiler => 'Spoiler sem aviso';
+
+  @override
+  String get reportReasonOther => 'Outro motivo';
+
+  @override
+  String get reportDetailsHint => 'Conte mais (opcional)';
+
+  @override
+  String get reportSend => 'Enviar denúncia';
+
+  @override
+  String get reportSent =>
+      'Denúncia enviada. Nossa equipe analisa em até 24 horas.';
+
+  @override
+  String get reportError =>
+      'Não foi possível enviar a denúncia. Tente de novo.';
+
+  @override
+  String get blockAction => 'Bloquear';
+
+  @override
+  String get unblockAction => 'Desbloquear';
+
+  @override
+  String blockConfirmTitle(String name) {
+    return 'Bloquear $name?';
+  }
+
+  @override
+  String get blockConfirmMessage =>
+      'Vocês deixam de se seguir, e nenhum dos dois vê o perfil, as atividades, os comentários ou os sussurros do outro. A pessoa não é avisada.';
+
+  @override
+  String get blockedSnack => 'Conta bloqueada.';
+
+  @override
+  String get unblockedSnack => 'Conta desbloqueada.';
+
+  @override
+  String get profileBlockedBanner => 'Você bloqueou esta conta.';
+
+  @override
+  String get settingsBlockedAccounts => 'Contas bloqueadas';
+
+  @override
+  String get blockedAccountsEmpty => 'Você não bloqueou ninguém.';
+
+  @override
+  String get settingsPrivacyPolicy => 'Política de privacidade';
+
+  @override
+  String get settingsTerms => 'Termos de uso';
+
+  @override
+  String get settingsSupport => 'Fale com a gente';
+
+  @override
+  String get settingsDeleteAccount => 'Excluir conta';
+
+  @override
+  String get settingsDeleteAccountTitle => 'Excluir sua conta?';
+
+  @override
+  String get settingsDeleteAccountMessage =>
+      'Isso apaga para sempre seu perfil, registros, avaliações, estantes, locadoras, sussurros e tudo o que você criou no Muuvie. Não dá para desfazer.';
+
+  @override
+  String get settingsDeleteAccountConfirm => 'Excluir para sempre';
+
+  @override
+  String get settingsDeleteAccountDone => 'Sua conta foi excluída.';
+
+  @override
+  String get settingsDeleteAccountError =>
+      'Não foi possível excluir sua conta. Tente de novo.';
+
+  @override
+  String get authLegalNotice =>
+      'Ao continuar, você concorda com os Termos de uso e a Política de privacidade.';
+
+  @override
+  String get importBannerTitle => 'Importando seu histórico…';
+
+  @override
+  String get importBannerHint => 'Você pode continuar usando o app';
+
+  @override
+  String get releaseDateUpcoming => 'Em breve';
+
+  @override
+  String get releaseDateAnyYear => 'Qualquer ano';
+
+  @override
+  String releaseDateDecade(String decade) {
+    return 'Anos $decade';
+  }
+
+  @override
+  String get browseCategoriesError => 'Não foi possível carregar as categorias';
+
+  @override
+  String get addMoviesSearchHint => 'Buscar filmes…';
+
+  @override
+  String addMoviesDone(int count) {
+    return 'Concluir ($count)';
+  }
+
+  @override
+  String get settingsTmdbAttribution =>
+      'Este produto usa a API do TMDB, mas não é endossado nem certificado pelo TMDB.';
 }

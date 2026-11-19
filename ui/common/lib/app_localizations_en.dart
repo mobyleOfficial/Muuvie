@@ -4059,4 +4059,156 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get universeSeePet => 'See';
+
+  @override
+  String get moreOptions => 'More options';
+
+  @override
+  String get commonCancel => 'Cancel';
+
+  @override
+  String get commonActionError => 'That didn\'t work. Try again.';
+
+  @override
+  String get reportAction => 'Report';
+
+  @override
+  String get reportProfile => 'Report profile';
+
+  @override
+  String get reportActivity => 'Report activity';
+
+  @override
+  String get reportTitle => 'Why are you reporting this?';
+
+  @override
+  String get reportReasonSpam => 'Spam or scam';
+
+  @override
+  String get reportReasonHarassment => 'Harassment or bullying';
+
+  @override
+  String get reportReasonHate => 'Hate speech';
+
+  @override
+  String get reportReasonSexual => 'Sexual content';
+
+  @override
+  String get reportReasonViolence => 'Violence or threats';
+
+  @override
+  String get reportReasonImpersonation => 'Pretending to be someone else';
+
+  @override
+  String get reportReasonSpoiler => 'Unmarked spoiler';
+
+  @override
+  String get reportReasonOther => 'Something else';
+
+  @override
+  String get reportDetailsHint => 'Tell us more (optional)';
+
+  @override
+  String get reportSend => 'Send report';
+
+  @override
+  String get reportSent => 'Report sent. Our team reviews it within 24 hours.';
+
+  @override
+  String get reportError => 'Could not send the report. Try again.';
+
+  @override
+  String get blockAction => 'Block';
+
+  @override
+  String get unblockAction => 'Unblock';
+
+  @override
+  String blockConfirmTitle(String name) {
+    return 'Block $name?';
+  }
+
+  @override
+  String get blockConfirmMessage =>
+      'You stop following each other, and neither of you sees the other\'s profile, activities, comments or whispers. They are not told.';
+
+  @override
+  String get blockedSnack => 'Account blocked.';
+
+  @override
+  String get unblockedSnack => 'Account unblocked.';
+
+  @override
+  String get profileBlockedBanner => 'You blocked this account.';
+
+  @override
+  String get settingsBlockedAccounts => 'Blocked accounts';
+
+  @override
+  String get blockedAccountsEmpty => 'You haven\'t blocked anyone.';
+
+  @override
+  String get settingsPrivacyPolicy => 'Privacy policy';
+
+  @override
+  String get settingsTerms => 'Terms of use';
+
+  @override
+  String get settingsSupport => 'Contact us';
+
+  @override
+  String get settingsDeleteAccount => 'Delete account';
+
+  @override
+  String get settingsDeleteAccountTitle => 'Delete your account?';
+
+  @override
+  String get settingsDeleteAccountMessage =>
+      'This permanently deletes your profile, logs, ratings, shelves, locadoras, whispers and everything you made on Muuvie. It can\'t be undone.';
+
+  @override
+  String get settingsDeleteAccountConfirm => 'Delete forever';
+
+  @override
+  String get settingsDeleteAccountDone => 'Your account was deleted.';
+
+  @override
+  String get settingsDeleteAccountError =>
+      'Could not delete your account. Try again.';
+
+  @override
+  String get authLegalNotice =>
+      'By continuing, you agree to the Terms of use and the Privacy policy.';
+
+  @override
+  String get importBannerTitle => 'Importing your history…';
+
+  @override
+  String get importBannerHint => 'You can keep using the app';
+
+  @override
+  String get releaseDateUpcoming => 'Upcoming';
+
+  @override
+  String get releaseDateAnyYear => 'Any year';
+
+  @override
+  String releaseDateDecade(String decade) {
+    return '${decade}s';
+  }
+
+  @override
+  String get browseCategoriesError => 'Could not load the categories';
+
+  @override
+  String get addMoviesSearchHint => 'Search movies…';
+
+  @override
+  String addMoviesDone(int count) {
+    return 'Done ($count)';
+  }
+
+  @override
+  String get settingsTmdbAttribution =>
+      'This product uses the TMDB API but is not endorsed or certified by TMDB.';
 }

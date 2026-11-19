@@ -40,6 +40,12 @@ class _FakeAuthRepository implements AuthRepository {
   Stream<void> observeSessionEnded() => const Stream.empty();
 
   @override
+  Stream<void> observeSessionStarted() => const Stream.empty();
+
+  @override
+  Future<Result<bool>> deleteAccount() async => const Success(true);
+
+  @override
   Future<Result<bool>> checkNicknameAvailability(String nickname) async =>
       nicknameResult;
 }

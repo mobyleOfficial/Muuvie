@@ -58,6 +58,25 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
+  Future<Result<void>> deleteAccount({
+    String? appleAuthorizationCode,
+    bool skipAppleRevocation = false,
+  }) async {
+    final result = await _httpClient.delete<dynamic>(
+      '/api/v1/users/me',
+      body: {
+        'appleAuthorizationCode': ?appleAuthorizationCode,
+        'skipAppleRevocation': skipAppleRevocation,
+      },
+    );
+
+    return switch (result) {
+      Success() => const Success(null),
+      Failure(:final error, :final code) => Failure(error, code: code),
+    };
+  }
+
+  @override
   Future<Result<void>> logout(String? refreshToken) async {
     final result = await _httpClient.post<dynamic>(
       '/api/v1/auth/logout',

@@ -15,6 +15,15 @@ class MockSocialSignInDataSource implements SocialSignInDataSource {
 
   @override
   Future<void> signOut() async => signOutCalled = true;
+
+  bool appleAvailable = false;
+  Result<String?> appleCodeResult = const Success('apple-code');
+
+  @override
+  Future<bool> isAppleAvailable() async => appleAvailable;
+
+  @override
+  Future<Result<String?>> appleAuthorizationCode() async => appleCodeResult;
 }
 
 class MockAuthRemoteDataSource implements AuthRemoteDataSource {
@@ -49,6 +58,23 @@ class MockAuthRemoteDataSource implements AuthRemoteDataSource {
   Future<Result<void>> logout(String? refreshToken) async {
     lastLogoutRefreshToken = refreshToken;
     return logoutResult ?? const Success(null);
+  }
+
+  /// Answers in order; the last one repeats.
+  List<Result<void>> deleteResults = [const Success(null)];
+  final deleteCalls = <String>[];
+
+  @override
+  Future<Result<void>> deleteAccount({
+    String? appleAuthorizationCode,
+    bool skipAppleRevocation = false,
+  }) async {
+    deleteCalls.add(
+      'code=$appleAuthorizationCode skip=$skipAppleRevocation',
+    );
+    return deleteResults.length > 1
+        ? deleteResults.removeAt(0)
+        : deleteResults.single;
   }
 }
 
@@ -285,6 +311,67 @@ void main() {
 
       expect(result, isA<Success<void>>());
       expect(mockLocal.clearTokenCalled, true);
+    });
+  });
+
+  group('deleteAccount', () {
+    const reauth = Failure<void>(
+      AppError.conflict,
+      code: 'apple_reauth_required',
+    );
+
+    setUp(() => mockLocal.clearTokenResult = const Success(null));
+
+    test('deletes, signs out of the provider and clears the session', () async {
+      final result = await repository.deleteAccount();
+
+      expect(result, isA<Success<bool>>());
+      expect((result as Success<bool>).data, true);
+      expect(mockAuthRemote.deleteCalls, ['code=null skip=false']);
+      expect(mockSocial.signOutCalled, true);
+      expect(mockLocal.clearTokenCalled, true);
+    });
+
+    test('asks Apple again when the account signs in with Apple', () async {
+      mockAuthRemote.deleteResults = [reauth, const Success(null)];
+      mockSocial.appleAvailable = true;
+
+      final result = await repository.deleteAccount();
+
+      expect((result as Success<bool>).data, true);
+      expect(mockAuthRemote.deleteCalls, [
+        'code=null skip=false',
+        'code=apple-code skip=false',
+      ]);
+    });
+
+    test('keeps the account when the Apple sheet is closed', () async {
+      mockAuthRemote.deleteResults = [reauth];
+      mockSocial.appleAvailable = true;
+      mockSocial.appleCodeResult = const Success(null);
+
+      final result = await repository.deleteAccount();
+
+      expect((result as Success<bool>).data, false);
+      expect(mockAuthRemote.deleteCalls, hasLength(1));
+      expect(mockLocal.clearTokenCalled, false);
+    });
+
+    test('skips the revocation where Sign in with Apple does not exist', () async {
+      mockAuthRemote.deleteResults = [reauth, const Success(null)];
+
+      await repository.deleteAccount();
+
+      expect(mockAuthRemote.deleteCalls.last, 'code=null skip=true');
+    });
+
+    test('a server failure keeps the session', () async {
+      mockAuthRemote.deleteResults = [const Failure(AppError.network)];
+
+      final result = await repository.deleteAccount();
+
+      expect(result, isA<Failure<bool>>());
+      expect(mockLocal.clearTokenCalled, false);
     });
   });
 }

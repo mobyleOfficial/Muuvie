@@ -13,16 +13,19 @@ class MemberProfileCubit extends Cubit<MemberProfileState> {
   final String _userId;
   final GetProfileDetails _getProfile;
   final SetFollowing? _setFollowing;
+  final SetBlocked? _setBlocked;
   StreamSubscription<Object?>? _changes;
 
   MemberProfileCubit({
     required String userId,
     required GetProfileDetails getProfile,
     SetFollowing? setFollowing,
+    SetBlocked? setBlocked,
     Stream<Object?>? changes,
   }) : _userId = userId,
        _getProfile = getProfile,
        _setFollowing = setFollowing,
+       _setBlocked = setBlocked,
        super(const MemberProfileLoading()) {
     _changes = changes?.listen((_) => load());
     load();
@@ -78,6 +81,29 @@ class MemberProfileCubit extends Cubit<MemberProfileState> {
         return error;
       case null:
         emit(MemberProfileSuccess(profile));
+        return AppError.unknown;
+    }
+  }
+
+  /// Blocks or unblocks the profile's owner. A block also ends the follows
+  /// both ways, so the counters and the relation reload from the server.
+  Future<AppError?> setBlocked(bool blocked) async {
+    final current = state;
+    if (current is! MemberProfileSuccess || current.isFollowBusy) return null;
+    emit(MemberProfileSuccess(current.profile, isFollowBusy: true));
+    final result = await _setBlocked?.call(
+      SetBlockedParams(userId: current.profile.id, blocked: blocked),
+    );
+    if (isClosed) return null;
+    switch (result) {
+      case Success():
+        await load();
+        return null;
+      case Failure(:final error):
+        emit(MemberProfileSuccess(current.profile));
+        return error;
+      case null:
+        emit(MemberProfileSuccess(current.profile));
         return AppError.unknown;
     }
   }

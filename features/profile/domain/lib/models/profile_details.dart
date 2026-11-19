@@ -27,6 +27,9 @@ class ProfileDetails {
   /// A Filmow import is running (own profile only).
   final bool isScraping;
 
+  /// The caller blocked this account.
+  final bool blocked;
+
   const ProfileDetails({
     required this.id,
     required this.username,
@@ -45,6 +48,7 @@ class ProfileDetails {
     this.mutual = false,
     this.isSelf = false,
     this.isScraping = false,
+    this.blocked = false,
   });
 
   /// The public name: the display name, or the username until one is set.
@@ -56,6 +60,7 @@ class ProfileDetails {
     bool? followsMe,
     bool? mutual,
     bool? isScraping,
+    bool? blocked,
     ProfileStats? stats,
   }) => ProfileDetails(
     id: id,
@@ -75,6 +80,7 @@ class ProfileDetails {
     mutual: mutual ?? this.mutual,
     isSelf: isSelf,
     isScraping: isScraping ?? this.isScraping,
+    blocked: blocked ?? this.blocked,
   );
 }
 

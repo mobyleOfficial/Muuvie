@@ -48,6 +48,18 @@ abstract class SocialNetworkModule {
       GetFollowStatus(repository);
 
   @injectable
+  SetBlocked setBlocked(SocialNetworkRepository repository) =>
+      SetBlocked(repository);
+
+  @injectable
+  GetBlockedUsers getBlockedUsers(SocialNetworkRepository repository) =>
+      GetBlockedUsers(repository);
+
+  @injectable
+  ReportContent reportContent(SocialNetworkRepository repository) =>
+      ReportContent(repository);
+
+  @injectable
   GetFollowList getFollowList(SocialNetworkRepository repository) =>
       GetFollowList(repository);
 

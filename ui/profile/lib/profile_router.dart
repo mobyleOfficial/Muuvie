@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:profile/profile.dart';
 import 'package:social_network/social_network.dart' show FollowList;
+import 'package:profile_ui/blocked_accounts/blocked_accounts_page.dart';
 import 'package:profile_ui/edit_profile/edit_profile_page.dart';
 import 'package:profile_ui/follows/follows_page.dart';
 import 'package:profile_ui/member/highlights/highlights_editor_page.dart';
@@ -29,5 +30,6 @@ class ProfileRouter extends RootStackRouter {
     AutoRoute(page: FollowsRoute.page),
     AutoRoute(page: RetrospectiveRoute.page),
     AutoRoute(page: SettingsRoute.page),
+    AutoRoute(page: BlockedAccountsRoute.page),
   ];
 }

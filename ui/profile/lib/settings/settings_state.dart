@@ -15,9 +15,25 @@ class SettingsReady extends SettingsState {
   final NotificationPrefs? prefs;
   final bool pushBlocked;
 
-  const SettingsReady({this.prefs, this.pushBlocked = false});
+  /// The account is being deleted; the screen waits.
+  final bool deleting;
+
+  const SettingsReady({
+    this.prefs,
+    this.pushBlocked = false,
+    this.deleting = false,
+  });
+
+  SettingsReady copyWith({bool? deleting}) => SettingsReady(
+    prefs: prefs,
+    pushBlocked: pushBlocked,
+    deleting: deleting ?? this.deleting,
+  );
 }
 
 class SettingsLoggedOut extends SettingsState {
-  const SettingsLoggedOut();
+  /// The session ended because the account was deleted.
+  final bool accountDeleted;
+
+  const SettingsLoggedOut({this.accountDeleted = false});
 }

@@ -16,6 +16,12 @@ class MockAuthRepository implements AuthRepository {
   Stream<void> observeSessionEnded() => const Stream.empty();
 
   @override
+  Stream<void> observeSessionStarted() => const Stream.empty();
+
+  @override
+  Future<Result<bool>> deleteAccount() async => const Success(true);
+
+  @override
   Future<Result<SignInOutcome>> login(OAuthProvider provider) async =>
       const Failure(AppError.unknown);
 

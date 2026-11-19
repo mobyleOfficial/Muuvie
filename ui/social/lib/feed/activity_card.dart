@@ -4,7 +4,10 @@ import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:gamification/gamification.dart' show Pet, PetRarity;
 import 'package:gamification_ui/widgets/gamification_labels.dart';
+import 'package:get_it/get_it.dart';
 import 'package:social_network/social_network.dart';
+import 'package:watch_logs/watch_logs.dart' show CommentTarget;
+import 'package:watch_logs_ui/watch_logs_ui.dart' show ThreadCommentsSheet;
 
 /// One activity of the Atts feed (F6.2): who did what, the movie, shelf,
 /// locadora or maratona it is about, and the "amei". Navigation is left to
@@ -38,6 +41,27 @@ class ActivityCard extends StatelessWidget {
     required this.onToggleLove,
     this.onToggleHidden,
   });
+
+  /// Anyone's activity but mine can be reported; a guest signs in first.
+  Future<void> _report(BuildContext context) async {
+    if (!await AuthGate.check(context) || !context.mounted) return;
+    await MuuvieReportSheet.show(
+      context: context,
+      onSend: (reason, details) async {
+        final result = await GetIt.I<ReportContent>()(
+          ReportParams(
+            target: ReportTarget.activity,
+            targetId: '${activity.id}',
+            reason: ReportReason.values.firstWhere(
+              (value) => value.wireValue == reason,
+            ),
+            details: details,
+          ),
+        );
+        return result is Success;
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,19 +97,25 @@ class ActivityCard extends StatelessWidget {
                         onOpenActor: onOpenActor,
                       ),
                     ),
-                    if (onToggleHidden != null)
+                    if (onToggleHidden != null || !activity.self)
                       PopupMenuButton<void>(
                         tooltip: l10n?.activityMoreOptions,
                         icon: const Icon(Icons.more_vert),
                         itemBuilder: (_) => [
-                          PopupMenuItem<void>(
-                            onTap: onToggleHidden,
-                            child: Text(
-                              activity.hidden
-                                  ? l10n?.activityShow ?? ''
-                                  : l10n?.activityHide ?? '',
+                          if (onToggleHidden != null)
+                            PopupMenuItem<void>(
+                              onTap: onToggleHidden,
+                              child: Text(
+                                activity.hidden
+                                    ? l10n?.activityShow ?? ''
+                                    : l10n?.activityHide ?? '',
+                              ),
                             ),
-                          ),
+                          if (!activity.self)
+                            PopupMenuItem<void>(
+                              onTap: () => _report(context),
+                              child: Text(l10n?.reportActivity ?? ''),
+                            ),
                         ],
                       ),
                   ],
@@ -102,6 +132,23 @@ class ActivityCard extends StatelessWidget {
                 Row(
                   children: [
                     _LoveButton(activity: activity, onPressed: onToggleLove),
+                    if (activity.log case final log?)
+                      IconButton(
+                        tooltip: l10n?.comments,
+                        icon: const Icon(Icons.chat_bubble_outline, size: 20),
+                        onPressed: () async {
+                          if (!await AuthGate.check(context) ||
+                              !context.mounted) {
+                            return;
+                          }
+                          await ThreadCommentsSheet.show(
+                            context,
+                            target: CommentTarget.watchLog,
+                            targetId: log.id,
+                            ownsTarget: activity.self,
+                          );
+                        },
+                      ),
                     const Spacer(),
                     if (activity.hidden)
                       Padding(

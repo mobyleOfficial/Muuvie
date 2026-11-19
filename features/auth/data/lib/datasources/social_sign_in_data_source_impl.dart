@@ -108,6 +108,31 @@ class SocialSignInDataSourceImpl implements SocialSignInDataSource {
     }
   }
 
+  @override
+  Future<bool> isAppleAvailable() async {
+    try {
+      return await SignInWithApple.isAvailable();
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
+  Future<Result<String?>> appleAuthorizationCode() async {
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: const [],
+      );
+      return Success(credential.authorizationCode);
+    } on SignInWithAppleAuthorizationException catch (exception) {
+      return exception.code == AuthorizationErrorCode.canceled
+          ? const Success(null)
+          : const Failure(AppError.unknown);
+    } catch (_) {
+      return const Failure(AppError.unknown);
+    }
+  }
+
   static String? _blankToNull(String? value) =>
       value == null || value.trim().isEmpty ? null : value;
 

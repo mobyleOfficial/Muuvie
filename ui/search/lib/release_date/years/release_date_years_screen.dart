@@ -1,3 +1,4 @@
+import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 
 class ReleaseDateYearsScreen extends StatelessWidget {
@@ -25,7 +26,9 @@ class ReleaseDateYearsScreen extends StatelessWidget {
           if (index == 0) {
             return ListTile(
               leading: Icon(Icons.select_all, color: colorScheme.primary),
-              title: const Text('Any'),
+              title: Text(
+                AppLocalizations.of(context)?.releaseDateAnyYear ?? '',
+              ),
               trailing: Icon(
                 Icons.chevron_right,
                 color: colorScheme.onSurfaceVariant,
