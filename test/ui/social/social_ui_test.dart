@@ -217,7 +217,12 @@ void main() {
       expect(find.textContaining('Halloween'), findsOneWidget);
       expect(find.text('Alegria'), findsOneWidget);
       expect(find.text('3'), findsOneWidget);
-      expect(find.byTooltip('Mais opções'), findsNothing);
+
+      // Someone else's card can only be reported.
+      await tester.tap(find.byTooltip('Mais opções'));
+      await tester.pumpAndSettle();
+      expect(find.text('Denunciar atividade'), findsOneWidget);
+      expect(find.text('Ocultar dos outros'), findsNothing);
     });
 
     testWidgets('my card offers hiding it', (tester) async {

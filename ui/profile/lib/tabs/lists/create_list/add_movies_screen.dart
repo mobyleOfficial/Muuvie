@@ -114,7 +114,7 @@ class _AddMoviesScreenState extends State<AddMoviesScreen> {
           titleWidget: MuuvieEditText(
             controller: _searchController,
             focusNode: _searchFocusNode,
-            placeholder: 'Search movies...',
+            placeholder: AppLocalizations.of(context)?.addMoviesSearchHint ?? '',
             textInputAction: TextInputAction.search,
             onChanged: _onSearchChanged,
             suffixIcon: ValueListenableBuilder<TextEditingValue>(
@@ -134,7 +134,8 @@ class _AddMoviesScreenState extends State<AddMoviesScreen> {
             TextButton(
               onPressed: _pop,
               child: Text(
-                'Done (${_selected.length})',
+                AppLocalizations.of(context)?.addMoviesDone(_selected.length) ??
+                    '',
                 style: textTheme.labelLarge?.copyWith(
                   color: colorScheme.primary,
                   fontWeight: FontWeight.w600,

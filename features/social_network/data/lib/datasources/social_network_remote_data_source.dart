@@ -28,6 +28,17 @@ abstract interface class SocialNetworkRemoteDataSource {
 
   Future<Result<FollowPage>> getFollowing(String userId, int page);
 
+  Future<Result<bool>> setBlocked(String userId, bool blocked);
+
+  Future<Result<BlockedPage>> getBlockedUsers(int page);
+
+  Future<Result<void>> report(
+    ReportTarget target,
+    String targetId,
+    ReportReason reason,
+    String? details,
+  );
+
   Future<Result<ConversationPage>> getConversations(String? cursor);
 
   Future<Result<Conversation>> getConversation(int conversationId);
@@ -183,6 +194,44 @@ class SocialNetworkRemoteDataSourceImpl
         ),
         RemoteSocialNetwork.followPage,
       );
+
+  @override
+  Future<Result<bool>> setBlocked(String userId, bool blocked) async {
+    final path = '$_base/users/${Uri.encodeComponent(userId)}/block';
+    return _map(
+      blocked
+          ? await _httpClient.post<Map<String, dynamic>>(path)
+          : await _httpClient.delete<Map<String, dynamic>>(path),
+      (json) => json['blocked'] as bool? ?? blocked,
+    );
+  }
+
+  @override
+  Future<Result<BlockedPage>> getBlockedUsers(int page) async => _map(
+    await _httpClient.get<Map<String, dynamic>>(
+      '$_base/users/me/blocks',
+      queryParams: {'page': page, 'limit': _followPageSize},
+    ),
+    RemoteSocialNetwork.blockedPage,
+  );
+
+  @override
+  Future<Result<void>> report(
+    ReportTarget target,
+    String targetId,
+    ReportReason reason,
+    String? details,
+  ) async => _ignoreBody(
+    await _httpClient.post<dynamic>(
+      '$_base/reports',
+      body: {
+        'targetType': target.wireValue,
+        'targetId': targetId,
+        'reason': reason.wireValue,
+        'details': ?details,
+      },
+    ),
+  );
 
   @override
   Future<Result<ConversationPage>> getConversations(String? cursor) async =>

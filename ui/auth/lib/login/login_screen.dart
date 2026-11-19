@@ -1,100 +1,51 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:common/common.dart';
+import 'package:auth/auth.dart';
 import 'package:auth_ui/login/login_cubit.dart';
 import 'package:auth_ui/login/login_state.dart';
 import 'package:auth_ui/widgets/auth_error_banner.dart';
-import 'package:auth_ui/widgets/auth_footer_link.dart';
 import 'package:auth_ui/widgets/auth_form_layout.dart';
 import 'package:auth_ui/widgets/auth_header.dart';
-import 'package:auth_ui/widgets/auth_submit_button.dart';
-import 'package:auth_ui/widgets/auth_text_field.dart';
+import 'package:auth_ui/widgets/social_sign_in_button.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class LoginScreen extends StatefulWidget {
+/// Sign in with Apple (on iOS) or Google. There is no e-mail and password:
+/// a new account is created on the first sign-in.
+class LoginScreen extends StatelessWidget {
   final LoginState state;
-  final VoidCallback? onSignUpTap;
 
-  const LoginScreen({super.key, required this.state, this.onSignUpTap});
+  /// The providers to offer. Defaults to the ones the platform supports.
+  final List<OAuthProvider>? providers;
 
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
+  const LoginScreen({super.key, required this.state, this.providers});
 
-class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _emailFocus = FocusNode();
-  final _passwordFocus = FocusNode();
-  bool _obscurePassword = true;
-
-  // Field errors only show once the user left the field or tried to submit,
-  // so nobody is told their e-mail is invalid while still typing it.
-  bool _emailTouched = false;
-  bool _passwordTouched = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _emailFocus.addListener(_onFocusChanged);
-    _passwordFocus.addListener(_onFocusChanged);
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _emailFocus.dispose();
-    _passwordFocus.dispose();
-    super.dispose();
-  }
-
-  void _onFocusChanged() => setState(() {
-    _emailTouched |= !_emailFocus.hasFocus && _emailController.text.isNotEmpty;
-    _passwordTouched |=
-        !_passwordFocus.hasFocus && _passwordController.text.isNotEmpty;
-  });
-
-  void _submit() {
-    setState(() => _emailTouched = _passwordTouched = true);
-    TextInput.finishAutofillContext();
-    context.read<LoginCubit>().loginWithEmail(
-      _emailController.text.trim(),
-      _passwordController.text,
-    );
+  /// Apple only where its native sheet exists; neither on web for now.
+  static List<OAuthProvider> get platformProviders {
+    if (kIsWeb) return const [];
+    return switch (defaultTargetPlatform) {
+      TargetPlatform.iOS ||
+      TargetPlatform.macOS => const [OAuthProvider.apple, OAuthProvider.google],
+      _ => const [OAuthProvider.google],
+    };
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = widget.state;
+    final state = this.state;
 
-    if (state is LoginLoading || state is LoginAuthenticated) {
+    if (state is LoginLoading ||
+        state is LoginAuthenticated ||
+        state is LoginNeedsNickname) {
       return const Center(child: MuuvieActivityIndicator());
     }
 
-    String? emailError;
-    String? passwordError;
-    bool isSubmitting = false;
-    String? loginError;
-
-    if (state is LoginFormState) {
-      emailError = state.emailError;
-      passwordError = state.passwordError;
-      isSubmitting = state.isSubmitting;
-      loginError = state.loginError;
-    } else if (state is LoginError) {
-      loginError = state.message;
-    }
-
+    final formState = state is LoginFormState ? state : const LoginFormState();
     final l10n = AppLocalizations.of(context)!;
     final cubit = context.read<LoginCubit>();
 
     return AuthFormLayout(
-      footer: AuthFooterLink(
-        prompt: l10n.loginNoAccount,
-        action: l10n.loginCreateAccountLink,
-        onPressed: isSubmitting ? null : widget.onSignUpTap,
-      ),
       children: [
         AuthHeader(
           illustration: MuuvieIllustration.welcome,
@@ -102,78 +53,54 @@ class _LoginScreenState extends State<LoginScreen> {
           subtitle: l10n.loginSubtitle,
         ),
         const SizedBox(height: 32),
-        AutofillGroup(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AuthTextField(
-                label: l10n.loginEmail,
-                hint: l10n.loginEmailHint,
-                icon: Icons.alternate_email,
-                controller: _emailController,
-                focusNode: _emailFocus,
-                enabled: !isSubmitting,
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-                autofillHints: const [AutofillHints.email],
-                errorText: _emailTouched
-                    ? _resolveEmailError(emailError, l10n)
-                    : null,
-                onChanged: (value) => cubit.onEmailChanged(value.trim()),
-              ),
-              const SizedBox(height: 16),
-              AuthTextField(
-                label: l10n.loginPassword,
-                hint: l10n.loginPasswordHint,
-                icon: Icons.lock_outline,
-                controller: _passwordController,
-                focusNode: _passwordFocus,
-                enabled: !isSubmitting,
-                obscureText: _obscurePassword,
-                textInputAction: TextInputAction.done,
-                autofillHints: const [AutofillHints.password],
-                errorText: _passwordTouched
-                    ? _resolvePasswordError(passwordError, l10n)
-                    : null,
-                suffix: PasswordVisibilityButton(
-                  obscured: _obscurePassword,
-                  onPressed: () =>
-                      setState(() => _obscurePassword = !_obscurePassword),
-                ),
-                onChanged: cubit.onPasswordChanged,
-                onSubmitted: (_) => _submit(),
-              ),
-            ],
+        for (final provider in providers ?? platformProviders) ...[
+          SocialSignInButton(
+            provider: provider,
+            label: switch (provider) {
+              OAuthProvider.apple => l10n.continueWithApple,
+              OAuthProvider.google => l10n.continueWithGoogle,
+            },
+            isLoading: formState.submittingProvider == provider,
+            onPressed: formState.isSubmitting
+                ? null
+                : () => cubit.signIn(provider),
+          ),
+          const SizedBox(height: 12),
+        ],
+        AuthErrorBanner(
+          message: formState.loginError == null ? null : l10n.loginGenericError,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          l10n.authLegalNotice,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
-        AuthErrorBanner(
-          message: switch (loginError) {
-            null => null,
-            'invalid_credentials' => l10n.loginError,
-            _ => l10n.loginGenericError,
-          },
-        ),
-        const SizedBox(height: 24),
-        AuthSubmitButton(
-          label: l10n.loginButton,
-          isLoading: isSubmitting,
-          onPressed: _submit,
+        Wrap(
+          alignment: WrapAlignment.center,
+          children: [
+            TextButton(
+              onPressed: () => launchUrl(
+                MuuvieLegalLinks.terms,
+                mode: LaunchMode.externalApplication,
+              ),
+              child: Text(l10n.settingsTerms, textAlign: TextAlign.center),
+            ),
+            TextButton(
+              onPressed: () => launchUrl(
+                MuuvieLegalLinks.privacyPolicy,
+                mode: LaunchMode.externalApplication,
+              ),
+              child: Text(
+                l10n.settingsPrivacyPolicy,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
-
-  String? _resolveEmailError(String? error, AppLocalizations l10n) =>
-      switch (error) {
-        'required' => l10n.fieldRequired,
-        'invalid' => l10n.emailValidationError,
-        _ => null,
-      };
-
-  String? _resolvePasswordError(String? error, AppLocalizations l10n) =>
-      switch (error) {
-        'required' => l10n.fieldRequired,
-        'too_short' => l10n.passwordValidationError,
-        _ => null,
-      };
 }

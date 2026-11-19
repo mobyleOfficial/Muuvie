@@ -1,4 +1,4 @@
-import 'package:auth/auth.dart' show Logout;
+import 'package:auth/auth.dart' show DeleteAccount, Logout;
 import 'package:core/core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -14,6 +14,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   final SaveNotificationPrefs _savePrefs;
   final ResetOnboarding _resetOnboarding;
   final Logout _logout;
+  final DeleteAccount? _deleteAccount;
   final PushMessaging? _push;
   final RegisterPushDevice? _registerPushDevice;
 
@@ -22,12 +23,14 @@ class SettingsCubit extends Cubit<SettingsState> {
     required SaveNotificationPrefs savePrefs,
     required ResetOnboarding resetOnboarding,
     required Logout logout,
+    DeleteAccount? deleteAccount,
     PushMessaging? push,
     RegisterPushDevice? registerPushDevice,
   }) : _getPrefs = getPrefs,
        _savePrefs = savePrefs,
        _resetOnboarding = resetOnboarding,
        _logout = logout,
+       _deleteAccount = deleteAccount,
        _push = push,
        _registerPushDevice = registerPushDevice,
        super(const SettingsLoading());
@@ -82,5 +85,29 @@ class SettingsCubit extends Cubit<SettingsState> {
   Future<void> logout() async {
     await _logout();
     if (!isClosed) emit(const SettingsLoggedOut());
+  }
+
+  /// Deletes the account. Answers the error when it failed; nothing happens
+  /// when the user gave up on the Apple confirmation.
+  Future<AppError?> deleteAccount() async {
+    final current = state;
+    if (current is! SettingsReady || current.deleting) return null;
+    emit(current.copyWith(deleting: true));
+    final result = await _deleteAccount?.call();
+    if (isClosed) return null;
+    switch (result) {
+      case Success(:final data) when data:
+        emit(const SettingsLoggedOut(accountDeleted: true));
+        return null;
+      case Success():
+        emit(current);
+        return null;
+      case Failure(:final error):
+        emit(current);
+        return error;
+      case null:
+        emit(current);
+        return AppError.unknown;
+    }
   }
 }

@@ -45,6 +45,18 @@ abstract interface class SocialNetworkRepository {
 
   Future<Result<FollowPage>> getFollowing(String userId, {int page = 1});
 
+  /// Answers whether [userId] is blocked now.
+  Future<Result<bool>> setBlocked(String userId, bool blocked);
+
+  Future<Result<BlockedPage>> getBlockedUsers({int page = 1});
+
+  Future<Result<void>> report(
+    ReportTarget target,
+    String targetId,
+    ReportReason reason,
+    String? details,
+  );
+
   Future<Result<ConversationPage>> getConversations({String? cursor});
 
   Future<Result<Conversation>> getConversation(int conversationId);

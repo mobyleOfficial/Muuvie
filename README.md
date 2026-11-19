@@ -39,7 +39,7 @@ bundle install
 
 # 3. Setup environment variables interactively
 bundle exec fastlane setup_env
-# (Or copy manually: cp secrets/.env.example secrets/.env)
+# (Or copy manually: cp secrets/.env.dev.example secrets/.env.dev)
 
 # 4. Install Flutter dependencies (root + all packages)
 flutter pub get
@@ -52,9 +52,9 @@ bundle exec fastlane setup_ide
 
 # 7. Run the app
 # Every flavor runs lib/main.dart; the flavor comes from --flavor and --dart-define=FLAVOR.
-flutter run --flavor prod --dart-define=FLAVOR=prod --dart-define-from-file=secrets/.env
-flutter run --flavor dev --dart-define=FLAVOR=dev --dart-define-from-file=secrets/.env
-flutter run --flavor staging --dart-define=FLAVOR=staging --dart-define-from-file=secrets/.env
+flutter run --flavor prod --dart-define=FLAVOR=prod --dart-define-from-file=secrets/.env.dev
+flutter run --flavor dev --dart-define=FLAVOR=dev --dart-define-from-file=secrets/.env.dev
+flutter run --flavor staging --dart-define=FLAVOR=staging --dart-define-from-file=secrets/.env.dev
 ```
 
 ---
@@ -64,7 +64,7 @@ flutter run --flavor staging --dart-define=FLAVOR=staging --dart-define-from-fil
 The app reads environment variables at build time. Create a `.env` file in the `secrets/` folder:
 
 ```bash
-cp secrets/.env.example secrets/.env
+cp secrets/.env.dev.example secrets/.env.dev
 ```
 
 Then edit `secrets/.env`:
@@ -82,6 +82,17 @@ PROD_BACKEND_URL=https://api.example.com
 | `DEV_BACKEND_URL` | Base URL for the Moovie backend service (dev flavor) |
 | `STG_BACKEND_URL` | Base URL for the Moovie backend service (staging flavor) |
 | `PROD_BACKEND_URL` | Base URL for the Moovie backend service (prod flavor) |
+| `GOOGLE_SERVER_CLIENT_ID` | Web OAuth client id of Google Sign-In: the ID token is issued for it (the backend accepts it through `GOOGLE_CLIENT_IDS`) |
+| `GOOGLE_IOS_CLIENT_ID` | iOS OAuth client id of Google Sign-In |
+
+### Sign in (Apple and Google)
+
+There is no e-mail and password: the login screen offers **Continuar com Apple** (iOS) and **Continuar com Google** (Android and iOS; no sign-in on web yet). The native SDKs (`sign_in_with_apple`, `google_sign_in`) return an ID token, which the app sends to `POST /api/v1/auth/social`. A new account then picks its nickname (`ChooseNicknameRoute`, `PUT /api/v1/auth/nickname`). Code: `features/auth/data/lib/datasources/social_sign_in_data_source_impl.dart`, `ui/auth/lib/login`, `ui/auth/lib/choose_nickname`.
+
+Platform setup, per flavor (`com.mobyle.muuvie.dev`, `.staging`, and the prod `com.mobyle.muuvie`):
+
+- **Apple:** turn on the *Sign in with Apple* capability of each App ID in the Apple Developer portal and in Xcode (Runner › Signing & Capabilities). This adds `Runner.entitlements`. The backend lists the bundle ids in `APPLE_CLIENT_IDS`.
+- **Google:** in Google Cloud, create one OAuth client of each type. The **web** client goes in `GOOGLE_SERVER_CLIENT_ID`. Create an **iOS** client per bundle id: its id goes in `GOOGLE_IOS_CLIENT_ID`, and its reversed client id is added as a URL scheme (`CFBundleURLTypes`) in `ios/Runner/Info.plist`. Create an **Android** client per package name and SHA-1 (debug, upload key and the Play App Signing key). The backend lists all of these client ids in `GOOGLE_CLIENT_IDS`.
 
 ### Firebase (Crashlytics, Analytics and push)
 
@@ -332,7 +343,7 @@ flutter gen-l10n                                                   # After ARB c
 dart format .                                                      # Format code
 bundle exec fastlane lint                                          # Lint
 bundle exec fastlane test                                          # Run tests
-flutter run --flavor dev --dart-define=FLAVOR=dev --dart-define-from-file=secrets/.env  # Run dev flavor
+flutter run --flavor dev --dart-define=FLAVOR=dev --dart-define-from-file=secrets/.env.dev  # Run dev flavor
 ```
 
 ### Fastlane commands

@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies/movies.dart';
 import 'package:movies_ui/movie_detail/movie_detail_bloc.dart';
 import 'package:movies_ui/movie_detail/movie_detail_router.dart';
+import 'package:movies_ui/person_detail/person_detail_router.dart';
 import 'package:movies_ui/movie_detail/movie_detail_state.dart';
 import 'package:movies_ui/movie_detail/movie_section.dart';
 import 'package:movies_ui/movie_detail/movie_community_tab.dart';
@@ -1115,50 +1116,60 @@ class _CastMemberCard extends StatelessWidget {
       child: Icon(Icons.person, size: 36, color: colorScheme.onSurfaceVariant),
     );
 
-    return SizedBox(
-      width: _width,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ExcludeSemantics(
-            child: ClipRRect(
-              borderRadius: MuuvieRadius.mediumAll,
-              child: SizedBox(
-                width: _width,
-                height: 128,
-                child: (profilePath != null && profilePath.isNotEmpty)
-                    ? CachedNetworkImage(
-                        imageUrl: TmdbImageUrl.buildPosterSmall(profilePath),
-                        fit: BoxFit.cover,
-                        placeholder: (_, _) => Container(
-                          color: colorScheme.surfaceContainerHighest,
-                        ),
-                        errorWidget: (_, _, _) => empty,
-                      )
-                    : empty,
+    return InkWell(
+      borderRadius: MuuvieRadius.mediumAll,
+      onTap: () => context.router.push(
+        PersonDetailRoute(
+          personId: person.id,
+          tmdbPersonId: person.tmdbPersonId,
+          personName: person.name,
+        ),
+      ),
+      child: SizedBox(
+        width: _width,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ExcludeSemantics(
+              child: ClipRRect(
+                borderRadius: MuuvieRadius.mediumAll,
+                child: SizedBox(
+                  width: _width,
+                  height: 128,
+                  child: (profilePath != null && profilePath.isNotEmpty)
+                      ? CachedNetworkImage(
+                          imageUrl: TmdbImageUrl.buildPosterSmall(profilePath),
+                          fit: BoxFit.cover,
+                          placeholder: (_, _) => Container(
+                            color: colorScheme.surfaceContainerHighest,
+                          ),
+                          errorWidget: (_, _, _) => empty,
+                        )
+                      : empty,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            person.name,
-            style: textTheme.labelMedium?.copyWith(
-              color: colorScheme.onSurface,
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          if (character != null && character.isNotEmpty)
+            const SizedBox(height: 8),
             Text(
-              character,
-              style: textTheme.labelSmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
+              person.name,
+              style: textTheme.labelMedium?.copyWith(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.w600,
               ),
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-        ],
+            if (character != null && character.isNotEmpty)
+              Text(
+                character,
+                style: textTheme.labelSmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+          ],
+        ),
       ),
     );
   }

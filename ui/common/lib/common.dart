@@ -40,3 +40,5 @@ export 'src/maratona/muuvie_rating_badge.dart';
 export 'src/maratona/muuvie_rating_picker.dart';
 export 'src/maratona/muuvie_tabbed_header.dart';
 export 'src/maratona/muuvie_visibility_selector.dart';
+export 'src/muuvie_report_sheet.dart';
+export 'src/muuvie_legal_links.dart';

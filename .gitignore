@@ -16,6 +16,7 @@ doc/api/
 
 # dotenv environment variables file
 .env*
+!.env.example
 env
 
 # Generated env xcconfig (contains secrets)
@@ -73,3 +74,6 @@ testResults/
 
 # Local research notes
 tmdb_endpoints.txt
+
+# Golden test failure artifacts
+**/failures/

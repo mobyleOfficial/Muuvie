@@ -2,40 +2,50 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:core/core.dart';
 import 'package:auth/auth.dart';
 
-class MockOAuthRemoteDataSource implements OAuthRemoteDataSource {
-  Result<OAuthResultModel>? initiateOAuthResult;
-  Result<AuthTokenModel>? completeOAuthResult;
+class MockSocialSignInDataSource implements SocialSignInDataSource {
+  Result<SocialCredentialModel?> signInResult = const Failure(AppError.unknown);
+  OAuthProvider? lastProvider;
+  bool signOutCalled = false;
 
   @override
-  Future<Result<OAuthResultModel>> initiateOAuth(String provider) async =>
-      initiateOAuthResult ?? const Failure(AppError.unknown);
-
-  @override
-  Future<Result<AuthTokenModel>> completeOAuth(
-    OAuthResultModel oauthResult,
-  ) async => completeOAuthResult ?? const Failure(AppError.unknown);
-}
-
-class MockAuthRemoteDataSource implements AuthRemoteDataSource {
-  Result<AuthTokenModel>? loginResult;
-  Result<AuthTokenModel>? signUpResult;
-  Result<bool>? checkNicknameResult;
-  String? lastEmail;
-  String? lastPassword;
-
-  @override
-  Future<Result<AuthTokenModel>> login(String email, String password) async {
-    lastEmail = email;
-    lastPassword = password;
-    return loginResult ?? const Failure(AppError.unknown);
+  Future<Result<SocialCredentialModel?>> signIn(OAuthProvider provider) async {
+    lastProvider = provider;
+    return signInResult;
   }
 
   @override
-  Future<Result<AuthTokenModel>> signUp(
-    String email,
-    String password,
-    String nickname,
-  ) async => signUpResult ?? const Failure(AppError.unknown);
+  Future<void> signOut() async => signOutCalled = true;
+
+  bool appleAvailable = false;
+  Result<String?> appleCodeResult = const Success('apple-code');
+
+  @override
+  Future<bool> isAppleAvailable() async => appleAvailable;
+
+  @override
+  Future<Result<String?>> appleAuthorizationCode() async => appleCodeResult;
+}
+
+class MockAuthRemoteDataSource implements AuthRemoteDataSource {
+  Result<LoginResponseModel>? signInResult;
+  Result<void>? chooseNicknameResult;
+  Result<bool>? checkNicknameResult;
+  SocialCredentialModel? lastCredential;
+  String? lastNickname;
+
+  @override
+  Future<Result<LoginResponseModel>> signInWithProvider(
+    SocialCredentialModel credential,
+  ) async {
+    lastCredential = credential;
+    return signInResult ?? const Failure(AppError.unknown);
+  }
+
+  @override
+  Future<Result<void>> chooseNickname(String nickname) async {
+    lastNickname = nickname;
+    return chooseNicknameResult ?? const Failure(AppError.unknown);
+  }
 
   @override
   Future<Result<bool>> checkNicknameAvailability(String nickname) async =>
@@ -48,6 +58,23 @@ class MockAuthRemoteDataSource implements AuthRemoteDataSource {
   Future<Result<void>> logout(String? refreshToken) async {
     lastLogoutRefreshToken = refreshToken;
     return logoutResult ?? const Success(null);
+  }
+
+  /// Answers in order; the last one repeats.
+  List<Result<void>> deleteResults = [const Success(null)];
+  final deleteCalls = <String>[];
+
+  @override
+  Future<Result<void>> deleteAccount({
+    String? appleAuthorizationCode,
+    bool skipAppleRevocation = false,
+  }) async {
+    deleteCalls.add(
+      'code=$appleAuthorizationCode skip=$skipAppleRevocation',
+    );
+    return deleteResults.length > 1
+        ? deleteResults.removeAt(0)
+        : deleteResults.single;
   }
 }
 
@@ -79,122 +106,124 @@ class MockAuthLocalDataSource implements AuthLocalDataSource {
   Stream<void> observeTokenCleared() => const Stream.empty();
 }
 
+LoginResponseModel _response({bool needsNickname = false}) =>
+    LoginResponseModel(
+      accessToken: 'jwt-token',
+      tokenType: 'Bearer',
+      expiresIn: 3600,
+      refreshToken: 'refresh',
+      profile: const LoginProfileModel(
+        photoUrl: '',
+        username: 'cosmic_ripley_42',
+        bio: '',
+      ),
+      needsNickname: needsNickname,
+    );
+
+const _appleCredential = SocialCredentialModel(
+  provider: 'apple',
+  idToken: 'apple-id-token',
+  nonce: 'raw-nonce',
+  displayName: 'Ana Clara',
+);
+
 void main() {
   late AuthRepositoryImpl repository;
-  late MockOAuthRemoteDataSource mockOAuthRemote;
+  late MockSocialSignInDataSource mockSocial;
   late MockAuthRemoteDataSource mockAuthRemote;
   late MockAuthLocalDataSource mockLocal;
 
   setUp(() {
-    mockOAuthRemote = MockOAuthRemoteDataSource();
+    mockSocial = MockSocialSignInDataSource();
     mockAuthRemote = MockAuthRemoteDataSource();
     mockLocal = MockAuthLocalDataSource();
-    repository = AuthRepositoryImpl(mockOAuthRemote, mockAuthRemote, mockLocal);
+    repository = AuthRepositoryImpl(mockSocial, mockAuthRemote, mockLocal);
   });
 
-  group('login (OAuth)', () {
-    test('initiates OAuth, completes it, and saves the token', () async {
-      mockOAuthRemote.initiateOAuthResult = const Success(
-        OAuthResultModel(provider: 'google', providerToken: 'mock-token'),
-      );
-      mockOAuthRemote.completeOAuthResult = Success(
-        AuthTokenModel(
-          accessToken: 'jwt-token',
-          expiresAt: DateTime(2026, 6, 19),
-        ),
-      );
+  group('login', () {
+    test('sends the provider token, saves the session and signs in', () async {
+      mockSocial.signInResult = const Success(_appleCredential);
+      mockAuthRemote.signInResult = Success(_response());
       mockLocal.saveTokenResult = const Success(null);
 
-      final result = await repository.login(OAuthProvider.google);
+      final result = await repository.login(OAuthProvider.apple);
 
-      expect(result, isA<Success<void>>());
+      final outcome = (result as Success<SignInOutcome>).data as SignedIn;
+      expect(outcome.needsNickname, false);
+      expect(mockSocial.lastProvider, OAuthProvider.apple);
+      expect(mockAuthRemote.lastCredential?.idToken, 'apple-id-token');
+      expect(mockAuthRemote.lastCredential?.nonce, 'raw-nonce');
       expect(mockLocal.lastSavedToken?.accessToken, 'jwt-token');
+      expect(mockLocal.lastSavedToken?.refreshToken, 'refresh');
     });
 
-    test('returns failure when OAuth initiation fails', () async {
-      mockOAuthRemote.initiateOAuthResult = const Failure(AppError.network);
+    test(
+      'a new account asks for a nickname, suggesting the provider name',
+      () async {
+        mockSocial.signInResult = const Success(_appleCredential);
+        mockAuthRemote.signInResult = Success(_response(needsNickname: true));
+        mockLocal.saveTokenResult = const Success(null);
+
+        final result = await repository.login(OAuthProvider.apple);
+
+        final outcome = (result as Success<SignInOutcome>).data as SignedIn;
+        expect(outcome.needsNickname, true);
+        expect(outcome.suggestedNickname, 'Ana Clara');
+      },
+    );
+
+    test('a closed sheet is a cancellation, not an error', () async {
+      mockSocial.signInResult = const Success(null);
 
       final result = await repository.login(OAuthProvider.google);
 
-      expect(result, isA<Failure<void>>());
-      expect((result as Failure<void>).error, AppError.network);
+      expect((result as Success<SignInOutcome>).data, isA<SignInCancelled>());
+      expect(mockAuthRemote.lastCredential, isNull);
+      expect(mockLocal.lastSavedToken, isNull);
     });
 
-    test('returns failure when OAuth completion fails', () async {
-      mockOAuthRemote.initiateOAuthResult = const Success(
-        OAuthResultModel(provider: 'google', providerToken: 'mock-token'),
-      );
-      mockOAuthRemote.completeOAuthResult = const Failure(AppError.server);
+    test('returns failure when the native sign-in fails', () async {
+      mockSocial.signInResult = const Failure(AppError.unknown);
 
       final result = await repository.login(OAuthProvider.google);
 
-      expect(result, isA<Failure<void>>());
-      expect((result as Failure<void>).error, AppError.server);
+      expect((result as Failure<SignInOutcome>).error, AppError.unknown);
     });
 
-    test('returns failure when token save fails', () async {
-      mockOAuthRemote.initiateOAuthResult = const Success(
-        OAuthResultModel(provider: 'facebook', providerToken: 'mock-token'),
+    test('returns failure when the server rejects the token', () async {
+      mockSocial.signInResult = const Success(_appleCredential);
+      mockAuthRemote.signInResult = const Failure(
+        AppError.unauthorized,
+        code: 'invalid_token',
       );
-      mockOAuthRemote.completeOAuthResult = Success(
-        AuthTokenModel(
-          accessToken: 'jwt-token',
-          expiresAt: DateTime(2026, 6, 19),
-        ),
-      );
+
+      final result = await repository.login(OAuthProvider.apple);
+
+      final failure = result as Failure<SignInOutcome>;
+      expect(failure.error, AppError.unauthorized);
+      expect(failure.code, 'invalid_token');
+      expect(mockLocal.lastSavedToken, isNull);
+    });
+
+    test('returns failure when the session cannot be saved', () async {
+      mockSocial.signInResult = const Success(_appleCredential);
+      mockAuthRemote.signInResult = Success(_response());
       mockLocal.saveTokenResult = const Failure(AppError.unknown);
 
-      final result = await repository.login(OAuthProvider.facebook);
+      final result = await repository.login(OAuthProvider.apple);
 
-      expect(result, isA<Failure<void>>());
+      expect(result, isA<Failure<SignInOutcome>>());
     });
   });
 
-  group('loginWithEmail', () {
-    test('calls remote data source and saves token on success', () async {
-      mockAuthRemote.loginResult = Success(
-        AuthTokenModel(
-          accessToken: 'email-jwt-token',
-          expiresAt: DateTime(2026, 8, 1),
-        ),
-      );
-      mockLocal.saveTokenResult = const Success(null);
+  group('chooseNickname', () {
+    test('sends the nickname to the server', () async {
+      mockAuthRemote.chooseNicknameResult = const Success(null);
 
-      final result = await repository.loginWithEmail(
-        'test@example.com',
-        'password123',
-      );
+      final result = await repository.chooseNickname('Ana');
 
       expect(result, isA<Success<void>>());
-      expect(mockAuthRemote.lastEmail, 'test@example.com');
-      expect(mockAuthRemote.lastPassword, 'password123');
-      expect(mockLocal.lastSavedToken?.accessToken, 'email-jwt-token');
-    });
-
-    test('returns failure when remote login fails', () async {
-      mockAuthRemote.loginResult = const Failure(AppError.unauthorized);
-
-      final result = await repository.loginWithEmail(
-        'test@example.com',
-        'wrong',
-      );
-
-      expect(result, isA<Failure<void>>());
-      expect((result as Failure<void>).error, AppError.unauthorized);
-    });
-
-    test('returns failure when token save fails', () async {
-      mockAuthRemote.loginResult = Success(
-        AuthTokenModel(accessToken: 'token', expiresAt: DateTime(2026, 8, 1)),
-      );
-      mockLocal.saveTokenResult = const Failure(AppError.unknown);
-
-      final result = await repository.loginWithEmail(
-        'test@example.com',
-        'password123',
-      );
-
-      expect(result, isA<Failure<void>>());
+      expect(mockAuthRemote.lastNickname, 'Ana');
     });
   });
 
@@ -269,6 +298,7 @@ void main() {
 
       expect(result, isA<Success<void>>());
       expect(mockAuthRemote.lastLogoutRefreshToken, 'refresh');
+      expect(mockSocial.signOutCalled, true);
       expect(mockLocal.clearTokenCalled, true);
     });
 
@@ -281,6 +311,67 @@ void main() {
 
       expect(result, isA<Success<void>>());
       expect(mockLocal.clearTokenCalled, true);
+    });
+  });
+
+  group('deleteAccount', () {
+    const reauth = Failure<void>(
+      AppError.conflict,
+      code: 'apple_reauth_required',
+    );
+
+    setUp(() => mockLocal.clearTokenResult = const Success(null));
+
+    test('deletes, signs out of the provider and clears the session', () async {
+      final result = await repository.deleteAccount();
+
+      expect(result, isA<Success<bool>>());
+      expect((result as Success<bool>).data, true);
+      expect(mockAuthRemote.deleteCalls, ['code=null skip=false']);
+      expect(mockSocial.signOutCalled, true);
+      expect(mockLocal.clearTokenCalled, true);
+    });
+
+    test('asks Apple again when the account signs in with Apple', () async {
+      mockAuthRemote.deleteResults = [reauth, const Success(null)];
+      mockSocial.appleAvailable = true;
+
+      final result = await repository.deleteAccount();
+
+      expect((result as Success<bool>).data, true);
+      expect(mockAuthRemote.deleteCalls, [
+        'code=null skip=false',
+        'code=apple-code skip=false',
+      ]);
+    });
+
+    test('keeps the account when the Apple sheet is closed', () async {
+      mockAuthRemote.deleteResults = [reauth];
+      mockSocial.appleAvailable = true;
+      mockSocial.appleCodeResult = const Success(null);
+
+      final result = await repository.deleteAccount();
+
+      expect((result as Success<bool>).data, false);
+      expect(mockAuthRemote.deleteCalls, hasLength(1));
+      expect(mockLocal.clearTokenCalled, false);
+    });
+
+    test('skips the revocation where Sign in with Apple does not exist', () async {
+      mockAuthRemote.deleteResults = [reauth, const Success(null)];
+
+      await repository.deleteAccount();
+
+      expect(mockAuthRemote.deleteCalls.last, 'code=null skip=true');
+    });
+
+    test('a server failure keeps the session', () async {
+      mockAuthRemote.deleteResults = [const Failure(AppError.network)];
+
+      final result = await repository.deleteAccount();
+
+      expect(result, isA<Failure<bool>>());
+      expect(mockLocal.clearTokenCalled, false);
     });
   });
 }

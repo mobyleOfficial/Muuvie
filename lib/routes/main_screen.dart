@@ -317,13 +317,13 @@ class _ScrapingBanner extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Importing data...',
+                  AppLocalizations.of(context)?.importBannerTitle ?? '',
                   style: textTheme.labelSmall?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 Text(
-                  'Filmow',
+                  AppLocalizations.of(context)?.importBannerHint ?? '',
                   style: textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: colorScheme.onSurface,

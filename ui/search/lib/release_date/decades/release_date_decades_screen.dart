@@ -1,3 +1,4 @@
+import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 
 class ReleaseDateDecadesScreen extends StatelessWidget {
@@ -41,7 +42,9 @@ class ReleaseDateDecadesScreen extends StatelessWidget {
           if (index == 0) {
             return ListTile(
               leading: Icon(Icons.upcoming, color: colorScheme.primary),
-              title: const Text('Upcoming'),
+              title: Text(
+                AppLocalizations.of(context)?.releaseDateUpcoming ?? '',
+              ),
               trailing: Icon(
                 Icons.chevron_right,
                 color: colorScheme.onSurfaceVariant,
@@ -51,7 +54,9 @@ class ReleaseDateDecadesScreen extends StatelessWidget {
           }
 
           final decade = _decades[index - 1];
-          final label = '${decade}s';
+          final label =
+              AppLocalizations.of(context)?.releaseDateDecade('$decade') ??
+              '$decade';
 
           return ListTile(
             leading: Icon(

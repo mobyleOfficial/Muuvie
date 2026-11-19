@@ -61,7 +61,8 @@ class _FakeHttpClient implements HttpClient {
   Future<Result<T>> delete<T>(
     String path, {
     Map<String, dynamic>? queryParams,
-  }) => _record('DELETE', path, queryParams, null);
+    Object? body,
+  }) => _record('DELETE', path, queryParams, body);
 }
 
 class _FakeWebSocketClient implements WebSocketClient {

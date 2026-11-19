@@ -1,10 +1,10 @@
 import 'package:auth_domain/domain.dart';
+import 'package:auth_ui/choose_nickname/choose_nickname_cubit.dart';
+import 'package:auth_ui/choose_nickname/choose_nickname_screen.dart';
+import 'package:auth_ui/choose_nickname/choose_nickname_state.dart';
 import 'package:auth_ui/login/login_cubit.dart';
 import 'package:auth_ui/login/login_screen.dart';
 import 'package:auth_ui/login/login_state.dart';
-import 'package:auth_ui/sign_up/sign_up_cubit.dart';
-import 'package:auth_ui/sign_up/sign_up_screen.dart';
-import 'package:auth_ui/sign_up/sign_up_state.dart';
 import 'package:auth_ui/widgets/auth_text_field.dart';
 import 'package:common/common.dart';
 import 'package:core/core.dart';
@@ -16,15 +16,19 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../helpers/golden.dart';
 
 class _FakeAuthRepository implements AuthRepository {
-  Result<void> loginResult = const Failure(AppError.unauthorized);
+  Result<SignInOutcome> loginResult = const Failure(AppError.unauthorized);
   Result<bool> nicknameResult = const Success(true);
+  OAuthProvider? lastProvider;
 
   @override
-  Future<Result<void>> login(OAuthProvider provider) async => loginResult;
+  Future<Result<SignInOutcome>> login(OAuthProvider provider) async {
+    lastProvider = provider;
+    return loginResult;
+  }
 
   @override
-  Future<Result<void>> loginWithEmail(String email, String password) async =>
-      loginResult;
+  Future<Result<void>> chooseNickname(String nickname) async =>
+      const Success(null);
 
   @override
   Future<Result<bool>> isUserAuthenticated() async => const Success(false);
@@ -36,11 +40,10 @@ class _FakeAuthRepository implements AuthRepository {
   Stream<void> observeSessionEnded() => const Stream.empty();
 
   @override
-  Future<Result<void>> signUp(
-    String email,
-    String password,
-    String nickname,
-  ) async => const Failure(AppError.conflict);
+  Stream<void> observeSessionStarted() => const Stream.empty();
+
+  @override
+  Future<Result<bool>> deleteAccount() async => const Success(true);
 
   @override
   Future<Result<bool>> checkNicknameAvailability(String nickname) async =>
@@ -64,31 +67,35 @@ Widget _app(Widget child, {Brightness brightness = Brightness.light}) =>
       home: Scaffold(body: SafeArea(child: child)),
     );
 
+const _bothProviders = [OAuthProvider.apple, OAuthProvider.google];
+
 Widget _login(
   LoginCubit cubit, {
-  VoidCallback? onSignUpTap,
+  List<OAuthProvider> providers = _bothProviders,
   Brightness brightness = Brightness.light,
 }) => _app(
   BlocProvider.value(
     value: cubit,
     child: BlocBuilder<LoginCubit, LoginState>(
       builder: (context, state) =>
-          LoginScreen(state: state, onSignUpTap: onSignUpTap),
+          LoginScreen(state: state, providers: providers),
     ),
   ),
   brightness: brightness,
 );
 
-Widget _signUp(
-  SignUpCubit cubit, {
-  VoidCallback? onLoginTap,
+Widget _chooseNickname(
+  ChooseNicknameCubit cubit, {
+  String? suggestedNickname,
   Brightness brightness = Brightness.light,
 }) => _app(
   BlocProvider.value(
     value: cubit,
-    child: BlocBuilder<SignUpCubit, SignUpState>(
-      builder: (context, state) =>
-          SignUpScreen(state: state, onLoginTap: onLoginTap),
+    child: BlocBuilder<ChooseNicknameCubit, ChooseNicknameState>(
+      builder: (context, state) => ChooseNicknameScreen(
+        state: state,
+        suggestedNickname: suggestedNickname,
+      ),
     ),
   ),
   brightness: brightness,
@@ -103,12 +110,11 @@ void main() {
 
   LoginCubit loginCubit() => LoginCubit(
     loginUseCase: Login(repository),
-    loginWithEmailUseCase: LoginWithEmail(repository),
     isUserAuthenticatedUseCase: IsUserAuthenticated(repository),
   );
 
-  SignUpCubit signUpCubit() => SignUpCubit(
-    signUp: SignUp(repository),
+  ChooseNicknameCubit chooseNicknameCubit() => ChooseNicknameCubit(
+    chooseNickname: ChooseNickname(repository),
     checkNicknameAvailability: CheckNicknameAvailability(repository),
   );
 
@@ -148,66 +154,86 @@ void main() {
       });
     }
 
-    testWidgets('does not flag the e-mail while it is being typed', (
+    testWidgets('offers only the given providers, no e-mail or password', (
       tester,
     ) async {
       usePhoneSize(tester);
-      await tester.pumpWidget(_login(loginCubit()));
-      await tester.enterText(field('E-mail'), 'ana@');
-      await tester.pump();
-
-      expect(find.text('Por favor digite um e-mail válido'), findsNothing);
-    });
-
-    testWidgets('submitting shows field errors', (tester) async {
-      usePhoneSize(tester);
-      await tester.pumpWidget(_login(loginCubit()));
-      await tester.tap(find.widgetWithText(FilledButton, 'Entrar'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Este campo é obrigatório'), findsNWidgets(2));
-    });
-
-    testWidgets('wrong credentials show the error banner', (tester) async {
-      usePhoneSize(tester);
-      await tester.pumpWidget(_login(loginCubit()));
-      await tester.enterText(field('E-mail'), 'ana@muuvie.app');
-      await tester.enterText(field('Senha'), '12345678');
-      await tester.tap(find.widgetWithText(FilledButton, 'Entrar'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Usuário ou senha incorretos.'), findsOneWidget);
-    });
-
-    testWidgets('create account link calls back', (tester) async {
-      usePhoneSize(tester);
-      var tapped = false;
       await tester.pumpWidget(
-        _login(loginCubit(), onSignUpTap: () => tapped = true),
+        _login(loginCubit(), providers: const [OAuthProvider.google]),
       );
-      await tester.tap(find.text('Crie uma conta'));
 
-      expect(tapped, isTrue);
+      expect(find.text('Continuar com Google'), findsOneWidget);
+      expect(find.text('Continuar com Apple'), findsNothing);
+      expect(find.byType(TextField), findsNothing);
+    });
+
+    testWidgets('tapping a provider signs in with it', (tester) async {
+      usePhoneSize(tester);
+      await tester.pumpWidget(_login(loginCubit()));
+      await tester.tap(find.text('Continuar com Apple'));
+      await tester.pumpAndSettle();
+
+      expect(repository.lastProvider, OAuthProvider.apple);
+    });
+
+    testWidgets('a failed sign-in shows the error banner', (tester) async {
+      usePhoneSize(tester);
+      await tester.pumpWidget(_login(loginCubit()));
+      await tester.tap(find.text('Continuar com Google'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Algo deu errado, tente de novo mais tarde.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('a cancelled sign-in shows no error', (tester) async {
+      usePhoneSize(tester);
+      repository.loginResult = const Success(SignInCancelled());
+      await tester.pumpWidget(_login(loginCubit()));
+      await tester.tap(find.text('Continuar com Google'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Algo deu errado, tente de novo mais tarde.'),
+        findsNothing,
+      );
+      expect(find.text('Continuar com Google'), findsOneWidget);
     });
   });
 
-  group('SignUpScreen', () {
+  group('ChooseNicknameScreen', () {
     for (final brightness in Brightness.values) {
       testWidgets('golden (${brightness.name})', (tester) async {
         usePhoneSize(tester);
-        await tester.pumpWidget(_signUp(signUpCubit(), brightness: brightness));
+        await tester.pumpWidget(
+          _chooseNickname(chooseNicknameCubit(), brightness: brightness),
+        );
         await settleSvgs(tester);
 
         await expectLater(
           find.byType(MaterialApp),
-          matchesGoldenFile('goldens/sign_up_${brightness.name}.png'),
+          matchesGoldenFile('goldens/choose_nickname_${brightness.name}.png'),
         );
       });
     }
 
+    testWidgets('prefills and checks the suggested nickname', (tester) async {
+      usePhoneSize(tester);
+      await tester.pumpWidget(
+        _chooseNickname(chooseNicknameCubit(), suggestedNickname: 'Ana Clara'),
+      );
+      await tester.pump();
+
+      expect(find.text('Ana Clara'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('Apelido disponível'), findsOneWidget);
+    });
+
     testWidgets('confirms an available nickname', (tester) async {
       usePhoneSize(tester);
-      await tester.pumpWidget(_signUp(signUpCubit()));
+      await tester.pumpWidget(_chooseNickname(chooseNicknameCubit()));
       await tester.enterText(field('Apelido'), 'vaquinha');
       await tester.pump();
       expect(find.text('Verificando disponibilidade…'), findsOneWidget);
@@ -219,22 +245,11 @@ void main() {
     testWidgets('shows a taken nickname right away', (tester) async {
       usePhoneSize(tester);
       repository.nicknameResult = const Success(false);
-      await tester.pumpWidget(_signUp(signUpCubit()));
+      await tester.pumpWidget(_chooseNickname(chooseNicknameCubit()));
       await tester.enterText(field('Apelido'), 'vaquinha');
       await tester.pump(const Duration(seconds: 1));
 
       expect(find.text('Esse apelido já está em uso'), findsOneWidget);
-    });
-
-    testWidgets('login link calls back', (tester) async {
-      usePhoneSize(tester);
-      var tapped = false;
-      await tester.pumpWidget(
-        _signUp(signUpCubit(), onLoginTap: () => tapped = true),
-      );
-      await tester.tap(find.widgetWithText(TextButton, 'Entrar'));
-
-      expect(tapped, isTrue);
     });
   });
 }

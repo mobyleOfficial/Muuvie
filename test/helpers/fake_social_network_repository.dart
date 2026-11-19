@@ -113,6 +113,31 @@ class FakeSocialNetworkRepository implements SocialNetworkRepository {
       followPages['following:$page'] ??
       const Success(FollowPage(cards: [], page: 1, hasNext: false));
 
+  final blocked = <String, bool>{};
+  final reports = <String>[];
+
+  @override
+  Future<Result<bool>> setBlocked(String userId, bool blocked) async {
+    calls.add('${blocked ? 'block' : 'unblock'} $userId');
+    this.blocked[userId] = blocked;
+    return Success(blocked);
+  }
+
+  @override
+  Future<Result<BlockedPage>> getBlockedUsers({int page = 1}) async =>
+      const Success(BlockedPage(users: [], page: 1, hasNext: false));
+
+  @override
+  Future<Result<void>> report(
+    ReportTarget target,
+    String targetId,
+    ReportReason reason,
+    String? details,
+  ) async {
+    reports.add('${target.wireValue} $targetId ${reason.wireValue}');
+    return const Success(null);
+  }
+
   @override
   Future<Result<ConversationPage>> getConversations({String? cursor}) async {
     calls.add('conversations $cursor');

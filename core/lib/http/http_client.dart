@@ -23,5 +23,9 @@ abstract interface class HttpClient {
     Object? body,
   });
 
-  Future<Result<T>> delete<T>(String path, {Map<String, dynamic>? queryParams});
+  Future<Result<T>> delete<T>(
+    String path, {
+    Map<String, dynamic>? queryParams,
+    Object? body,
+  });
 }

@@ -1,5 +1,6 @@
 import 'package:auth_data/models/auth_token_model.dart';
 
+/// Answer of `POST /api/v1/auth/social`.
 class LoginResponseModel {
   final String accessToken;
   final String tokenType;
@@ -7,12 +8,16 @@ class LoginResponseModel {
   final String? refreshToken;
   final LoginProfileModel profile;
 
+  /// True while the account still has the nickname the server generated.
+  final bool needsNickname;
+
   const LoginResponseModel({
     required this.accessToken,
     required this.tokenType,
     required this.expiresIn,
     this.refreshToken,
     required this.profile,
+    this.needsNickname = false,
   });
 
   factory LoginResponseModel.fromJson(Map<String, dynamic> json) =>
@@ -24,6 +29,7 @@ class LoginResponseModel {
         profile: LoginProfileModel.fromJson(
           json['profile'] as Map<String, dynamic>,
         ),
+        needsNickname: json['needsNickname'] as bool? ?? false,
       );
 
   AuthTokenModel toAuthTokenModel() => AuthTokenModel(

@@ -7,7 +7,15 @@ import 'package:locadoras_ui/locadoras_ui.dart';
 import 'package:movies_ui/movie_detail/movie_detail_router.dart';
 import 'package:profile/profile.dart';
 import 'package:social_network/social_network.dart'
-    show FollowList, SetFollowing;
+    show
+        FollowList,
+        ReportContent,
+        ReportParams,
+        ReportReason,
+        ReportTarget,
+        SetBlocked,
+        SetFollowing;
+import 'package:core/core.dart' show Success;
 import 'package:share_plus/share_plus.dart';
 import 'package:shelves/shelves.dart';
 import 'package:watch_logs_ui/watching_now/watching_now_card.dart';
@@ -46,6 +54,7 @@ class _MemberProfileViewState extends State<MemberProfileView> {
     userId: widget.userId,
     getProfile: GetIt.I<GetProfileDetails>(),
     setFollowing: GetIt.I<SetFollowing>(),
+    setBlocked: GetIt.I<SetBlocked>(),
     changes: widget.changes,
   );
 
@@ -111,6 +120,94 @@ class _MemberProfileViewState extends State<MemberProfileView> {
         SnackBar(content: Text(followErrorMessage(l10n, error))),
       );
     }
+  }
+
+  Future<void> _setBlocked(ProfileDetails profile, bool blocked) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    if (blocked) {
+      var confirmed = false;
+      await MuuvieDialog.show(
+        context: context,
+        title: l10n?.blockConfirmTitle(profile.name) ?? '',
+        content: l10n?.blockConfirmMessage,
+        confirmText: l10n?.blockAction ?? '',
+        cancelText: l10n?.commonCancel ?? '',
+        onConfirm: () => confirmed = true,
+      );
+      if (!confirmed) return;
+    }
+    final error = await _cubit.setBlocked(blocked);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          (error != null
+                  ? l10n?.commonActionError
+                  : blocked
+                  ? l10n?.blockedSnack
+                  : l10n?.unblockedSnack) ??
+              '',
+        ),
+      ),
+    );
+  }
+
+  void _report(ProfileDetails profile) => MuuvieReportSheet.show(
+    context: context,
+    onSend: (reason, details) async {
+      final result = await GetIt.I<ReportContent>()(
+        ReportParams(
+          target: ReportTarget.user,
+          targetId: profile.id,
+          reason: ReportReason.values.firstWhere((r) => r.wireValue == reason),
+          details: details,
+        ),
+      );
+      return result is Success;
+    },
+  );
+
+  Future<void> _showMore(ProfileDetails profile) {
+    final l10n = AppLocalizations.of(context);
+    return MuuvieBottomSheet.show<void>(
+      context: context,
+      builder: (sheetContext) => Material(
+        color: Theme.of(sheetContext).colorScheme.surface,
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.flag_outlined),
+                title: Text(l10n?.reportProfile ?? ''),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _report(profile);
+                },
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.block,
+                  color: Theme.of(sheetContext).colorScheme.error,
+                ),
+                title: Text(
+                  (profile.blocked ? l10n?.unblockAction : l10n?.blockAction) ??
+                      '',
+                  style: TextStyle(
+                    color: Theme.of(sheetContext).colorScheme.error,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _setBlocked(profile, !profile.blocked);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _openFollows(ProfileDetails profile, FollowList list) =>
@@ -181,6 +278,8 @@ class _MemberProfileViewState extends State<MemberProfileView> {
                     isPrimaryActionBusy: isFollowBusy,
                     onPrimaryAction: profile.isSelf
                         ? () => _editProfile(profile)
+                        : profile.blocked
+                        ? () => _setBlocked(profile, false)
                         : _toggleFollow,
                     onShare: profile.handle == null
                         ? null
@@ -193,8 +292,22 @@ class _MemberProfileViewState extends State<MemberProfileView> {
                         : null,
                     onWhisper: () => _whisper(profile),
                     onOpenFollows: (list) => _openFollows(profile, list),
+                    onMore: profile.isSelf ? null : () => _showMore(profile),
                   ),
                 ),
+                if (profile.blocked)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                      child: Text(
+                        l10n?.profileBlockedBanner ?? '',
+                        style: Theme.of(context).textTheme.bodyMedium
+                            ?.copyWith(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                      ),
+                    ),
+                  ),
                 SliverToBoxAdapter(
                   child: WatchingNowCard(
                     userId: profile.isSelf ? 'me' : profile.id,

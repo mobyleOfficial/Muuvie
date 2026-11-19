@@ -41,6 +41,7 @@ class RemoteProfileDetails {
       mutual: _json['mutual'] as bool? ?? false,
       isSelf: _json['self'] as bool? ?? false,
       isScraping: _json['isScraping'] as bool? ?? false,
+      blocked: _json['blocked'] as bool? ?? false,
     );
   }
 }

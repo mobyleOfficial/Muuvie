@@ -1,3 +1,5 @@
+import 'package:auth/auth.dart';
+
 sealed class LoginState {
   const LoginState();
 }
@@ -10,45 +12,21 @@ final class LoginAuthenticated extends LoginState {
   const LoginAuthenticated();
 }
 
-final class LoginUnauthenticated extends LoginState {
-  const LoginUnauthenticated();
-}
+/// Signed in to a new account that still has a generated nickname.
+final class LoginNeedsNickname extends LoginState {
+  final String? suggestedNickname;
 
-final class LoginError extends LoginState {
-  final String message;
-
-  const LoginError(this.message);
+  const LoginNeedsNickname({this.suggestedNickname});
 }
 
 final class LoginFormState extends LoginState {
-  final String? emailError;
-  final String? passwordError;
-  final bool isSubmitting;
+  /// The provider whose sheet is open or whose sign-in is being sent.
+  final OAuthProvider? submittingProvider;
+
+  /// `generic` when the last sign-in failed.
   final String? loginError;
 
-  const LoginFormState({
-    this.emailError,
-    this.passwordError,
-    this.isSubmitting = false,
-    this.loginError,
-  });
+  const LoginFormState({this.submittingProvider, this.loginError});
 
-  LoginFormState copyWith({
-    String? emailError,
-    String? passwordError,
-    bool? isSubmitting,
-    String? loginError,
-    bool clearEmailError = false,
-    bool clearPasswordError = false,
-    bool clearLoginError = false,
-  }) => LoginFormState(
-    emailError: clearEmailError ? null : (emailError ?? this.emailError),
-    passwordError: clearPasswordError
-        ? null
-        : (passwordError ?? this.passwordError),
-    isSubmitting: isSubmitting ?? this.isSubmitting,
-    loginError: clearLoginError ? null : (loginError ?? this.loginError),
-  );
-
-  bool get isValid => emailError == null && passwordError == null;
+  bool get isSubmitting => submittingProvider != null;
 }

@@ -14,6 +14,11 @@ class SettingsScreen extends StatelessWidget {
   final VoidCallback onAllowPush;
   final VoidCallback onShowIntro;
   final VoidCallback onLogout;
+  final VoidCallback onBlockedAccounts;
+  final VoidCallback onPrivacyPolicy;
+  final VoidCallback onTerms;
+  final VoidCallback onSupport;
+  final VoidCallback onDeleteAccount;
 
   const SettingsScreen({
     super.key,
@@ -24,6 +29,11 @@ class SettingsScreen extends StatelessWidget {
     required this.onAllowPush,
     required this.onShowIntro,
     required this.onLogout,
+    required this.onBlockedAccounts,
+    required this.onPrivacyPolicy,
+    required this.onTerms,
+    required this.onSupport,
+    required this.onDeleteAccount,
   });
 
   @override
@@ -50,6 +60,11 @@ class SettingsScreen extends StatelessWidget {
               title: Text(l10n?.settingsImport ?? ''),
               subtitle: Text(l10n?.settingsImportHint ?? ''),
               onTap: onImport,
+            ),
+            ListTile(
+              leading: const Icon(Icons.block),
+              title: Text(l10n?.settingsBlockedAccounts ?? ''),
+              onTap: onBlockedAccounts,
             ),
             if (prefs != null) ...[
               _Section(title: l10n?.settingsNotifications ?? ''),
@@ -103,6 +118,22 @@ class SettingsScreen extends StatelessWidget {
               onTap: onShowIntro,
             ),
             ListTile(
+              leading: const Icon(Icons.privacy_tip_outlined),
+              title: Text(l10n?.settingsPrivacyPolicy ?? ''),
+              onTap: onPrivacyPolicy,
+            ),
+            ListTile(
+              leading: const Icon(Icons.description_outlined),
+              title: Text(l10n?.settingsTerms ?? ''),
+              onTap: onTerms,
+            ),
+            ListTile(
+              leading: const Icon(Icons.mail_outline),
+              title: Text(l10n?.settingsSupport ?? ''),
+              subtitle: const Text('support@mobyleapps.com'),
+              onTap: onSupport,
+            ),
+            ListTile(
               leading: Icon(
                 Icons.logout,
                 color: Theme.of(context).colorScheme.error,
@@ -112,6 +143,32 @@ class SettingsScreen extends StatelessWidget {
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
               onTap: onLogout,
+            ),
+            ListTile(
+              leading: state.deleting
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Icon(
+                      Icons.delete_forever_outlined,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+              title: Text(
+                l10n?.settingsDeleteAccount ?? '',
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              onTap: state.deleting ? null : onDeleteAccount,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Text(
+                l10n?.settingsTmdbAttribution ?? '',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
             ),
             const SizedBox(height: 24),
           ],

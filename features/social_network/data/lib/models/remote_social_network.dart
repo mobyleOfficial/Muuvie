@@ -80,6 +80,19 @@ abstract final class RemoteSocialNetwork {
     hasNext: json['hasNext'] as bool? ?? false,
   );
 
+  static BlockedPage blockedPage(Map<String, dynamic> json) => BlockedPage(
+    users: _list(json['results'])
+        .map(
+          (row) => BlockedUser(
+            user: user(_map(row['user'])),
+            blockedAt: _date(row['blockedAt']) ?? DateTime(0),
+          ),
+        )
+        .toList(),
+    page: _int(json['page'], fallback: 1),
+    hasNext: json['hasNext'] as bool? ?? false,
+  );
+
   static Message message(Map<String, dynamic> json) => Message(
     id: _int(json['id']),
     conversationId: _int(json['conversationId']),
