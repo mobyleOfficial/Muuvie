@@ -6,12 +6,13 @@ class AuthFormLayout extends StatelessWidget {
   static const double _maxWidth = 440;
 
   final List<Widget> children;
-  final Widget footer;
+  /// Rests at the bottom of the screen, under the form.
+  final Widget? footer;
 
   const AuthFormLayout({
     super.key,
     required this.children,
-    required this.footer,
+    this.footer,
   });
 
   @override
@@ -31,10 +32,11 @@ class AuthFormLayout extends StatelessWidget {
               children: [
                 ...children,
                 const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.only(top: 16, bottom: 8),
-                  child: footer,
-                ),
+                if (footer case final footer?)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16, bottom: 8),
+                    child: footer,
+                  ),
               ],
             ),
           ),

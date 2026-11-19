@@ -554,7 +554,17 @@ class AppLocalizationsPt extends AppLocalizations {
   String get continueWithGoogle => 'Continuar com Google';
 
   @override
-  String get continueWithFacebook => 'Continuar com Facebook';
+  String get continueWithApple => 'Continuar com Apple';
+
+  @override
+  String get chooseNicknameTitle => 'Como quer ser chamado?';
+
+  @override
+  String get chooseNicknameSubtitle =>
+      'Seu apelido é como as pessoas te encontram no Muuvie.';
+
+  @override
+  String get chooseNicknameButton => 'Continuar';
 
   @override
   String get articleDetailShare => 'Compartilhar artigo';

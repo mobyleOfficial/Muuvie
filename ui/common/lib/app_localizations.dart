@@ -1030,11 +1030,29 @@ abstract class AppLocalizations {
   /// **'Continue with Google'**
   String get continueWithGoogle;
 
-  /// Facebook OAuth login button label
+  /// Sign in with Apple button label
   ///
   /// In en, this message translates to:
-  /// **'Continue with Facebook'**
-  String get continueWithFacebook;
+  /// **'Continue with Apple'**
+  String get continueWithApple;
+
+  /// Title of the screen where a new account picks its nickname
+  ///
+  /// In en, this message translates to:
+  /// **'What should we call you?'**
+  String get chooseNicknameTitle;
+
+  /// Subtitle of the choose-nickname screen
+  ///
+  /// In en, this message translates to:
+  /// **'Your nickname is how people find you on Muuvie.'**
+  String get chooseNicknameSubtitle;
+
+  /// Confirms the nickname a new account picked
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get chooseNicknameButton;
 
   /// Tooltip for the share article action in the AppBar
   ///

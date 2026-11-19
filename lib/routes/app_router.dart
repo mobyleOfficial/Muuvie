@@ -237,7 +237,7 @@ class AppRouter extends RootStackRouter {
       reverseDuration: _animationDuration,
       children: [
         AutoRoute(page: LoginRoute.page, initial: true),
-        AutoRoute(page: SignUpRoute.page),
+        AutoRoute(page: ChooseNicknameRoute.page),
       ],
     ),
   ];

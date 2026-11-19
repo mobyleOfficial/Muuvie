@@ -19,7 +19,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   late final LoginCubit _cubit = LoginCubit(
     loginUseCase: GetIt.I<Login>(),
-    loginWithEmailUseCase: GetIt.I<LoginWithEmail>(),
     isUserAuthenticatedUseCase: GetIt.I<IsUserAuthenticated>(),
   );
 
@@ -34,14 +33,18 @@ class _LoginPageState extends State<LoginPage> {
     value: _cubit,
     child: BlocConsumer<LoginCubit, LoginState>(
       listener: (context, state) {
-        if (state is LoginAuthenticated) {
-          Navigator.of(context, rootNavigator: true).pop(true);
+        switch (state) {
+          case LoginAuthenticated():
+            Navigator.of(context, rootNavigator: true).pop(true);
+          case LoginNeedsNickname(:final suggestedNickname):
+            context.router.replace(
+              ChooseNicknameRoute(suggestedNickname: suggestedNickname),
+            );
+          case LoginLoading() || LoginFormState():
+            break;
         }
       },
-      builder: (context, state) => LoginScreen(
-        state: state,
-        onSignUpTap: () => context.router.push(const SignUpRoute()),
-      ),
+      builder: (context, state) => LoginScreen(state: state),
     ),
   );
 }

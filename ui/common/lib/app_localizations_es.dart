@@ -552,7 +552,17 @@ class AppLocalizationsEs extends AppLocalizations {
   String get continueWithGoogle => 'Continuar con Google';
 
   @override
-  String get continueWithFacebook => 'Continuar con Facebook';
+  String get continueWithApple => 'Continuar con Apple';
+
+  @override
+  String get chooseNicknameTitle => '¿Cómo quieres que te llamemos?';
+
+  @override
+  String get chooseNicknameSubtitle =>
+      'Tu apodo es cómo la gente te encuentra en Muuvie.';
+
+  @override
+  String get chooseNicknameButton => 'Continuar';
 
   @override
   String get articleDetailShare => 'Compartir artículo';

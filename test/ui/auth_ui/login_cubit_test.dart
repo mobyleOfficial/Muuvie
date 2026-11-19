@@ -6,23 +6,16 @@ import 'package:auth_ui/login/login_cubit.dart';
 import 'package:auth_ui/login/login_state.dart';
 
 class MockLoginUseCase extends Login {
-  Result<void>? mockResult;
+  Result<SignInOutcome>? mockResult;
+  OAuthProvider? lastProvider;
 
   MockLoginUseCase() : super(_FakeAuthRepository());
 
   @override
-  Future<Result<void>> call([OAuthProvider? params]) async =>
-      mockResult ?? const Failure(AppError.unknown);
-}
-
-class MockLoginWithEmailUseCase extends LoginWithEmail {
-  Result<void>? mockResult;
-
-  MockLoginWithEmailUseCase() : super(_FakeAuthRepository());
-
-  @override
-  Future<Result<void>> call([LoginWithEmailParams? params]) async =>
-      mockResult ?? const Failure(AppError.unknown);
+  Future<Result<SignInOutcome>> call([OAuthProvider? params]) async {
+    lastProvider = params;
+    return mockResult ?? const Failure(AppError.unknown);
+  }
 }
 
 class MockIsUserAuthenticatedUseCase extends IsUserAuthenticated {
@@ -37,50 +30,27 @@ class MockIsUserAuthenticatedUseCase extends IsUserAuthenticated {
 
 class _FakeAuthRepository implements AuthRepository {
   @override
-  Future<Result<void>> login(OAuthProvider provider) async =>
-      const Failure(AppError.unknown);
-
-  @override
-  Future<Result<void>> loginWithEmail(String email, String password) async =>
-      const Failure(AppError.unknown);
-
-  @override
-  Future<Result<bool>> isUserAuthenticated() async =>
-      const Failure(AppError.unknown);
-
-  @override
-  Future<Result<void>> logout() async => const Success(null);
-
-  @override
-  Stream<void> observeSessionEnded() => const Stream.empty();
-
-  @override
-  Future<Result<void>> signUp(
-    String email,
-    String password,
-    String nickname,
-  ) async => const Failure(AppError.unknown);
-
-  @override
-  Future<Result<bool>> checkNicknameAvailability(String nickname) async =>
-      const Failure(AppError.unknown);
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
 void main() {
   late MockLoginUseCase mockLogin;
-  late MockLoginWithEmailUseCase mockLoginWithEmail;
   late MockIsUserAuthenticatedUseCase mockIsUserAuthenticated;
 
   setUp(() {
     mockLogin = MockLoginUseCase();
-    mockLoginWithEmail = MockLoginWithEmailUseCase();
     mockIsUserAuthenticated = MockIsUserAuthenticatedUseCase();
   });
 
   LoginCubit buildCubit() => LoginCubit(
     loginUseCase: mockLogin,
-    loginWithEmailUseCase: mockLoginWithEmail,
     isUserAuthenticatedUseCase: mockIsUserAuthenticated,
+  );
+
+  Matcher submitting(OAuthProvider provider) => isA<LoginFormState>().having(
+    (s) => s.submittingProvider,
+    'submittingProvider',
+    provider,
   );
 
   group('checkAuthStatus', () {
@@ -115,160 +85,81 @@ void main() {
     );
   });
 
-  group('loginWithEmail', () {
+  group('signIn', () {
     blocTest<LoginCubit, LoginState>(
-      'emits [LoginFormState(submitting), LoginAuthenticated] on success',
+      'an existing account is authenticated',
       build: () {
-        mockLoginWithEmail.mockResult = const Success(null);
+        mockLogin.mockResult = const Success(SignedIn(needsNickname: false));
         return buildCubit();
       },
-      act: (cubit) => cubit.loginWithEmail('test@example.com', 'password123'),
+      act: (cubit) => cubit.signIn(OAuthProvider.google),
       expect: () => [
-        isA<LoginFormState>().having(
-          (s) => s.isSubmitting,
-          'isSubmitting',
-          true,
-        ),
+        submitting(OAuthProvider.google),
         isA<LoginAuthenticated>(),
       ],
+      verify: (_) => expect(mockLogin.lastProvider, OAuthProvider.google),
     );
 
     blocTest<LoginCubit, LoginState>(
-      'emits [LoginFormState(submitting), LoginFormState(loginError)] on failure',
+      'a new account is asked for a nickname, with the suggestion',
       build: () {
-        mockLoginWithEmail.mockResult = const Failure(AppError.unauthorized);
+        mockLogin.mockResult = const Success(
+          SignedIn(needsNickname: true, suggestedNickname: 'Ana'),
+        );
         return buildCubit();
       },
-      act: (cubit) => cubit.loginWithEmail('test@example.com', 'wrongpassword'),
+      act: (cubit) => cubit.signIn(OAuthProvider.apple),
       expect: () => [
-        isA<LoginFormState>().having(
-          (s) => s.isSubmitting,
-          'isSubmitting',
-          true,
-        ),
-        isA<LoginFormState>().having(
-          (s) => s.loginError,
-          'loginError',
-          isNotNull,
+        submitting(OAuthProvider.apple),
+        isA<LoginNeedsNickname>().having(
+          (s) => s.suggestedNickname,
+          'suggestedNickname',
+          'Ana',
         ),
       ],
     );
 
     blocTest<LoginCubit, LoginState>(
-      'emits validation errors for invalid email',
-      build: buildCubit,
-      act: (cubit) => cubit.loginWithEmail('invalid', 'password123'),
-      expect: () => [
-        isA<LoginFormState>().having(
-          (s) => s.emailError,
-          'emailError',
-          isNotNull,
-        ),
-      ],
-    );
-
-    blocTest<LoginCubit, LoginState>(
-      'emits validation errors for short password',
-      build: buildCubit,
-      act: (cubit) => cubit.loginWithEmail('test@example.com', '12345'),
-      expect: () => [
-        isA<LoginFormState>().having(
-          (s) => s.passwordError,
-          'passwordError',
-          isNotNull,
-        ),
-      ],
-    );
-  });
-
-  group('loginWithGoogle', () {
-    blocTest<LoginCubit, LoginState>(
-      'emits [LoginFormState(submitting), LoginAuthenticated] on success',
+      'closing the provider sheet goes back to the buttons without an error',
       build: () {
-        mockLogin.mockResult = const Success(null);
+        mockLogin.mockResult = const Success(SignInCancelled());
         return buildCubit();
       },
-      act: (cubit) => cubit.loginWithGoogle(),
+      act: (cubit) => cubit.signIn(OAuthProvider.apple),
       expect: () => [
-        isA<LoginFormState>().having(
-          (s) => s.isSubmitting,
-          'isSubmitting',
-          true,
-        ),
-        isA<LoginAuthenticated>(),
+        submitting(OAuthProvider.apple),
+        isA<LoginFormState>()
+            .having((s) => s.isSubmitting, 'isSubmitting', false)
+            .having((s) => s.loginError, 'loginError', isNull),
       ],
     );
 
     blocTest<LoginCubit, LoginState>(
-      'emits [LoginFormState(submitting), LoginFormState(loginError)] on failure',
+      'a failure shows the error',
       build: () {
         mockLogin.mockResult = const Failure(AppError.network);
         return buildCubit();
       },
-      act: (cubit) => cubit.loginWithGoogle(),
+      act: (cubit) => cubit.signIn(OAuthProvider.google),
       expect: () => [
-        isA<LoginFormState>().having(
-          (s) => s.isSubmitting,
-          'isSubmitting',
-          true,
-        ),
+        submitting(OAuthProvider.google),
         isA<LoginFormState>().having(
           (s) => s.loginError,
           'loginError',
-          isNotNull,
+          'generic',
         ),
       ],
     );
-  });
 
-  group('loginWithFacebook', () {
     blocTest<LoginCubit, LoginState>(
-      'emits [LoginFormState(submitting), LoginAuthenticated] on success',
+      'a second tap while signing in is ignored',
       build: () {
-        mockLogin.mockResult = const Success(null);
+        mockLogin.mockResult = const Success(SignedIn(needsNickname: false));
         return buildCubit();
       },
-      act: (cubit) => cubit.loginWithFacebook(),
-      expect: () => [
-        isA<LoginFormState>().having(
-          (s) => s.isSubmitting,
-          'isSubmitting',
-          true,
-        ),
-        isA<LoginAuthenticated>(),
-      ],
+      seed: () => const LoginFormState(submittingProvider: OAuthProvider.apple),
+      act: (cubit) => cubit.signIn(OAuthProvider.google),
+      expect: () => const <LoginState>[],
     );
-  });
-
-  group('validation', () {
-    test('validateEmail returns null for valid email', () {
-      final cubit = buildCubit();
-      expect(cubit.validateEmail('test@example.com'), isNull);
-    });
-
-    test('validateEmail returns error for empty email', () {
-      final cubit = buildCubit();
-      expect(cubit.validateEmail(''), 'required');
-    });
-
-    test('validateEmail returns error for invalid email', () {
-      final cubit = buildCubit();
-      expect(cubit.validateEmail('invalid'), 'invalid');
-    });
-
-    test('validatePassword returns null for valid password', () {
-      final cubit = buildCubit();
-      expect(cubit.validatePassword('password123'), isNull);
-    });
-
-    test('validatePassword returns error for empty password', () {
-      final cubit = buildCubit();
-      expect(cubit.validatePassword(''), 'required');
-    });
-
-    test('validatePassword returns error for short password', () {
-      final cubit = buildCubit();
-      expect(cubit.validatePassword('12345'), 'too_short');
-    });
   });
 }

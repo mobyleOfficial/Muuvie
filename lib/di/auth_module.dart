@@ -9,8 +9,15 @@ abstract class AuthModule {
   @lazySingleton
   SecureTokenStorage secureTokenStorage() => SecureTokenStorage();
 
+  // Google client ids come from secrets/.env.dev (--dart-define-from-file): the
+  // web client the ID token is issued for, and the iOS client.
   @lazySingleton
-  OAuthRemoteDataSource oauthRemoteDataSource() => OAuthRemoteDataSourceImpl();
+  SocialSignInDataSource socialSignInDataSource() => SocialSignInDataSourceImpl(
+    googleServerClientId: const String.fromEnvironment(
+      'GOOGLE_SERVER_CLIENT_ID',
+    ),
+    googleIosClientId: const String.fromEnvironment('GOOGLE_IOS_CLIENT_ID'),
+  );
 
   @lazySingleton
   AuthRemoteDataSource authRemoteDataSource(
@@ -23,11 +30,11 @@ abstract class AuthModule {
 
   @lazySingleton
   AuthRepository authRepository(
-    OAuthRemoteDataSource oauthRemoteDataSource,
+    SocialSignInDataSource socialSignInDataSource,
     AuthRemoteDataSource authRemoteDataSource,
     AuthLocalDataSource localDataSource,
   ) => AuthRepositoryImpl(
-    oauthRemoteDataSource,
+    socialSignInDataSource,
     authRemoteDataSource,
     localDataSource,
   );
@@ -36,8 +43,8 @@ abstract class AuthModule {
   Login loginUseCase(AuthRepository repository) => Login(repository);
 
   @injectable
-  LoginWithEmail loginWithEmailUseCase(AuthRepository repository) =>
-      LoginWithEmail(repository);
+  ChooseNickname chooseNicknameUseCase(AuthRepository repository) =>
+      ChooseNickname(repository);
 
   @injectable
   IsUserAuthenticated isUserAuthenticatedUseCase(AuthRepository repository) =>
@@ -53,9 +60,6 @@ abstract class AuthModule {
   @injectable
   ObserveSessionEnded observeSessionEndedUseCase(AuthRepository repository) =>
       ObserveSessionEnded(repository);
-
-  @injectable
-  SignUp signUpUseCase(AuthRepository repository) => SignUp(repository);
 
   @injectable
   CheckNicknameAvailability checkNicknameAvailabilityUseCase(

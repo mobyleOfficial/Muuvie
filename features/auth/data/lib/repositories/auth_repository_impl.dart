@@ -1,79 +1,59 @@
 import 'package:core/core.dart';
 import 'package:injectable/injectable.dart';
 import 'package:auth_domain/models/oauth_provider.dart';
+import 'package:auth_domain/models/sign_in_outcome.dart';
 import 'package:auth_domain/repositories/auth_repository.dart';
-import 'package:auth_data/datasources/oauth_remote_data_source.dart';
+import 'package:auth_data/datasources/social_sign_in_data_source.dart';
 import 'package:auth_data/datasources/remote/auth_remote_data_source.dart';
 import 'package:auth_data/datasources/auth_local_data_source.dart';
+import 'package:auth_data/models/social_credential_model.dart';
 
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
-  final OAuthRemoteDataSource _oauthRemoteDataSource;
+  final SocialSignInDataSource _socialSignInDataSource;
   final AuthRemoteDataSource _authRemoteDataSource;
   final AuthLocalDataSource _localDataSource;
 
   AuthRepositoryImpl(
-    this._oauthRemoteDataSource,
+    this._socialSignInDataSource,
     this._authRemoteDataSource,
     this._localDataSource,
   );
 
   @override
-  Future<Result<void>> login(OAuthProvider provider) async {
-    final providerString = provider == OAuthProvider.google
-        ? 'google'
-        : 'facebook';
-
-    final oauthResult = await _oauthRemoteDataSource.initiateOAuth(
-      providerString,
-    );
-
-    switch (oauthResult) {
+  Future<Result<SignInOutcome>> login(OAuthProvider provider) async {
+    final SocialCredentialModel? credential;
+    switch (await _socialSignInDataSource.signIn(provider)) {
       case Success(:final data):
-        final tokenResult = await _oauthRemoteDataSource.completeOAuth(data);
+        credential = data;
+      case Failure(:final error, :final code):
+        return Failure(error, code: code);
+    }
+    if (credential == null) return const Success(SignInCancelled());
 
-        switch (tokenResult) {
-          case Success(:final data):
-            return _localDataSource.saveToken(data);
-          case Failure(:final error):
-            return Failure(error);
+    final response = await _authRemoteDataSource.signInWithProvider(
+      credential,
+    );
+    switch (response) {
+      case Failure(:final error, :final code):
+        return Failure(error, code: code);
+      case Success(:final data):
+        final saved = await _localDataSource.saveToken(data.toAuthTokenModel());
+        if (saved case Failure(:final error, :final code)) {
+          return Failure(error, code: code);
         }
-      case Failure(:final error):
-        return Failure(error);
+        return Success(
+          SignedIn(
+            needsNickname: data.needsNickname,
+            suggestedNickname: credential.displayName,
+          ),
+        );
     }
   }
 
   @override
-  Future<Result<void>> loginWithEmail(String email, String password) async {
-    final result = await _authRemoteDataSource.login(email, password);
-
-    switch (result) {
-      case Success(:final data):
-        return _localDataSource.saveToken(data);
-      case Failure(:final error):
-        return Failure(error);
-    }
-  }
-
-  @override
-  Future<Result<void>> signUp(
-    String email,
-    String password,
-    String nickname,
-  ) async {
-    final result = await _authRemoteDataSource.signUp(
-      email,
-      password,
-      nickname,
-    );
-
-    switch (result) {
-      case Success(:final data):
-        return _localDataSource.saveToken(data);
-      case Failure(:final error):
-        return Failure(error);
-    }
-  }
+  Future<Result<void>> chooseNickname(String nickname) =>
+      _authRemoteDataSource.chooseNickname(nickname);
 
   @override
   Future<Result<bool>> checkNicknameAvailability(String nickname) =>
@@ -105,6 +85,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
     // Best effort on the server: the local session ends even when offline.
     await _authRemoteDataSource.logout(refreshToken);
+    await _socialSignInDataSource.signOut();
     return _localDataSource.clearToken();
   }
 

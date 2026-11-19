@@ -16,6 +16,7 @@ doc/api/
 
 # dotenv environment variables file
 .env*
+!.env.example
 env
 
 # Generated env xcconfig (contains secrets)
